@@ -38,6 +38,12 @@ async function verifyInitData(initData: string, botToken: string) {
 const FIELDS =
   "id,category,subcategory,store,url,name,color,color_family,price,old_price,composition,materials,image,base,trend,body_types,comment,promo_label,in_stock,sort";
 
+// по умолчанию PostgREST отдаёт максимум 1000 строк — позиций в гайде больше
+async function allItems(sb: any) {
+  const { data, error } = await sb.from("items").select(FIELDS).eq("active", true).order("sort").range(0, 4999);
+  return { data, error };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   if (req.method !== "POST") return json({ error: "method" }, 405);
@@ -51,7 +57,7 @@ Deno.serve(async (req) => {
     const { data: ok } = await sb.rpc("check_preview_token", { t: String(body.preview) });
     if (ok !== true) return json({ error: "forbidden" }, 403);
     if (body.action === "event") return json({ ok: true });
-    const { data, error } = await sb.from("items").select(FIELDS).eq("active", true).order("sort");
+    const { data, error } = await allItems(sb);
     if (error) return json({ error: error.message }, 500);
     return json({ access: true, preview: true, items: data });
   }
@@ -86,7 +92,7 @@ Deno.serve(async (req) => {
   await sb.from("events").insert({ tg_id: user.id, type: access ? "open" : "open_locked", payload: null });
   if (!access) return json({ access: false, pay_url: Deno.env.get("PAY_URL") ?? null });
 
-  const { data, error } = await sb.from("items").select(FIELDS).eq("active", true).order("sort");
+  const { data, error } = await allItems(sb);
   if (error) return json({ error: error.message }, 500);
   return json({ access: true, items: data, user: { first_name: user.first_name ?? "" } });
 });
