@@ -37,18 +37,25 @@ img{display:block;max-width:100%}
 .count{font:600 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:18px 0 12px}
 
 /* home: category tiles */
-.cat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding-top:8px}
-@media (min-width:620px){.cat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.cat-tile{position:relative;aspect-ratio:4/3;border-radius:var(--r-lg);overflow:hidden;border:0;padding:0;cursor:pointer;background:#EEECE8 center/cover no-repeat;display:block;text-align:left;transition:transform .2s}
-.cat-tile:active{transform:scale(.97)}
-.cat-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(27,23,23,0) 40%,rgba(27,23,23,.65) 100%)}
-.cat-tile-name{position:absolute;left:12px;right:12px;bottom:10px;z-index:1;color:#fff;font:600 15px/1.25 var(--sans);letter-spacing:-.01em}
+/* бегущая лента категорий */
+.cat-band{margin:8px -16px 0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.cat-band::-webkit-scrollbar{display:none}
+.cat-grid{display:flex;gap:12px;padding:4px 16px 8px;width:max-content}
+.cat-tile{position:relative;flex:0 0 auto;width:156px;height:196px;border-radius:28px;overflow:hidden;border:0;padding:0;cursor:pointer;background:#EEECE8 center/cover no-repeat;display:block;text-align:left;transition:transform .2s;box-shadow:0 6px 18px rgba(27,23,23,.08)}
+@media (min-width:620px){.cat-tile{width:190px;height:236px}}
+.cat-tile:active{transform:scale(.96)}
+.cat-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(27,23,23,0) 45%,rgba(27,23,23,.7) 100%)}
+.cat-tile-name{position:absolute;left:16px;right:14px;bottom:16px;z-index:1;color:#fff;font:500 22px/1.05 var(--serif);letter-spacing:-.01em}
 
-.store-row-wrap{padding-bottom:10px}
-.store-scroller{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px}
-.store-scroller::-webkit-scrollbar{display:none}
-.store-chip{flex-shrink:0;border:1px solid var(--line);background:var(--card);border-radius:var(--r-md);padding:14px 20px;font:600 13px/1 var(--sans);letter-spacing:.02em;color:var(--ink);cursor:pointer;white-space:nowrap}
+/* плашки магазинов */
+.store-row-wrap{padding-bottom:16px}
+.store-scroller{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:620px){.store-scroller{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.store-chip{border:0;background:var(--card);border-radius:20px;height:72px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;font:600 15px/1.2 var(--sans);letter-spacing:.01em;color:var(--ink);cursor:pointer;text-align:left;box-shadow:0 1px 0 var(--line)}
+.store-chip::after{content:"";width:8px;height:8px;border-top:1.6px solid var(--ink-3);border-right:1.6px solid var(--ink-3);transform:rotate(45deg);flex-shrink:0}
 .store-chip:active{background:var(--fill)}
+.store-chip:nth-child(4n+1){background:var(--ink);color:#fff}
+.store-chip:nth-child(4n+1)::after{border-color:rgba(255,255,255,.7)}
 
 /* browse view */
 .browse-top{display:flex;align-items:center;gap:10px;padding-top:8px}
@@ -172,7 +179,8 @@ footer{padding:10px 0 40px;color:var(--ink-3);font-size:12.5px;text-align:center
 
   <!-- home: category tiles + stores -->
   <section id="home" hidden>
-    <div class="cat-grid" id="catGrid"></div>
+    <div class="count">Категории</div>
+    <div class="cat-band" id="catBand"><div class="cat-grid" id="catGrid"></div></div>
     <div class="store-row-wrap">
       <div class="count">Магазины</div>
       <div class="store-scroller" id="storeScroller"></div>
@@ -362,11 +370,36 @@ function showHome(){ VIEW = "home"; TAB = "shop"; setTabs(); renderHome(); windo
 
 function renderHome(){
   const cats = CATS.filter(c => ITEMS.some(i => i.category === c));
-  $("#catGrid").innerHTML = cats.map(catTile).join("");
+  const tiles = cats.map(catTile).join("");
+  $("#catGrid").innerHTML = tiles + tiles.replace(/<button /g, '<button aria-hidden="true" tabindex="-1" ');
   $("#catGrid").onclick = e => { const b = e.target.closest(".cat-tile"); if(!b) return; openBrowse(b.dataset.c); };
+  startBand();
   const stores = [...new Set(ITEMS.map(i => i.store))].sort();
   $("#storeScroller").innerHTML = stores.map(s => `<button type="button" class="store-chip" data-s="${esc(s)}">${esc(s)}</button>`).join("");
   $("#storeScroller").onclick = e => { const b = e.target.closest(".store-chip"); if(!b) return; openBrowse("all", b.dataset.s); };
+}
+
+// бегущая лента: медленно едет влево, бесконечно (список продублирован),
+// останавливается, пока человек листает пальцем, и продолжает через 3 секунды
+let bandRAF = null, bandPausedUntil = 0, bandPos = 0;
+function startBand(){
+  const band = $("#catBand");
+  if (!band || band.dataset.bound) { bandPos = band ? band.scrollLeft : 0; return; }
+  band.dataset.bound = "1";
+  const pause = () => { bandPausedUntil = performance.now() + 3000; };
+  ["pointerdown","touchstart","wheel"].forEach(ev => band.addEventListener(ev, pause, {passive:true}));
+  band.addEventListener("scroll", () => { if (performance.now() < bandPausedUntil) bandPos = band.scrollLeft; }, {passive:true});
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const step = now => {
+    bandRAF = requestAnimationFrame(step);
+    if (VIEW !== "home" || TAB !== "shop" || now < bandPausedUntil) return;
+    const half = band.scrollWidth / 2;
+    bandPos += 0.45;
+    if (bandPos >= half) bandPos -= half;
+    band.scrollLeft = bandPos;
+    if (band.scrollLeft >= half - 1) { bandPos = 0; band.scrollLeft = 0; }
+  };
+  bandRAF = requestAnimationFrame(step);
 }
 
 const tilePhoto = {};
