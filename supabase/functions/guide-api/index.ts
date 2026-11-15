@@ -38,10 +38,19 @@ async function verifyInitData(initData: string, botToken: string) {
 const FIELDS =
   "id,category,subcategory,store,url,name,color,color_family,price,old_price,composition,materials,image,base,trend,body_types,comment,promo_label,in_stock,sort";
 
-// по умолчанию PostgREST отдаёт максимум 1000 строк — позиций в гайде больше
+// PostgREST жёстко ограничивает один запрос db-max-rows (обычно 1000) строками —
+// в гайде больше позиций, поэтому собираем результат постранично.
 async function allItems(sb: any) {
-  const { data, error } = await sb.from("items").select(FIELDS).eq("active", true).order("sort").range(0, 4999);
-  return { data, error };
+  const page = 1000;
+  const out: any[] = [];
+  for (let from = 0; ; from += page) {
+    const { data, error } = await sb.from("items").select(FIELDS).eq("active", true).order("sort").range(from, from + page - 1);
+    if (error) return { data: null, error };
+    if (!data || !data.length) break;
+    out.push(...data);
+    if (data.length < page) break;
+  }
+  return { data: out, error: null };
 }
 
 Deno.serve(async (req) => {
