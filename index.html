@@ -54,11 +54,9 @@ img{display:block;max-width:100%}
 .store-chip{border:0;background:var(--card);border-radius:20px;height:72px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;gap:8px;font:600 15px/1.2 var(--sans);letter-spacing:.01em;color:var(--ink);cursor:pointer;text-align:left;box-shadow:0 1px 0 var(--line)}
 .store-chip::after{content:"";width:8px;height:8px;border-top:1.6px solid var(--ink-3);border-right:1.6px solid var(--ink-3);transform:rotate(45deg);flex-shrink:0}
 .store-chip:active{background:var(--fill)}
-.store-chip:nth-child(4n+1){background:var(--ink);color:#fff}
-.store-chip:nth-child(4n+1)::after{border-color:rgba(255,255,255,.7)}
-.store-chip.on,.store-chip.on:nth-child(4n+1){background:var(--red);color:#fff}
-.store-chip.on::after{border-color:#fff}
-.cat-tile.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--red)}
+.store-chip.on{background:var(--ink);color:#fff}
+.store-chip.on::after{border-color:rgba(255,255,255,.75)}
+.cat-tile.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--ink)}
 .cat-tile.on .cat-tile-name::before{content:"";display:block;width:8px;height:8px;border-radius:50%;background:#fff;margin-bottom:8px}
 .cat-band{padding-top:4px}
 #results{scroll-margin-top:12px}
