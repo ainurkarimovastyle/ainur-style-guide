@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Гайд по покупкам · Айнур Каримова</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#F4F3EF; --card:#FFFFFF; --ink:#1B1717; --ink-2:#5E5856; --ink-3:#8F8784;
+  --line:rgba(27,23,23,.09); --fill:#ECEAE4; --red:#810100; --red-soft:#F4E6E4;
+  --r-lg:22px; --r-md:14px;
+  --serif:"Cormorant Garamond","Times New Roman",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+body{padding-bottom:env(safe-area-inset-bottom,0px);overscroll-behavior-y:none}
+button{font:inherit;color:inherit}
+img{display:block;max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px}
+[hidden]{display:none!important}
+
+/* hero */
+.hero{padding:22px 0 14px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.eyebrow{font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+h1{font:500 clamp(36px,9vw,64px)/.95 var(--serif);margin:10px 0 8px;letter-spacing:-.01em}
+h1 i{color:var(--red)}
+.lead{margin:0;color:var(--ink-2);font-size:15px;max-width:52ch}
+.avatar{flex-shrink:0;width:72px;aspect-ratio:1;border-radius:50%;padding:3px;background:var(--card);box-shadow:0 0 0 2px var(--red),0 6px 18px rgba(27,23,23,.12);overflow:hidden}
+.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.avatar span{display:flex;width:100%;height:100%;border-radius:50%;align-items:center;justify-content:center;font:500 30px/1 var(--serif);color:var(--red);background:var(--red-soft)}
+
+/* sticky controls */
+.bar{position:sticky;top:0;z-index:20;background:rgba(244,243,239,.88);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line)}
+.scroller{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 16px;margin:0 -16px}
+.scroller::-webkit-scrollbar{display:none}
+.seg{display:inline-flex;gap:3px;background:var(--fill);border-radius:999px;padding:3px;flex-shrink:0}
+.seg button{border:0;background:none;font:500 14px/1 var(--sans);color:var(--ink-2);padding:9px 14px;border-radius:999px;white-space:nowrap;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--red);box-shadow:0 1px 3px rgba(27,23,23,.12)}
+.tools{display:flex;gap:8px;align-items:center;padding:0 0 10px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 13px;font:500 13px/1 var(--sans);color:var(--ink-2);white-space:nowrap;cursor:pointer;flex-shrink:0}
+.chip.on{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+.chip .x{margin-left:6px;opacity:.7}
+.btn-filter{display:inline-flex;align-items:center;gap:7px;border:0;background:var(--ink);color:#fff;border-radius:999px;padding:9px 14px;font:600 13px/1 var(--sans);cursor:pointer;flex-shrink:0}
+.btn-filter b{background:var(--red);border-radius:999px;min-width:18px;height:18px;padding:0 5px;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.sort{margin-left:auto;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 12px;font:500 13px/1 var(--sans);color:var(--ink-2);appearance:none;-webkit-appearance:none;cursor:pointer}
+.subs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 16px 10px;margin:0 -16px}
+.subs::-webkit-scrollbar{display:none}
+.active-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 16px 10px;margin:0 -16px}
+.active-row::-webkit-scrollbar{display:none}
+
+.count{font:600 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:16px 0 12px}
+
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding-bottom:28px}
+@media (max-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:620px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+.card{background:var(--card);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid transparent;cursor:pointer;text-align:left;padding:0;transition:border-color .2s,transform .2s}
+.card:active{transform:scale(.985)}
+@media (hover:hover){.card:hover{border-color:var(--red);transform:translateY(-2px)}}
+.pic{position:relative;aspect-ratio:3/4;background:#EEECE8;overflow:hidden}
+.pic img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.pic img.ok{opacity:1}
+.badges{position:absolute;left:8px;top:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.badge{font:600 10px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:999px;background:rgba(255,255,255,.92);color:var(--ink)}
+.badge.sale{background:var(--red);color:#fff}
+.badge.trend{color:var(--red)}
+.card .body{padding:11px 12px 13px;display:flex;flex-direction:column;gap:3px;flex:1}
+.store{font:600 10.5px/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.card h3{font:600 14px/1.3 var(--sans);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.col{font-size:12.5px;color:var(--ink-3)}
+.row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+.price{font:600 15px/1 var(--sans);color:var(--red);font-variant-numeric:tabular-nums}
+.old{font-size:12px;color:var(--ink-3);text-decoration:line-through;font-variant-numeric:tabular-nums}
+
+/* empty / states */
+.state{text-align:center;padding:60px 20px;color:var(--ink-2)}
+.state h2{font:500 32px/1.05 var(--serif);margin:0 0 10px;color:var(--ink)}
+.state p{margin:0 auto 18px;max-width:40ch}
+.cta{display:inline-block;border:0;background:var(--red);color:#fff;border-radius:999px;padding:13px 22px;font:600 15px/1 var(--sans);text-decoration:none;cursor:pointer}
+.ghost{display:inline-block;border:1px solid var(--line);background:var(--card);color:var(--ink-2);border-radius:999px;padding:11px 18px;font:500 14px/1 var(--sans);cursor:pointer}
+.skel{background:linear-gradient(90deg,#ECEAE4 0,#F4F3EF 50%,#ECEAE4 100%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* sheets */
+.veil{position:fixed;inset:0;background:rgba(27,23,23,.35);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
+.veil.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--bg);border-radius:22px 22px 0 0;max-height:88vh;display:flex;flex-direction:column;transform:translateY(102%);transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 40px rgba(27,23,23,.15)}
+.sheet.on{transform:none}
+@media (min-width:760px){.sheet{left:50%;width:560px;margin-left:-280px}}
+.grab{width:38px;height:5px;border-radius:9px;background:rgba(27,23,23,.18);margin:8px auto 2px}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 10px}
+.sheet-h h2{font:500 28px/1 var(--serif);margin:0}
+.link{border:0;background:none;color:var(--red);font:500 14px/1 var(--sans);cursor:pointer;padding:8px 0}
+.sheet-b{overflow-y:auto;padding:4px 18px 16px;-webkit-overflow-scrolling:touch}
+.fgroup{padding:14px 0;border-top:1px solid var(--line)}
+.fgroup:first-child{border-top:0}
+.fgroup h4{font:600 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts .chip small{color:var(--ink-3);margin-left:4px;font-weight:500}
+.opts .chip.on small{color:var(--red)}
+.opts .chip[disabled]{opacity:.4;cursor:default}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0}
+.sw{position:relative;width:46px;height:28px;border-radius:999px;background:var(--fill);border:0;cursor:pointer;transition:background .2s;flex-shrink:0}
+.sw::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.sw.on{background:var(--red)}
+.sw.on::after{transform:translateX(18px)}
+.sheet-f{padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--bg)}
+.sheet-f .cta{width:100%;text-align:center}
+
+/* item detail */
+.detail .pic{aspect-ratio:3/4;border-radius:var(--r-lg);max-height:52vh;margin:0 auto;width:auto}
+.detail .pic img{opacity:1}
+.d-store{margin-top:14px}
+.d-name{font:600 19px/1.3 var(--sans);margin:4px 0 2px}
+.d-price{display:flex;align-items:baseline;gap:8px;margin:10px 0}
+.d-price .price{font-size:20px}
+.facts{background:var(--card);border-radius:var(--r-md);padding:4px 14px;margin:12px 0}
+.facts div{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.facts div:first-child{border-top:0}
+.facts b{min-width:92px;font-weight:600;color:var(--ink)}
+.facts span{color:var(--ink-2)}
+.note{background:var(--red-soft);border-radius:var(--r-md);padding:12px 14px;font-size:14.5px;margin:12px 0}
+.note b{color:var(--red)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font:600 11px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--red);background:var(--red-soft);padding:6px 9px;border-radius:999px}
+.fine{font-size:12px;color:var(--ink-3);margin:14px 0 0}
+
+footer{padding:10px 0 40px;color:var(--ink-3);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <div class="eyebrow" id="eyebrow">Гайд по покупкам · Астана</div>
+      <h1>Готовый <i>гардероб</i></h1>
+      <p class="lead" id="lead">Вещи из магазинов Астаны, которые я отобрала для этого сезона. Фильтруйте по категории, цене, составу и цвету.</p>
+    </div>
+    <div class="avatar" aria-hidden="true"><span>А</span></div>
+  </div>
+</div>
+
+<div class="bar" id="bar" hidden>
+  <div class="wrap">
+    <div class="scroller"><div class="seg" id="cats"></div></div>
+    <div class="subs" id="subs"></div>
+    <div class="tools">
+      <button class="btn-filter" id="openFilters" type="button">Фильтры <b id="fcount" hidden>0</b></button>
+      <select class="sort" id="sort" aria-label="Сортировка">
+        <option value="def">По подборке</option>
+        <option value="asc">Сначала дешевле</option>
+        <option value="desc">Сначала дороже</option>
+        <option value="sale">Сначала скидки</option>
+      </select>
+    </div>
+    <div class="active-row" id="activeRow" hidden></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div id="state"></div>
+  <div class="count" id="count" hidden></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer class="wrap" id="foot" hidden>Цены и наличие указаны на момент подборки и могут меняться. Фото — с сайтов магазинов.</footer>
+
+<div class="veil" id="veil"></div>
+
+<section class="sheet" id="fsheet" aria-label="Фильтры" aria-hidden="true">
+  <div class="grab"></div>
+  <div class="sheet-h"><h2>Фильтры</h2><button class="link" id="reset" type="button">Сбросить</button></div>
+  <div class="sheet-b" id="fbody"></div>
+  <div class="sheet-f"><button class="cta" id="apply" type="button">Показать</button></div>
+</section>
+
+<section class="sheet detail" id="dsheet" aria-label="Карточка вещи" aria-hidden="true">
+  <div class="grab"></div>
+  <div class="sheet-b" id="dbody"></div>
+  <div class="sheet-f"><button class="cta" id="goStore" type="button">Открыть в магазине ↗</button></div>
+</section>
+
+<script>
+const CONFIG = {
+  api: "https://zafgwbfgutlbudqevpal.supabase.co/functions/v1/guide-api",
+};
+
+const CATS = ["Верха","Низы","Верхняя одежда","Платья","Обувь","Сумки","Аксессуары","Головные уборы"];
+const BODY = {hourglass:"Песочные часы",pear:"Груша",apple:"Яблоко",rectangle:"Прямоугольник",inv_triangle:"Перевёрнутый треугольник"};
+const PRICES = [
+  {k:"p1",t:"до 20 000 ₸",min:0,max:20000},
+  {k:"p2",t:"20–40 000 ₸",min:20000,max:40000},
+  {k:"p3",t:"40–70 000 ₸",min:40000,max:70000},
+  {k:"p4",t:"70–120 000 ₸",min:70000,max:120000},
+  {k:"p5",t:"от 120 000 ₸",min:120000,max:Infinity},
+];
+const COLOR_DOT = {"Чёрный":"#1B1717","Белый и молочный":"#F3EFE6","Бежевый":"#D6C2A3","Коричневый":"#6B4A33","Серый":"#9A9895","Синий и голубой":"#2E4E86","Красный и бордо":"#8E1B22","Зелёный и хаки":"#5E6B3A","Розовый":"#D9A1AE","Фиолетовый":"#6A3E7B","Жёлтый и оранжевый":"#D49A2A","Металлик":"linear-gradient(135deg,#C9B37E,#EDE3C7,#B0B3B8)","Принт":"conic-gradient(#8E1B22,#D49A2A,#2E4E86,#5E6B3A,#8E1B22)"};
+
+const tg = window.Telegram && Telegram.WebApp && Telegram.WebApp.initData ? Telegram.WebApp : null;
+const qs = new URLSearchParams(location.search);
+const previewToken = qs.get("preview");
+
+let ITEMS = [];
+const S = {cat:"all", sub:null, sort:"def", stores:new Set(), prices:new Set(), body:new Set(), mats:new Set(), colors:new Set(), base:false, trend:false, sale:false};
+let draft = null;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => n == null ? "" : n.toLocaleString("ru-RU").replace(/,/g," ") + " ₸";
+const plural = (n,a,b,c) => {const m=n%10,h=n%100; return n+" "+(m===1&&h!==11?a:(m>=2&&m<=4&&(h<12||h>14))?b:c);};
+
+async function api(body){
+  const payload = previewToken ? {preview:previewToken, ...body} : {initData: tg ? tg.initData : "", ...body};
+  const r = await fetch(CONFIG.api,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  let j = null; try { j = await r.json(); } catch(e) {}
+  return {status:r.status, data:j};
+}
+let evQueue = [];
+function track(type,payload){ if(!tg && !previewToken) return; api({action:"event",type,payload}).catch(()=>{}); }
+const trackDebounced = (()=>{let t; return (type,payload)=>{clearTimeout(t); t=setTimeout(()=>track(type,payload),1200);};})();
+
+function setState(html){ $("#state").innerHTML = html; }
+
+function skeleton(){
+  $("#grid").innerHTML = Array.from({length:6},()=>`<div class="card"><div class="pic skel"></div><div class="body"><div class="skel" style="height:10px;width:40%;border-radius:6px"></div><div class="skel" style="height:14px;width:85%;border-radius:6px;margin-top:6px"></div><div class="skel" style="height:14px;width:30%;border-radius:6px;margin-top:14px"></div></div></div>`).join("");
+}
+
+async function boot(){
+  if (tg){ tg.ready(); tg.expand(); try{ tg.setHeaderColor("#F4F3EF"); tg.setBackgroundColor("#F4F3EF"); tg.disableVerticalSwipes && tg.disableVerticalSwipes(); }catch(e){} }
+  if (!tg && !previewToken){
+    setState(`<div class="state"><h2>Откройте гайд в Telegram</h2><p>Гайд работает внутри Telegram. Вернитесь в бот и нажмите кнопку «Открыть гайд».</p></div>`);
+    return;
+  }
+  skeleton();
+  let res;
+  try { res = await api({action:"items"}); } catch(e){ res = {status:0}; }
+  $("#grid").innerHTML = "";
+  if (res.status === 200 && res.data && res.data.access){
+    ITEMS = res.data.items || [];
+    if (res.data.user && res.data.user.first_name) $("#eyebrow").textContent = res.data.user.first_name + ", ваш гайд · Астана";
+    initUI(); render();
+    return;
+  }
+  if (res.status === 200 && res.data && res.data.access === false){
+    const pay = res.data.pay_url;
+    setState(`<div class="state"><h2>Гайд откроется после оплаты</h2><p>Доступ привязан к вашему аккаунту Telegram. После оплаты вернитесь сюда, и подборка откроется.</p>${pay?`<button class="cta" id="payBtn" type="button">Оплатить доступ</button>`:""}</div>`);
+    const b = $("#payBtn"); if (b) b.onclick = () => tg ? tg.openTelegramLink(pay) : location.assign(pay);
+    return;
+  }
+  setState(`<div class="state"><h2>Не получилось загрузить</h2><p>Проверьте интернет и попробуйте ещё раз.</p><button class="ghost" type="button" onclick="location.reload()">Обновить</button></div>`);
+}
+
+function initUI(){
+  $("#bar").hidden = false; $("#foot").hidden = false;
+  const cats = ["all", ...CATS.filter(c => ITEMS.some(i => i.category === c))];
+  $("#cats").innerHTML = cats.map(c => `<button type="button" data-c="${esc(c)}">${c==="all"?"Все":esc(c)}</button>`).join("");
+  $("#cats").onclick = e => { const b = e.target.closest("button"); if(!b) return; S.cat = b.dataset.c; S.sub = null; render(); scrollTop(); track("category",{c:S.cat}); };
+  $("#subs").onclick = e => { const b = e.target.closest("button"); if(!b) return; S.sub = S.sub === b.dataset.s ? null : b.dataset.s; render(); scrollTop(); };
+  $("#sort").onchange = e => { S.sort = e.target.value; render(); track("sort",{s:S.sort}); };
+  $("#openFilters").onclick = openFilters;
+  $("#veil").onclick = closeSheets;
+  $("#reset").onclick = () => { draft = blank(); drawFilters(); };
+  $("#apply").onclick = () => { Object.assign(S, draft); closeSheets(); render(); scrollTop(); track("filters", serialize()); };
+  $("#activeRow").onclick = e => { const b = e.target.closest("button"); if(!b) return; removeActive(b.dataset.k, b.dataset.v); };
+  $("#grid").onclick = e => { const c = e.target.closest(".card"); if(!c) return; openDetail(+c.dataset.id); };
+  if (tg){ tg.BackButton.onClick(closeSheets); }
+}
+
+function scrollTop(){ const y = $("#bar").offsetTop; if (window.scrollY > y) window.scrollTo({top:y}); }
+function blank(){ return {stores:new Set(), prices:new Set(), body:new Set(), mats:new Set(), colors:new Set(), base:false, trend:false, sale:false}; }
+function copyFilters(){ return {stores:new Set(S.stores), prices:new Set(S.prices), body:new Set(S.body), mats:new Set(S.mats), colors:new Set(S.colors), base:S.base, trend:S.trend, sale:S.sale}; }
+function serialize(){ return {cat:S.cat, sub:S.sub, stores:[...S.stores], prices:[...S.prices], body:[...S.body], mats:[...S.mats], colors:[...S.colors], base:S.base, trend:S.trend, sale:S.sale}; }
+
+function matches(i, F, skip){
+  if (S.cat !== "all" && i.category !== S.cat) return false;
+  if (S.sub && i.subcategory !== S.sub) return false;
+  if (skip!=="stores" && F.stores.size && !F.stores.has(i.store)) return false;
+  if (skip!=="prices" && F.prices.size && ![...F.prices].some(k => {const p=PRICES.find(x=>x.k===k); return i.price>=p.min && i.price<p.max;})) return false;
+  if (skip!=="body" && F.body.size && !(i.body_types||[]).some(b => F.body.has(b))) return false;
+  if (skip!=="mats" && F.mats.size && !(i.materials||[]).some(m => F.mats.has(m))) return false;
+  if (skip!=="colors" && F.colors.size && !F.colors.has(i.color_family)) return false;
+  if (F.base && F.trend) { if (!(i.base || i.trend)) return false; }
+  else { if (F.base && !i.base) return false; if (F.trend && !i.trend) return false; }
+  if (F.sale && !i.old_price) return false;
+  return true;
+}
+
+function list(){
+  const out = ITEMS.filter(i => matches(i, S));
+  if (S.sort === "asc") out.sort((a,b) => (a.price??1e12)-(b.price??1e12));
+  else if (S.sort === "desc") out.sort((a,b) => (b.price??0)-(a.price??0));
+  else if (S.sort === "sale") out.sort((a,b) => (b.old_price?1:0)-(a.old_price?1:0) || a.sort-b.sort);
+  return out;
+}
+
+function activeCount(F){ return F.stores.size+F.prices.size+F.body.size+F.mats.size+F.colors.size+(F.base?1:0)+(F.trend?1:0)+(F.sale?1:0); }
+
+function render(){
+  document.querySelectorAll("#cats button").forEach(b => b.classList.toggle("on", b.dataset.c === S.cat));
+  // подкатегории
+  const subs = S.cat === "all" ? [] : [...new Set(ITEMS.filter(i => i.category === S.cat && i.subcategory).map(i => i.subcategory))];
+  $("#subs").hidden = subs.length < 2;
+  $("#subs").innerHTML = subs.map(s => `<button type="button" class="chip${S.sub===s?" on":""}" data-s="${esc(s)}">${esc(s)}</button>`).join("");
+  // активные фильтры
+  const act = [];
+  S.stores.forEach(v => act.push(["stores",v,v]));
+  S.prices.forEach(v => act.push(["prices",v,PRICES.find(p=>p.k===v).t]));
+  S.body.forEach(v => act.push(["body",v,BODY[v]]));
+  S.mats.forEach(v => act.push(["mats",v,v]));
+  S.colors.forEach(v => act.push(["colors",v,v]));
+  if (S.base) act.push(["base","1","База"]);
+  if (S.trend) act.push(["trend","1","Тренд"]);
+  if (S.sale) act.push(["sale","1","Со скидкой"]);
+  $("#activeRow").hidden = !act.length;
+  $("#activeRow").innerHTML = act.map(([k,v,t]) => `<button type="button" class="chip on" data-k="${k}" data-v="${esc(v)}">${esc(t)}<span class="x">×</span></button>`).join("");
+  const n = activeCount(S); $("#fcount").hidden = !n; $("#fcount").textContent = n;
+
+  const L = list();
+  $("#count").hidden = false;
+  $("#count").textContent = plural(L.length,"вещь","вещи","вещей");
+  setState(L.length ? "" : `<div class="state"><h2>Ничего не нашлось</h2><p>Попробуйте убрать часть фильтров.</p><button class="ghost" type="button" id="clearAll">Сбросить фильтры</button></div>`);
+  const ca = $("#clearAll"); if (ca) ca.onclick = () => { Object.assign(S, blank()); S.sub = null; render(); };
+  $("#grid").innerHTML = L.map(card).join("");
+  $("#grid").querySelectorAll("img").forEach(img => { if (img.complete && img.naturalWidth) img.classList.add("ok"); img.onload = () => img.classList.add("ok"); img.onerror = () => { img.closest(".pic").classList.add("noimg"); }; });
+}
+
+function card(i){
+  const badges = [];
+  if (i.promo_label) badges.push(`<span class="badge sale">${esc(i.promo_label)}</span>`);
+  if (i.trend) badges.push(`<span class="badge trend">Тренд</span>`);
+  if (i.base) badges.push(`<span class="badge">База</span>`);
+  return `<button type="button" class="card" data-id="${i.id}">
+    <div class="pic"><img alt="${esc(i.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" src="${esc(i.image)}">${badges.length?`<div class="badges">${badges.join("")}</div>`:""}</div>
+    <div class="body"><span class="store">${esc(i.store)}</span><h3>${esc(i.name)}</h3>${i.color?`<span class="col">${esc(i.color)}</span>`:""}
+    <div class="row"><span class="price">${money(i.price)}</span>${i.old_price?`<span class="old">${money(i.old_price)}</span>`:""}</div></div></button>`;
+}
+
+function removeActive(k,v){
+  if (["base","trend","sale"].includes(k)) S[k] = false; else S[k].delete(v);
+  render(); track("filters", serialize());
+}
+
+/* --- filters sheet --- */
+function openFilters(){ draft = copyFilters(); drawFilters(); openSheet("#fsheet"); track("open_filters"); }
+function opt(group,value,label,count,on,dot){
+  return `<button type="button" class="chip${on?" on":""}" data-g="${group}" data-v="${esc(value)}"${count===0&&!on?" disabled":""}>${dot?`<span style="display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:${dot};box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)"></span>`:""}${esc(label)}<small>${count}</small></button>`;
+}
+function drawFilters(){
+  const cnt = (skip, pred) => ITEMS.filter(i => matches(i, draft, skip) && pred(i)).length;
+  const stores = [...new Set(ITEMS.map(i => i.store))].sort();
+  const mats = ["Кашемир","Шерсть","Шёлк","Хлопок","Лён","Вискоза","Кожа и замша","Синтетика","Металл"].filter(m => ITEMS.some(i => (i.materials||[]).includes(m)));
+  const colors = Object.keys(COLOR_DOT).filter(c => ITEMS.some(i => i.color_family === c));
+  const hasBody = ITEMS.some(i => (i.body_types||[]).length);
+  const hasBase = ITEMS.some(i => i.base), hasTrend = ITEMS.some(i => i.trend), hasSale = ITEMS.some(i => i.old_price);
+  let h = "";
+  if (hasBody) h += `<div class="fgroup"><h4>Тип фигуры</h4><div class="opts">${Object.entries(BODY).map(([k,t]) => opt("body",k,t,cnt("body",i=>(i.body_types||[]).includes(k)),draft.body.has(k))).join("")}</div></div>`;
+  h += `<div class="fgroup"><h4>Цена</h4><div class="opts">${PRICES.map(p => opt("prices",p.k,p.t,cnt("prices",i=>i.price>=p.min&&i.price<p.max),draft.prices.has(p.k))).join("")}</div></div>`;
+  h += `<div class="fgroup"><h4>Магазин</h4><div class="opts">${stores.map(s => opt("stores",s,s,cnt("stores",i=>i.store===s),draft.stores.has(s))).join("")}</div></div>`;
+  h += `<div class="fgroup"><h4>Состав</h4><div class="opts">${mats.map(m => opt("mats",m,m,cnt("mats",i=>(i.materials||[]).includes(m)),draft.mats.has(m))).join("")}</div></div>`;
+  h += `<div class="fgroup"><h4>Цвет</h4><div class="opts">${colors.map(c => opt("colors",c,c,cnt("colors",i=>i.color_family===c),draft.colors.has(c),COLOR_DOT[c])).join("")}</div></div>`;
+  const tog = (k,label) => `<div class="toggle"><span>${label}</span><button type="button" class="sw${draft[k]?" on":""}" data-t="${k}" aria-pressed="${draft[k]}" aria-label="${label}"></button></div>`;
+  let t = "";
+  if (hasBase) t += tog("base","База гардероба");
+  if (hasTrend) t += tog("trend","Тренды сезона");
+  if (hasSale) t += tog("sale","Только со скидкой");
+  if (t) h += `<div class="fgroup"><h4>Подборка</h4>${t}</div>`;
+  $("#fbody").innerHTML = h;
+  const total = ITEMS.filter(i => matches(i, draft)).length;
+  $("#apply").textContent = total ? "Показать " + plural(total,"вещь","вещи","вещей") : "Ничего не найдено";
+  $("#fbody").onclick = e => {
+    const c = e.target.closest(".chip[data-g]");
+    if (c && !c.disabled){ const set = draft[c.dataset.g]; set.has(c.dataset.v) ? set.delete(c.dataset.v) : set.add(c.dataset.v); haptic(); drawFilters(); return; }
+    const s = e.target.closest(".sw"); if (s){ draft[s.dataset.t] = !draft[s.dataset.t]; haptic(); drawFilters(); }
+  };
+}
+
+/* --- detail sheet --- */
+let current = null;
+function openDetail(id){
+  const i = ITEMS.find(x => x.id === id); if (!i) return;
+  current = i;
+  const facts = [];
+  if (i.color) facts.push(["Цвет", i.color]);
+  if (i.composition) facts.push(["Состав", i.composition]);
+  if ((i.body_types||[]).length) facts.push(["Фигура", i.body_types.map(b => BODY[b]).join(", ")]);
+  const tags = [i.trend&&"Тренд", i.base&&"База", i.promo_label&&("Скидка "+i.promo_label)].filter(Boolean);
+  $("#dbody").innerHTML = `
+    <div class="pic"><img alt="${esc(i.name)}" referrerpolicy="no-referrer" src="${esc(i.image)}"></div>
+    <div class="store d-store">${esc(i.store)} · ${esc(i.subcategory || i.category)}</div>
+    <div class="d-name">${esc(i.name)}</div>
+    <div class="d-price"><span class="price">${money(i.price)}</span>${i.old_price?`<span class="old">${money(i.old_price)}</span>`:""}</div>
+    ${tags.length?`<div class="tags">${tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
+    ${i.comment?`<div class="note"><b>Комментарий стилиста.</b> ${esc(i.comment)}</div>`:""}
+    ${facts.length?`<div class="facts">${facts.map(([k,v]) => `<div><b>${k}</b><span>${esc(v)}</span></div>`).join("")}</div>`:""}
+    <p class="fine">Цена и наличие — на момент подборки, на сайте магазина могут отличаться.</p>`;
+  openSheet("#dsheet");
+  track("item_open",{id:i.id});
+}
+$("#goStore").onclick = () => {
+  if (!current) return;
+  track("store_click",{id:current.id, store:current.store});
+  if (tg) tg.openLink(current.url); else window.open(current.url, "_blank", "noopener");
+};
+
+function openSheet(sel){
+  closeSheets(true);
+  $("#veil").classList.add("on"); $(sel).classList.add("on"); $(sel).setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
+  if (tg) tg.BackButton.show();
+}
+function closeSheets(silent){
+  document.querySelectorAll(".sheet.on").forEach(s => { s.classList.remove("on"); s.setAttribute("aria-hidden","true"); });
+  $("#veil").classList.remove("on");
+  document.body.style.overflow = "";
+  if (tg && silent !== true) tg.BackButton.hide();
+}
+function haptic(){ try{ tg && tg.HapticFeedback.selectionChanged(); }catch(e){} }
+
+boot();
+</script>
+</body>
+</html>
