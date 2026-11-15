@@ -77,9 +77,9 @@ const MATERIALS: [string, RegExp][] = [
 
 function mainComposition(cm: string) {
   // первая часть состава без подкладки и прочих зон
-  const parts = cm.split(/;|,(?=\s*(подкладка|подклад|пояс|воротник|аппликация|кайма|наполнитель|стелька|подошва|отделка)\b)/i);
+  const parts = cm.split(/;|[,.](?=\s*(основная ткань 2|подкладка|подклад|пояс|воротник|аппликация|кайма|наполнитель|стелька|подошва|отделка)(?![а-яё]))/i);
   let main = parts[0] ?? "";
-  if (!cm.includes(":")) main = cm.split(/;|,(?=\s*(подкладка|подклад)\b)/i).filter((p) => !/подклад/i.test(p)).join(", ");
+  if (!cm.includes(":")) main = cm.split(/;|[,.](?=\s*(подкладка|подклад))/i).filter((p) => !/подклад/i.test(p)).join(", ");
   main = main.replace(/^(состав|внешняя часть|основная ткань|покрой|верх)\s*:\s*/i, "");
   return main;
 }
@@ -92,10 +92,9 @@ function materials(cm: string): string[] {
   for (const c of comps) {
     const pct = Number((c.match(/(\d{1,3})\s*%/) || [])[1] ?? (comps.length === 1 ? 100 : 0));
     for (const [name, re] of MATERIALS) {
-      if (re.test(c) && (pct >= 15 || name === "Кожа и замша")) out.add(name);
+      if (re.test(c) && pct >= 15 && !(name === "Кожа и замша" && /искусст/.test(c))) out.add(name);
     }
   }
-  if (/искусственн/.test(main)) out.delete("Кожа и замша");
   return [...out];
 }
 
