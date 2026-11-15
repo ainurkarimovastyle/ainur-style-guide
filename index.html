@@ -56,6 +56,12 @@ img{display:block;max-width:100%}
 .store-chip:active{background:var(--fill)}
 .store-chip:nth-child(4n+1){background:var(--ink);color:#fff}
 .store-chip:nth-child(4n+1)::after{border-color:rgba(255,255,255,.7)}
+.store-chip.on,.store-chip.on:nth-child(4n+1){background:var(--red);color:#fff}
+.store-chip.on::after{border-color:#fff}
+.cat-tile.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--red)}
+.cat-tile.on .cat-tile-name::before{content:"";display:block;width:8px;height:8px;border-radius:50%;background:#fff;margin-bottom:8px}
+.cat-band{padding-top:4px}
+#results{scroll-margin-top:12px}
 
 /* browse view */
 .browse-top{display:flex;align-items:center;gap:10px;padding-top:8px}
@@ -177,7 +183,7 @@ footer{padding:10px 0 40px;color:var(--ink-3);font-size:12.5px;text-align:center
 <main class="wrap" id="appMain">
   <div id="state"></div>
 
-  <!-- home: category tiles + stores -->
+  <!-- главная: лента категорий, магазины и товары на одной странице -->
   <section id="home" hidden>
     <div class="count">Категории</div>
     <div class="cat-band" id="catBand"><div class="cat-grid" id="catGrid"></div></div>
@@ -185,26 +191,12 @@ footer{padding:10px 0 40px;color:var(--ink-3);font-size:12.5px;text-align:center
       <div class="count">Магазины</div>
       <div class="store-scroller" id="storeScroller"></div>
     </div>
-  </section>
-
-  <!-- browse: items grid for a category / store -->
-  <section id="browse" hidden>
-    <div class="browse-top">
-      <button class="back" id="backHome" type="button">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-        Категории
-      </button>
-      <select class="sort" id="sort" aria-label="Сортировка" hidden>
-        <option value="def">По подборке</option>
-        <option value="asc">Сначала дешевле</option>
-        <option value="desc">Сначала дороже</option>
-        <option value="sale">Сначала скидки</option>
-      </select>
+    <div id="results">
+      <div class="count" id="count"></div>
+      <div class="subs" id="subs"></div>
+      <div class="active-row" id="activeRow" hidden></div>
+      <div class="grid" id="grid"></div>
     </div>
-    <div class="subs" id="subs"></div>
-    <div class="active-row" id="activeRow" hidden></div>
-    <div class="count" id="count" hidden></div>
-    <div class="grid" id="grid"></div>
   </section>
 
   <!-- wishlist -->
@@ -276,13 +268,12 @@ const previewToken = qs.get("preview");
 let ITEMS = [];
 const S = {cat:"all", sub:null, sort:"def", stores:new Set(), prices:new Set(), body:new Set(), mats:new Set(), colors:new Set(), base:false, trend:false, sale:false};
 let draft = null;
-let VIEW = "home"; // home | browse
 let TAB = "shop"; // shop | list
 
 let WISH = new Set();
 try { WISH = new Set(JSON.parse(localStorage.getItem("ainur_guide_wish") || "[]")); } catch(e){}
 function saveWish(){ try { localStorage.setItem("ainur_guide_wish", JSON.stringify([...WISH])); } catch(e){} }
-function toggleWish(id){ WISH.has(id) ? WISH.delete(id) : WISH.add(id); saveWish(); updateWishUI(); }
+function toggleWish(id){ WISH.has(id) ? WISH.delete(id) : WISH.add(id); saveWish(); updateWishUI(); const n = WISH.size, b = document.getElementById("lcount"); b.hidden = !n; b.textContent = n; }
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -332,19 +323,17 @@ async function boot(){
 }
 
 function initUI(){
-  $("#backHome").onclick = () => showHome();
   $("#subs").onclick = e => { const b = e.target.closest("button"); if(!b) return; S.sub = S.sub === b.dataset.s ? null : b.dataset.s; renderBrowse(); };
-  $("#sort").onchange = e => { S.sort = e.target.value; renderBrowse(); track("sort",{s:S.sort}); };
   $("#veil").onclick = closeSheets;
   $("#reset").onclick = () => { draft = blank(); drawFilters(); };
-  $("#apply").onclick = () => { Object.assign(S, draft); closeSheets(); renderBrowse(); track("filters", serialize()); };
+  $("#apply").onclick = () => { Object.assign(S, draft); closeSheets(); renderBrowse(); markSelection(); track("filters", serialize()); };
   $("#activeRow").onclick = e => { const b = e.target.closest("button"); if(!b) return; removeActive(b.dataset.k, b.dataset.v); };
   $("#grid").onclick = cardClick; $("#grid").onkeydown = cardKey;
   $("#listGrid").onclick = cardClick; $("#listGrid").onkeydown = cardKey;
-  $("#tabShop").onclick = () => { TAB = "shop"; setTabs(); if (VIEW === "browse") { renderBrowse(); if (tg) tg.BackButton.show(); } else { showHome(); } };
-  $("#tabList").onclick = () => { TAB = "list"; setTabs(); renderList(); if (tg) tg.BackButton.show(); };
-  $("#tabFilters").onclick = () => { if (TAB === "list") return; openFilters(); };
-  if (tg){ tg.BackButton.onClick(() => { if (document.querySelector(".sheet.on")) { closeSheets(); } else if (TAB === "shop" && VIEW === "browse") { showHome(); } else if (TAB === "list") { TAB = "shop"; setTabs(); VIEW === "browse" ? renderBrowse() : showHome(); } }); }
+  $("#tabShop").onclick = () => { if (TAB === "shop") { window.scrollTo({top:0, behavior:"smooth"}); return; } TAB = "shop"; setTabs(); renderBrowse(); if (tg) tg.BackButton.hide(); };
+  $("#tabList").onclick = () => { TAB = "list"; setTabs(); renderList(); window.scrollTo({top:0}); if (tg) tg.BackButton.show(); };
+  $("#tabFilters").onclick = () => { if (TAB === "list") { TAB = "shop"; setTabs(); renderBrowse(); } openFilters(); };
+  if (tg){ tg.BackButton.onClick(() => { if (document.querySelector(".sheet.on")) { closeSheets(); } else if (TAB === "list") { TAB = "shop"; setTabs(); renderBrowse(); tg.BackButton.hide(); } }); }
 }
 
 function cardClick(e){
@@ -361,45 +350,67 @@ function cardKey(e){
 function setTabs(){
   $("#tabShop").classList.toggle("on", TAB === "shop");
   $("#tabList").classList.toggle("on", TAB === "list");
-  $("#home").hidden = !(TAB === "shop" && VIEW === "home");
-  $("#browse").hidden = !(TAB === "shop" && VIEW === "browse");
+  $("#home").hidden = TAB !== "shop";
   $("#listView").hidden = TAB !== "list";
 }
 
-function showHome(){ VIEW = "home"; TAB = "shop"; setTabs(); renderHome(); window.scrollTo({top:0}); if (tg) tg.BackButton.hide(); }
+function showHome(){ const lc = $("#lcount"); lc.hidden = !WISH.size; lc.textContent = WISH.size; TAB = "shop"; setTabs(); renderHome(); renderBrowse(); window.scrollTo({top:0}); if (tg) tg.BackButton.hide(); }
 
 function renderHome(){
   const cats = CATS.filter(c => ITEMS.some(i => i.category === c));
   const tiles = cats.map(catTile).join("");
   $("#catGrid").innerHTML = tiles + tiles.replace(/<button /g, '<button aria-hidden="true" tabindex="-1" ');
-  $("#catGrid").onclick = e => { const b = e.target.closest(".cat-tile"); if(!b) return; openBrowse(b.dataset.c); };
+  $("#catGrid").onclick = e => { const b = e.target.closest(".cat-tile"); if(!b) return; pickCategory(b.dataset.c); };
   startBand();
-  const stores = [...new Set(ITEMS.map(i => i.store))].sort();
+  const stores = [...new Set(ITEMS.map(i => i.store))].sort((a,b) => (a==="Другое")-(b==="Другое") || a.localeCompare(b));
   $("#storeScroller").innerHTML = stores.map(s => `<button type="button" class="store-chip" data-s="${esc(s)}">${esc(s)}</button>`).join("");
-  $("#storeScroller").onclick = e => { const b = e.target.closest(".store-chip"); if(!b) return; openBrowse("all", b.dataset.s); };
+  $("#storeScroller").onclick = e => { const b = e.target.closest(".store-chip"); if(!b) return; pickStore(b.dataset.s); };
+  markSelection();
+}
+
+// выбор категории/магазина меняет товары ниже на той же странице
+function pickCategory(c){
+  S.cat = S.cat === c ? "all" : c; S.sub = null;
+  haptic(); markSelection(); renderBrowse(); nudgeToResults();
+  track("category",{c:S.cat});
+}
+function pickStore(s){
+  if (S.stores.size === 1 && S.stores.has(s)) S.stores.clear(); else S.stores = new Set([s]);
+  haptic(); markSelection(); renderBrowse(); nudgeToResults();
+  track("store",{s:[...S.stores]});
+}
+function markSelection(){
+  document.querySelectorAll(".cat-tile").forEach(t => t.classList.toggle("on", t.dataset.c === S.cat));
+  document.querySelectorAll(".store-chip").forEach(t => t.classList.toggle("on", S.stores.has(t.dataset.s)));
+}
+// если начало списка товаров ниже экрана — плавно подтягиваем его, чтобы было видно, что выбор сработал
+function nudgeToResults(){
+  const r = $("#results").getBoundingClientRect();
+  const bottom = window.innerHeight - 80;
+  if (r.top > bottom - 120) window.scrollBy({top: r.top - bottom + 260, behavior:"smooth"});
 }
 
 // бегущая лента: медленно едет влево, бесконечно (список продублирован),
 // останавливается, пока человек листает пальцем, и продолжает через 3 секунды
-let bandRAF = null, bandPausedUntil = 0, bandPos = 0;
+let bandPausedUntil = 0, bandPos = 0;
 function startBand(){
   const band = $("#catBand");
-  if (!band || band.dataset.bound) { bandPos = band ? band.scrollLeft : 0; return; }
+  if (!band || band.dataset.bound) return;
   band.dataset.bound = "1";
   const pause = () => { bandPausedUntil = performance.now() + 3000; };
   ["pointerdown","touchstart","wheel"].forEach(ev => band.addEventListener(ev, pause, {passive:true}));
   band.addEventListener("scroll", () => { if (performance.now() < bandPausedUntil) bandPos = band.scrollLeft; }, {passive:true});
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const step = now => {
-    bandRAF = requestAnimationFrame(step);
-    if (VIEW !== "home" || TAB !== "shop" || now < bandPausedUntil) return;
+    requestAnimationFrame(step);
+    if (TAB !== "shop" || now < bandPausedUntil || document.querySelector(".sheet.on")) return;
     const half = band.scrollWidth / 2;
+    if (!half) return;
     bandPos += 0.45;
     if (bandPos >= half) bandPos -= half;
     band.scrollLeft = bandPos;
-    if (band.scrollLeft >= half - 1) { bandPos = 0; band.scrollLeft = 0; }
   };
-  bandRAF = requestAnimationFrame(step);
+  requestAnimationFrame(step);
 }
 
 const tilePhoto = {};
@@ -410,16 +421,6 @@ function catTile(c){
   }
   const bg = tilePhoto[c] ? `style="background-image:url('${esc(tilePhoto[c])}')"` : "";
   return `<button type="button" class="cat-tile" data-c="${esc(c)}" ${bg}><span class="cat-tile-name">${esc(c)}</span></button>`;
-}
-
-function openBrowse(cat, store){
-  S.cat = cat; S.sub = null;
-  if (store){ S.stores = new Set([store]); }
-  VIEW = "browse"; TAB = "shop"; setTabs();
-  renderBrowse();
-  window.scrollTo({top:0});
-  if (tg) tg.BackButton.show();
-  track("category",{c:S.cat, store:store||null});
 }
 
 function scrollTop(){ window.scrollTo({top:0}); }
@@ -472,9 +473,8 @@ function renderBrowse(){
   const L = list();
   $("#count").hidden = false;
   $("#count").textContent = (S.cat === "all" ? "Все вещи" : S.cat) + " · " + plural(L.length,"вещь","вещи","вещей");
-  setState(L.length ? "" : `<div class="state"><h2>Ничего не нашлось</h2><p>Попробуйте убрать часть фильтров.</p><button class="ghost" type="button" id="clearAll">Сбросить фильтры</button></div>`);
-  const ca = $("#clearAll"); if (ca) ca.onclick = () => { Object.assign(S, blank()); S.sub = null; renderBrowse(); };
-  $("#grid").innerHTML = L.map(card).join("");
+  $("#grid").innerHTML = L.length ? L.map(card).join("") : `<div class="state" style="grid-column:1/-1;padding:40px 10px"><h2>Ничего не нашлось</h2><p>Попробуйте другую категорию или уберите часть фильтров.</p><button class="ghost" type="button" id="clearAll">Сбросить всё</button></div>`;
+  const ca = $("#clearAll"); if (ca) ca.onclick = () => { Object.assign(S, blank()); S.cat = "all"; S.sub = null; markSelection(); renderBrowse(); };
   bindImgs($("#grid"));
 }
 
@@ -496,9 +496,10 @@ function card(i){
     <div class="row"><span class="price">${money(i.price)}</span>${i.old_price?`<span class="old">${money(i.old_price)}</span>`:""}</div></div></div>`;
 }
 
+// сердечко переключаем на месте, без перерисовки сетки — страница не прыгает
 function renderActiveCards(){
+  document.querySelectorAll("#grid .heart").forEach(h => h.classList.toggle("on", WISH.has(+h.dataset.id)));
   if (TAB === "list") renderList();
-  else if (VIEW === "browse") { $("#grid").innerHTML = list().map(card).join(""); bindImgs($("#grid")); }
 }
 
 function renderList(){
@@ -516,7 +517,7 @@ function renderList(){
 
 function removeActive(k,v){
   if (["base","trend","sale"].includes(k)) S[k] = false; else S[k].delete(v);
-  renderBrowse(); track("filters", serialize());
+  markSelection(); renderBrowse(); track("filters", serialize());
 }
 
 /* --- filters sheet --- */
@@ -599,7 +600,7 @@ function closeSheets(silent){
   document.querySelectorAll(".sheet.on").forEach(s => { s.classList.remove("on"); s.setAttribute("aria-hidden","true"); });
   $("#veil").classList.remove("on");
   document.body.style.overflow = "";
-  if (tg && silent !== true && VIEW !== "browse") tg.BackButton.hide();
+  if (tg && silent !== true && TAB !== "list") tg.BackButton.hide();
 }
 function haptic(){ try{ tg && tg.HapticFeedback.selectionChanged(); }catch(e){} }
 
