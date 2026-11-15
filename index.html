@@ -28,12 +28,12 @@ img{display:block;max-width:100%}
 [hidden]{display:none!important}
 
 /* шапка */
-.brandbar{padding:22px 0 6px}
+.brandbar{padding:24px 0 4px}
 .brand-city{font:500 14px/1.2 var(--sans);color:var(--ink-2)}
 .brand-name{font:600 25px/1.15 var(--sans);margin:3px 0 0;letter-spacing:-.025em}
 .brand-name i{font-style:normal;color:var(--ink-3);font-weight:500}
-.lead{margin:12px 0 0;padding:14px 18px;background:var(--ink);color:#fff;border-radius:999px;font:500 13.5px/1.35 var(--sans);display:flex;align-items:center;gap:12px}
-.lead::before{content:"";flex:0 0 34px;height:34px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D9774B' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.4 5.6L20 9.3l-4.3 3.9 1.2 5.8L12 16.1 7.1 19l1.2-5.8L4 9.3l5.6-.7z'/%3E%3C/svg%3E") center/18px no-repeat}
+.lead{margin:12px 0 0;padding:8px 16px 8px 8px;background:var(--ink);color:#fff;border-radius:999px;font:500 12px/1.3 var(--sans);display:inline-flex;align-items:center;gap:10px;max-width:100%}
+.lead::before{content:"";flex:0 0 26px;height:26px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D9774B' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.4 5.6L20 9.3l-4.3 3.9 1.2 5.8L12 16.1 7.1 19l1.2-5.8L4 9.3l5.6-.7z'/%3E%3C/svg%3E") center/14px no-repeat}
 
 /* заголовки разделов */
 .count{font:600 18px/1.2 var(--sans);letter-spacing:-.02em;color:var(--ink);margin:26px 0 14px;text-transform:none}
@@ -45,8 +45,8 @@ img{display:block;max-width:100%}
 .cat-tile{position:relative;flex:0 0 auto;width:150px;height:186px;border-radius:var(--r-xl);overflow:hidden;border:0;padding:0;cursor:pointer;background:#fff center/cover no-repeat;text-align:left;scroll-snap-align:start;transition:transform .2s}
 @media (min-width:620px){.cat-tile{width:180px;height:220px}}
 .cat-tile:active{transform:scale(.96)}
-.cat-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 48%,rgba(0,0,0,.62) 100%)}
-.cat-tile-name{position:absolute;left:16px;right:14px;bottom:16px;z-index:1;color:#fff;font:600 17px/1.15 var(--sans);letter-spacing:-.02em}
+.cat-tile{background-color:#EFEFEF}
+.cat-tile-name{position:absolute;left:10px;bottom:10px;max-width:calc(100% - 20px);z-index:1;color:var(--ink);background:rgba(255,255,255,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:8px 12px;border-radius:999px;font:600 13.5px/1.15 var(--sans);letter-spacing:-.01em}
 .cat-tile.on{box-shadow:inset 0 0 0 3px var(--ink)}
 .cat-tile.on::before{content:"";position:absolute;z-index:2;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230E0E10' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/16px no-repeat}
 
@@ -171,9 +171,8 @@ footer{padding:4px 0 30px;color:var(--ink-3);font-size:12.5px;text-align:center}
 <div class="wrap">
   <div class="brandbar">
     <div>
-      <div class="brand-city" id="brandCity">Astana</div>
-      <div class="brand-name">Shopping Guide <i>by Ainur Karimov</i></div>
-      <p class="lead" id="lead">Вещи из наших магазинов, стильные и актуальные на несколько сезонов вперёд.</p>
+      <div class="brand-name">Shopping Guide <i>by Ainur Karimova</i></div>
+      <p class="lead" id="lead">Моя личная подборка стильных и актуальных вещей на зимний сезон 26–27</p>
     </div>
   </div>
 </div>
@@ -304,7 +303,6 @@ async function boot(){
   try { res = await api({action:"items"}); } catch(e){ res = {status:0}; }
   if (res.status === 200 && res.data && res.data.access){
     ITEMS = res.data.items || [];
-    if (res.data.user && res.data.user.first_name) $("#brandCity").textContent = "Astana · " + res.data.user.first_name;
     setState("");
     initUI();
     showHome();
@@ -394,13 +392,11 @@ function storeChip(s){
   return `<button type="button" class="store-chip" data-s="${esc(s)}" aria-label="${esc(s)}">${inner}</button>`;
 }
 
-const tilePhoto = {};
+// постоянные фото для плашек категорий (выбраны Айнур, не меняются)
+const CAT_PHOTO = {"Верха":"verha","Низы":"nizy","Верхняя одежда":"verhnyaya-odezhda","Платья":"platya","Обувь":"obuv","Сумки":"sumki","Аксессуары":"aksessuary","Бижутерия":"bizhuteriya"};
 function catTile(c){
-  if (!(c in tilePhoto)){
-    const pool = ITEMS.filter(i => i.category === c && i.image);
-    tilePhoto[c] = pool.length ? pool[Math.floor(Math.random()*pool.length)].image : "";
-  }
-  const bg = tilePhoto[c] ? `style="background-image:url('${esc(tilePhoto[c])}')"` : "";
+  const f = CAT_PHOTO[c];
+  const bg = f ? `style="background-image:url('cats/${f}.jpg')"` : "";
   return `<button type="button" class="cat-tile" data-c="${esc(c)}" ${bg}><span class="cat-tile-name">${esc(c)}</span></button>`;
 }
 
