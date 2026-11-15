@@ -387,7 +387,7 @@ function nudgeToResults(){
 }
 
 const LOGOS = {"Zara":"zara.svg","Mango":"mango.svg","Massimo Dutti":"massimo-dutti.svg","Stradivarius":"stradivarius.svg","Lime":"lime.svg","12 Storeez":"12storeez.svg"};
-const LOGO_TALL = {"Zara":1,"Lime":1};
+const LOGO_TALL = {"Zara":1};
 function storeChip(s){
   const f = LOGOS[s];
   const inner = f ? `<img src="logos/${f}" alt="${esc(s)}"${LOGO_TALL[s]?' class="tall"':''}>` : esc(s);
