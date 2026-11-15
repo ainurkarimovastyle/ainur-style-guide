@@ -19,6 +19,39 @@ const STORES: Record<string, string> = {
 const EXCLUDED = new Set(["Befree", "Love Republic"]);
 const BODY = ["hourglass", "pear", "apple", "rectangle", "inv_triangle"];
 
+// Ручные позиции, добавленные напрямую (без строки в Google-таблице).
+// id начинаются с 2001, чтобы не пересекаться со строками таблицы.
+const MANUAL_ROWS: { id: number; category: string; store: string; url: string; comment?: string }[] = [
+  { id: 2001, category: "Верха", store: "Zara", url: "https://www.zara.com/kz/ru/комбинированныи-свитер-p03920136.html?v1=608392911" },
+  { id: 2002, category: "Верха", store: "Zara", url: "https://www.zara.com/kz/ru/блуза-с-принтом-и-завязкои-p02587158.html?v1=592972276" },
+  { id: 2003, category: "Верха", store: "Zara", url: "https://www.zara.com/kz/ru/блуза-с-принтом-и-бантом-—-zw-collection-p01394029.html?v1=594133989" },
+  { id: 2004, category: "Верха", store: "Zara", url: "https://www.zara.com/kz/ru/рубашка-в-полоску-с-поясом-кушаком-zw-collection-p04437244.html?v1=584061819" },
+  { id: 2005, category: "Аксессуары", store: "Zara", url: "https://www.zara.com/kz/ru/треугольныи-шарф-из-искусственного-меха-p01023351.html?v1=612312533" },
+  { id: 2006, category: "Аксессуары", store: "Zara", url: "https://www.zara.com/kz/ru/короткие-комбинированные-перчатки-из-смесовои-шерсти-p03920010.html?v1=605321049" },
+  { id: 2007, category: "Низы", store: "Zara", url: "https://www.zara.com/kz/ru/брюки-со-складками-—-zw-collection-p02015312.html?v1=607314810" },
+  { id: 2008, category: "Низы", store: "Zara", url: "https://www.zara.com/kz/ru/брюки-с-декоративнои-строчкои-fruit-of-the-loom--p04644211.html?v1=556967653" },
+  { id: 2009, category: "Верхняя одежда", store: "Zara", url: "https://www.zara.com/kz/ru/тренч-миди-—-zw-collection-p03811251.html?v1=590622100" },
+  { id: 2010, category: "Верхняя одежда", store: "Zara", url: "https://www.zara.com/kz/ru/короткии-двустороннии-тренч-—-zw-collection-p03811277.html?v1=598244834" },
+  { id: 2011, category: "Верхняя одежда", store: "Zara", url: "https://www.zara.com/kz/ru/тренч-с-поясом-water-repellent-windproof-p08073243.html?v1=593936056" },
+  { id: 2012, category: "Низы", store: "Zara", url: "https://www.zara.com/kz/ru/брюки-flare-с-пряжкои-p01165229.html?v1=565132991" },
+  { id: 2013, category: "Верха", store: "Zara", url: "https://www.zara.com/kz/ru/кардиган-из-тонкого-трикотажа-p02756050.html?v1=551149569" },
+  { id: 2014, category: "Верха", store: "Zara", url: "https://www.zara.com/kz/ru/трикотажныи-топ-с-контрастнои-отделкои-p02142275.html?v1=545494660" },
+  { id: 2015, category: "Верхняя одежда", store: "Mango", url: "https://shop.mango.com/kz/ru/p/женская/куртки/меховая-куртка-с-отложным-воротником/37047781/30/00" },
+  { id: 2016, category: "Верха", store: "Massimo Dutti", url: "https://www.massimodutti.com/kz/100-cotton-short-sleeve-tshirt-l06207109?pelement=61784721" },
+  { id: 2017, category: "Верхняя одежда", store: "Massimo Dutti", url: "https://www.massimodutti.com/kz/100-cotton-cape-jacket-l06753773?pelement=61856130" },
+  { id: 2018, category: "Верха", store: "12 Storeez", url: "https://12storeez.kz/products/silk-shirt-138278" },
+  { id: 2019, category: "Обувь", store: "12 Storeez", url: "https://12storeez.kz/products/manhattan-pumps-136157" },
+  { id: 2020, category: "Верхняя одежда", store: "Lime", url: "https://limestore.com/kz_ru/product/36312-8252_024_120_molocnyi" },
+  { id: 2021, category: "Аксессуары", store: "Lime", url: "https://limestore.com/kz_ru/product/37072-2713_332_251_temno_bezevyi" },
+  { id: 2022, category: "Верха", store: "Lime", url: "https://limestore.com/kz_ru/product/37470-2090_531_120_molocnyi" },
+  { id: 2023, category: "Верхняя одежда", store: "Lime", url: "https://limestore.com/kz_ru/product/37389-7399_102_120_molocnyi" },
+  { id: 2024, category: "Аксессуары", store: "Другое", url: "https://www.falke.com/bg_en/p/softmerino-women-tights/48425_3009" },
+  { id: 2025, category: "Аксессуары", store: "Другое", url: "https://www.calzedonia.com/uk/product/soft_modal_and_cashmere_blend_tights-MIC048_color_4479.html" },
+  { id: 2026, category: "Аксессуары", store: "Другое", url: "https://www.calzedonia.com/uk/product/soft_modal_and_cashmere_blend_tights-MIC048_color_1478.html" },
+  { id: 2027, category: "Аксессуары", store: "Другое", url: "https://www.calzedonia.com/lv/product/soft_modal_and_cashmere_blend_tights-MIC048_color_2240.html" },
+  { id: 2028, category: "Аксессуары", store: "Другое", url: "https://www.calzedonia.com/uk/product/ribbed_tights_with_cashmere-MODC1730.html" },
+];
+
 function parseCSV(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [], cell = "", q = false;
@@ -158,6 +191,7 @@ const TYPES: Record<string, [string, RegExp][]> = {
     ["Ремни", /ремен|ремн|пояс/],
     ["Перчатки и варежки", /перчат|варежк|митенк/],
     ["Шарфы и платки", /шарф|платок|палантин|снуд/],
+    ["Колготки и носки", /колгот|носк|чулк/],
   ],
   "Головные уборы": [
     ["Балаклавы и капюшоны", /балаклав|капюшон|капор/],
@@ -241,6 +275,13 @@ Deno.serve(async (req) => {
       });
     }
   }
+  for (const m of MANUAL_ROWS) {
+    rows.push({
+      id: m.id, category: m.category, store: m.store, url: m.url,
+      base: false, trend: false, body_types: [] as string[],
+      comment: m.comment ?? null,
+    });
+  }
 
   const items: any[] = [];
   const missing: number[] = [];
@@ -253,9 +294,13 @@ Deno.serve(async (req) => {
     const s = fromStore(r.store, d, ov);
     const key = r.url.split("?")[0] + "|" + (s.color ?? "");
     const dup = seen.has(key); seen.add(key);
+    // Головные уборы объединяем с Аксессуарами; украшения выделяем в отдельную Бижутерию
+    let category = r.category === "Головные уборы" ? "Аксессуары" : r.category;
+    let subcategory = typeOf(r.category, s.name ?? "");
+    if (subcategory === "Украшения") { category = "Бижутерия"; subcategory = null; }
     items.push({
-      ...r, ...s,
-      subcategory: typeOf(r.category, s.name ?? ""),
+      ...r, ...s, category,
+      subcategory,
       materials: materials(s.composition ?? ""),
       color_family: s.color ? colorFamily(s.color) : null,
       promo_label: s.old_price && s.price ? `−${Math.round((1 - s.price / s.old_price) * 100)}%` : null,

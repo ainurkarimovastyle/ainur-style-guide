@@ -17,51 +17,56 @@
   --r-lg:22px; --r-md:14px;
   --serif:"Cormorant Garamond","Times New Roman",Georgia,serif;
   --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
+  --tabbar-h:64px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
-body{padding-bottom:env(safe-area-inset-bottom,0px);overscroll-behavior-y:none}
+body{padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px));overscroll-behavior-y:none}
 button{font:inherit;color:inherit}
 img{display:block;max-width:100%}
 .wrap{max-width:1080px;margin:0 auto;padding-inline:16px}
 [hidden]{display:none!important}
 
-/* hero */
-.hero{padding:22px 0 14px;display:flex;align-items:center;justify-content:space-between;gap:14px}
-.eyebrow{font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
-h1{font:500 clamp(36px,9vw,64px)/.95 var(--serif);margin:10px 0 8px;letter-spacing:-.01em}
-h1 i{color:var(--red)}
-.lead{margin:0;color:var(--ink-2);font-size:15px;max-width:52ch}
-.avatar{flex-shrink:0;width:72px;aspect-ratio:1;border-radius:50%;padding:3px;background:var(--card);box-shadow:0 0 0 2px var(--red),0 6px 18px rgba(27,23,23,.12);overflow:hidden}
-.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-.avatar span{display:flex;width:100%;height:100%;border-radius:50%;align-items:center;justify-content:center;font:500 30px/1 var(--serif);color:var(--red);background:var(--red-soft)}
+/* brand header */
+.brandbar{padding:18px 0 10px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand-city{font:600 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.brand-name{font:500 26px/1.15 var(--serif);margin:4px 0 0;letter-spacing:-.01em}
+.brand-name i{color:var(--red);font-style:italic}
+.lead{margin:8px 0 0;color:var(--ink-2);font-size:14px;max-width:46ch}
 
-/* sticky controls */
-.bar{position:sticky;top:0;z-index:20;background:rgba(244,243,239,.88);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line)}
-.scroller{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 16px;margin:0 -16px}
-.scroller::-webkit-scrollbar{display:none}
-.seg{display:inline-flex;gap:3px;background:var(--fill);border-radius:999px;padding:3px;flex-shrink:0}
-.seg button{border:0;background:none;font:500 14px/1 var(--sans);color:var(--ink-2);padding:9px 14px;border-radius:999px;white-space:nowrap;cursor:pointer}
-.seg button.on{background:var(--card);color:var(--red);box-shadow:0 1px 3px rgba(27,23,23,.12)}
-.tools{display:flex;gap:8px;align-items:center;padding:0 0 10px}
+.count{font:600 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:18px 0 12px}
+
+/* home: category tiles */
+.cat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding-top:8px}
+@media (min-width:620px){.cat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cat-tile{position:relative;aspect-ratio:4/3;border-radius:var(--r-lg);overflow:hidden;border:0;padding:0;cursor:pointer;background:#EEECE8 center/cover no-repeat;display:block;text-align:left;transition:transform .2s}
+.cat-tile:active{transform:scale(.97)}
+.cat-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(27,23,23,0) 40%,rgba(27,23,23,.65) 100%)}
+.cat-tile-name{position:absolute;left:12px;right:12px;bottom:10px;z-index:1;color:#fff;font:600 15px/1.25 var(--sans);letter-spacing:-.01em}
+
+.store-row-wrap{padding-bottom:10px}
+.store-scroller{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px}
+.store-scroller::-webkit-scrollbar{display:none}
+.store-chip{flex-shrink:0;border:1px solid var(--line);background:var(--card);border-radius:var(--r-md);padding:14px 20px;font:600 13px/1 var(--sans);letter-spacing:.02em;color:var(--ink);cursor:pointer;white-space:nowrap}
+.store-chip:active{background:var(--fill)}
+
+/* browse view */
+.browse-top{display:flex;align-items:center;gap:10px;padding-top:8px}
+.back{border:0;background:none;color:var(--ink-2);font:500 14px/1 var(--sans);cursor:pointer;padding:8px 0;display:flex;align-items:center;gap:4px}
+.sort{margin-left:auto;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 12px;font:500 13px/1 var(--sans);color:var(--ink-2);appearance:none;-webkit-appearance:none;cursor:pointer}
+.subs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 0 2px;margin:0}
+.subs::-webkit-scrollbar{display:none}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 13px;font:500 13px/1 var(--sans);color:var(--ink-2);white-space:nowrap;cursor:pointer;flex-shrink:0}
 .chip.on{border-color:var(--red);color:var(--red);background:var(--red-soft)}
 .chip .x{margin-left:6px;opacity:.7}
-.btn-filter{display:inline-flex;align-items:center;gap:7px;border:0;background:var(--ink);color:#fff;border-radius:999px;padding:9px 14px;font:600 13px/1 var(--sans);cursor:pointer;flex-shrink:0}
-.btn-filter b{background:var(--red);border-radius:999px;min-width:18px;height:18px;padding:0 5px;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
-.sort{margin-left:auto;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 12px;font:500 13px/1 var(--sans);color:var(--ink-2);appearance:none;-webkit-appearance:none;cursor:pointer}
-.subs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 16px 10px;margin:0 -16px}
-.subs::-webkit-scrollbar{display:none}
-.active-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 16px 10px;margin:0 -16px}
+.active-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 4px;margin:0}
 .active-row::-webkit-scrollbar{display:none}
-
-.count{font:600 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:16px 0 12px}
 
 /* cards */
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding-bottom:28px}
 @media (max-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:620px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
-.card{background:var(--card);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid transparent;cursor:pointer;text-align:left;padding:0;transition:border-color .2s,transform .2s}
+.card{position:relative;background:var(--card);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid transparent;cursor:pointer;text-align:left;padding:0;transition:border-color .2s,transform .2s}
 .card:active{transform:scale(.985)}
 @media (hover:hover){.card:hover{border-color:var(--red);transform:translateY(-2px)}}
 .pic{position:relative;aspect-ratio:3/4;background:#EEECE8;overflow:hidden}
@@ -71,6 +76,9 @@ h1 i{color:var(--red)}
 .badge{font:600 10px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:999px;background:rgba(255,255,255,.92);color:var(--ink)}
 .badge.sale{background:var(--red);color:#fff}
 .badge.trend{color:var(--red)}
+.heart{position:absolute;right:8px;top:8px;z-index:2;width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.heart svg{width:16px;height:16px;fill:none;stroke:var(--ink);stroke-width:1.8}
+.heart.on svg{fill:var(--red);stroke:var(--red)}
 .card .body{padding:11px 12px 13px;display:flex;flex-direction:column;gap:3px;flex:1}
 .store{font:600 10.5px/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .card h3{font:600 14px/1.3 var(--sans);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -87,6 +95,14 @@ h1 i{color:var(--red)}
 .ghost{display:inline-block;border:1px solid var(--line);background:var(--card);color:var(--ink-2);border-radius:999px;padding:11px 18px;font:500 14px/1 var(--sans);cursor:pointer}
 .skel{background:linear-gradient(90deg,#ECEAE4 0,#F4F3EF 50%,#ECEAE4 100%);background-size:200% 100%;animation:sh 1.2s infinite}
 @keyframes sh{to{background-position:-200% 0}}
+
+/* bottom tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(244,243,239,.92);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tab{position:relative;flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:var(--tabbar-h);cursor:pointer;color:var(--ink-3)}
+.tab svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7}
+.tab.on{color:var(--red)}
+.tab.on svg{stroke:var(--red)}
+.tab b{position:absolute;top:8px;right:calc(50% - 22px);background:var(--red);color:#fff;border-radius:999px;min-width:16px;height:16px;padding:0 4px;font:600 10px/16px var(--sans);text-align:center}
 
 /* sheets */
 .veil{position:fixed;inset:0;background:rgba(27,23,23,.35);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
@@ -131,6 +147,10 @@ h1 i{color:var(--red)}
 .tags{display:flex;gap:6px;flex-wrap:wrap}
 .tag{font:600 11px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--red);background:var(--red-soft);padding:6px 9px;border-radius:999px}
 .fine{font-size:12px;color:var(--ink-3);margin:14px 0 0}
+.d-actions{display:flex;gap:10px;align-items:center}
+.d-wish{border:1px solid var(--line);background:var(--card);border-radius:999px;width:46px;height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.d-wish svg{width:19px;height:19px;fill:none;stroke:var(--ink);stroke-width:1.8}
+.d-wish.on svg{fill:var(--red);stroke:var(--red)}
 
 footer{padding:10px 0 40px;color:var(--ink-3);font-size:12.5px;text-align:center}
 </style>
@@ -138,40 +158,69 @@ footer{padding:10px 0 40px;color:var(--ink-3);font-size:12.5px;text-align:center
 <body>
 
 <div class="wrap">
-  <div class="hero">
+  <div class="brandbar">
     <div>
-      <div class="eyebrow" id="eyebrow">Гайд по покупкам · Астана</div>
-      <h1>Готовый <i>гардероб</i></h1>
-      <p class="lead" id="lead">Вещи из магазинов Астаны, которые я отобрала для этого сезона. Фильтруйте по категории, цене, составу и цвету.</p>
+      <div class="brand-city" id="brandCity">Astana</div>
+      <div class="brand-name">Shopping Guide <i>by Ainur Karimov</i></div>
+      <p class="lead" id="lead">Вещи из наших магазинов, стильные и актуальные на несколько сезонов вперёд.</p>
     </div>
-    <div class="avatar" aria-hidden="true"><span>А</span></div>
   </div>
 </div>
 
-<div class="bar" id="bar" hidden>
-  <div class="wrap">
-    <div class="scroller"><div class="seg" id="cats"></div></div>
-    <div class="subs" id="subs"></div>
-    <div class="tools">
-      <button class="btn-filter" id="openFilters" type="button">Фильтры <b id="fcount" hidden>0</b></button>
-      <select class="sort" id="sort" aria-label="Сортировка">
+<main class="wrap" id="appMain">
+  <div id="state"></div>
+
+  <!-- home: category tiles + stores -->
+  <section id="home" hidden>
+    <div class="cat-grid" id="catGrid"></div>
+    <div class="store-row-wrap">
+      <div class="count">Магазины</div>
+      <div class="store-scroller" id="storeScroller"></div>
+    </div>
+  </section>
+
+  <!-- browse: items grid for a category / store -->
+  <section id="browse" hidden>
+    <div class="browse-top">
+      <button class="back" id="backHome" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        Категории
+      </button>
+      <select class="sort" id="sort" aria-label="Сортировка" hidden>
         <option value="def">По подборке</option>
         <option value="asc">Сначала дешевле</option>
         <option value="desc">Сначала дороже</option>
         <option value="sale">Сначала скидки</option>
       </select>
     </div>
+    <div class="subs" id="subs"></div>
     <div class="active-row" id="activeRow" hidden></div>
-  </div>
-</div>
+    <div class="count" id="count" hidden></div>
+    <div class="grid" id="grid"></div>
+  </section>
 
-<main class="wrap">
-  <div id="state"></div>
-  <div class="count" id="count" hidden></div>
-  <div class="grid" id="grid"></div>
+  <!-- wishlist -->
+  <section id="listView" hidden>
+    <div class="count">Список покупок</div>
+    <div class="grid" id="listGrid"></div>
+  </section>
 </main>
 
 <footer class="wrap" id="foot" hidden>Цены и наличие указаны на момент подборки и могут меняться. Фото — с сайтов магазинов.</footer>
+
+<nav class="tabbar" id="tabbar" hidden>
+  <button class="tab on" id="tabShop" type="button" aria-label="Ассортимент">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+  </button>
+  <button class="tab" id="tabFilters" type="button" aria-label="Фильтры">
+    <svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+    <b id="fcount" hidden>0</b>
+  </button>
+  <button class="tab" id="tabList" type="button" aria-label="Список покупок">
+    <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9.5-8.9C.7 7.6 2.4 4 6 4c2 0 3.5 1.1 4.5 2.4C11.5 5.1 13 4 15 4c3.6 0 5.3 3.6 3.5 7.1C19 15.4 12 20 12 20z"/></svg>
+    <b id="lcount" hidden>0</b>
+  </button>
+</nav>
 
 <div class="veil" id="veil"></div>
 
@@ -185,7 +234,14 @@ footer{padding:10px 0 40px;color:var(--ink-3);font-size:12.5px;text-align:center
 <section class="sheet detail" id="dsheet" aria-label="Карточка вещи" aria-hidden="true">
   <div class="grab"></div>
   <div class="sheet-b" id="dbody"></div>
-  <div class="sheet-f"><button class="cta" id="goStore" type="button">Открыть в магазине ↗</button></div>
+  <div class="sheet-f">
+    <div class="d-actions">
+      <button class="d-wish" id="dWish" type="button" aria-label="В список покупок">
+        <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9.5-8.9C.7 7.6 2.4 4 6 4c2 0 3.5 1.1 4.5 2.4C11.5 5.1 13 4 15 4c3.6 0 5.3 3.6 3.5 7.1C19 15.4 12 20 12 20z"/></svg>
+      </button>
+      <button class="cta" id="goStore" type="button" style="flex:1">Открыть в магазине ↗</button>
+    </div>
+  </div>
 </section>
 
 <script>
@@ -193,7 +249,7 @@ const CONFIG = {
   api: "https://zafgwbfgutlbudqevpal.supabase.co/functions/v1/guide-api",
 };
 
-const CATS = ["Верха","Низы","Верхняя одежда","Платья","Обувь","Сумки","Аксессуары","Головные уборы"];
+const CATS = ["Верха","Низы","Верхняя одежда","Платья","Обувь","Сумки","Аксессуары","Бижутерия"];
 const BODY = {hourglass:"Песочные часы",pear:"Груша",apple:"Яблоко",rectangle:"Прямоугольник",inv_triangle:"Перевёрнутый треугольник"};
 const PRICES = [
   {k:"p1",t:"до 20 000 ₸",min:0,max:20000},
@@ -202,6 +258,7 @@ const PRICES = [
   {k:"p4",t:"70–120 000 ₸",min:70000,max:120000},
   {k:"p5",t:"от 120 000 ₸",min:120000,max:Infinity},
 ];
+const SORTS = [{k:"def",t:"По подборке"},{k:"asc",t:"Сначала дешевле"},{k:"desc",t:"Сначала дороже"},{k:"sale",t:"Сначала скидки"}];
 const COLOR_DOT = {"Чёрный":"#1B1717","Белый и молочный":"#F3EFE6","Бежевый":"#D6C2A3","Коричневый":"#6B4A33","Серый":"#9A9895","Синий и голубой":"#2E4E86","Красный и бордо":"#8E1B22","Зелёный и хаки":"#5E6B3A","Розовый":"#D9A1AE","Фиолетовый":"#6A3E7B","Жёлтый и оранжевый":"#D49A2A","Металлик":"linear-gradient(135deg,#C9B37E,#EDE3C7,#B0B3B8)","Принт":"conic-gradient(#8E1B22,#D49A2A,#2E4E86,#5E6B3A,#8E1B22)"};
 
 const tg = window.Telegram && Telegram.WebApp && Telegram.WebApp.initData ? Telegram.WebApp : null;
@@ -211,6 +268,13 @@ const previewToken = qs.get("preview");
 let ITEMS = [];
 const S = {cat:"all", sub:null, sort:"def", stores:new Set(), prices:new Set(), body:new Set(), mats:new Set(), colors:new Set(), base:false, trend:false, sale:false};
 let draft = null;
+let VIEW = "home"; // home | browse
+let TAB = "shop"; // shop | list
+
+let WISH = new Set();
+try { WISH = new Set(JSON.parse(localStorage.getItem("ainur_guide_wish") || "[]")); } catch(e){}
+function saveWish(){ try { localStorage.setItem("ainur_guide_wish", JSON.stringify([...WISH])); } catch(e){} }
+function toggleWish(id){ WISH.has(id) ? WISH.delete(id) : WISH.add(id); saveWish(); updateWishUI(); }
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -223,14 +287,13 @@ async function api(body){
   let j = null; try { j = await r.json(); } catch(e) {}
   return {status:r.status, data:j};
 }
-let evQueue = [];
 function track(type,payload){ if(!tg && !previewToken) return; api({action:"event",type,payload}).catch(()=>{}); }
 const trackDebounced = (()=>{let t; return (type,payload)=>{clearTimeout(t); t=setTimeout(()=>track(type,payload),1200);};})();
 
 function setState(html){ $("#state").innerHTML = html; }
 
 function skeleton(){
-  $("#grid").innerHTML = Array.from({length:6},()=>`<div class="card"><div class="pic skel"></div><div class="body"><div class="skel" style="height:10px;width:40%;border-radius:6px"></div><div class="skel" style="height:14px;width:85%;border-radius:6px;margin-top:6px"></div><div class="skel" style="height:14px;width:30%;border-radius:6px;margin-top:14px"></div></div></div>`).join("");
+  setState(`<div class="grid">${Array.from({length:6},()=>`<div class="card"><div class="pic skel"></div><div class="body"><div class="skel" style="height:10px;width:40%;border-radius:6px"></div><div class="skel" style="height:14px;width:85%;border-radius:6px;margin-top:6px"></div><div class="skel" style="height:14px;width:30%;border-radius:6px;margin-top:14px"></div></div></div>`).join("")}</div>`);
 }
 
 async function boot(){
@@ -242,11 +305,13 @@ async function boot(){
   skeleton();
   let res;
   try { res = await api({action:"items"}); } catch(e){ res = {status:0}; }
-  $("#grid").innerHTML = "";
   if (res.status === 200 && res.data && res.data.access){
     ITEMS = res.data.items || [];
-    if (res.data.user && res.data.user.first_name) $("#eyebrow").textContent = res.data.user.first_name + ", ваш гайд · Астана";
-    initUI(); render();
+    if (res.data.user && res.data.user.first_name) $("#brandCity").textContent = "Astana · " + res.data.user.first_name;
+    setState("");
+    initUI();
+    showHome();
+    $("#tabbar").hidden = false; $("#foot").hidden = false;
     return;
   }
   if (res.status === 200 && res.data && res.data.access === false){
@@ -259,25 +324,70 @@ async function boot(){
 }
 
 function initUI(){
-  $("#bar").hidden = false; $("#foot").hidden = false;
-  const cats = ["all", ...CATS.filter(c => ITEMS.some(i => i.category === c))];
-  $("#cats").innerHTML = cats.map(c => `<button type="button" data-c="${esc(c)}">${c==="all"?"Все":esc(c)}</button>`).join("");
-  $("#cats").onclick = e => { const b = e.target.closest("button"); if(!b) return; S.cat = b.dataset.c; S.sub = null; render(); scrollTop(); track("category",{c:S.cat}); };
-  $("#subs").onclick = e => { const b = e.target.closest("button"); if(!b) return; S.sub = S.sub === b.dataset.s ? null : b.dataset.s; render(); scrollTop(); };
-  $("#sort").onchange = e => { S.sort = e.target.value; render(); track("sort",{s:S.sort}); };
-  $("#openFilters").onclick = openFilters;
+  $("#backHome").onclick = () => showHome();
+  $("#subs").onclick = e => { const b = e.target.closest("button"); if(!b) return; S.sub = S.sub === b.dataset.s ? null : b.dataset.s; renderBrowse(); };
+  $("#sort").onchange = e => { S.sort = e.target.value; renderBrowse(); track("sort",{s:S.sort}); };
   $("#veil").onclick = closeSheets;
   $("#reset").onclick = () => { draft = blank(); drawFilters(); };
-  $("#apply").onclick = () => { Object.assign(S, draft); closeSheets(); render(); scrollTop(); track("filters", serialize()); };
+  $("#apply").onclick = () => { Object.assign(S, draft); closeSheets(); renderBrowse(); track("filters", serialize()); };
   $("#activeRow").onclick = e => { const b = e.target.closest("button"); if(!b) return; removeActive(b.dataset.k, b.dataset.v); };
-  $("#grid").onclick = e => { const c = e.target.closest(".card"); if(!c) return; openDetail(+c.dataset.id); };
-  if (tg){ tg.BackButton.onClick(closeSheets); }
+  $("#grid").onclick = cardClick;
+  $("#listGrid").onclick = cardClick;
+  $("#tabShop").onclick = () => { TAB = "shop"; setTabs(); if (VIEW === "browse") { renderBrowse(); if (tg) tg.BackButton.show(); } else { showHome(); } };
+  $("#tabList").onclick = () => { TAB = "list"; setTabs(); renderList(); if (tg) tg.BackButton.show(); };
+  $("#tabFilters").onclick = () => { if (TAB === "list") return; openFilters(); };
+  if (tg){ tg.BackButton.onClick(() => { if (document.querySelector(".sheet.on")) { closeSheets(); } else if (TAB === "shop" && VIEW === "browse") { showHome(); } else if (TAB === "list") { TAB = "shop"; setTabs(); VIEW === "browse" ? renderBrowse() : showHome(); } }); }
 }
 
-function scrollTop(){ const y = $("#bar").offsetTop; if (window.scrollY > y) window.scrollTo({top:y}); }
-function blank(){ return {stores:new Set(), prices:new Set(), body:new Set(), mats:new Set(), colors:new Set(), base:false, trend:false, sale:false}; }
-function copyFilters(){ return {stores:new Set(S.stores), prices:new Set(S.prices), body:new Set(S.body), mats:new Set(S.mats), colors:new Set(S.colors), base:S.base, trend:S.trend, sale:S.sale}; }
-function serialize(){ return {cat:S.cat, sub:S.sub, stores:[...S.stores], prices:[...S.prices], body:[...S.body], mats:[...S.mats], colors:[...S.colors], base:S.base, trend:S.trend, sale:S.sale}; }
+function cardClick(e){
+  const h = e.target.closest(".heart");
+  if (h){ e.stopPropagation(); toggleWish(+h.dataset.id); haptic(); renderActiveCards(); return; }
+  const c = e.target.closest(".card"); if(!c) return; openDetail(+c.dataset.id);
+}
+
+function setTabs(){
+  $("#tabShop").classList.toggle("on", TAB === "shop");
+  $("#tabList").classList.toggle("on", TAB === "list");
+  $("#home").hidden = !(TAB === "shop" && VIEW === "home");
+  $("#browse").hidden = !(TAB === "shop" && VIEW === "browse");
+  $("#listView").hidden = TAB !== "list";
+}
+
+function showHome(){ VIEW = "home"; TAB = "shop"; setTabs(); renderHome(); window.scrollTo({top:0}); if (tg) tg.BackButton.hide(); }
+
+function renderHome(){
+  const cats = CATS.filter(c => ITEMS.some(i => i.category === c));
+  $("#catGrid").innerHTML = cats.map(catTile).join("");
+  $("#catGrid").onclick = e => { const b = e.target.closest(".cat-tile"); if(!b) return; openBrowse(b.dataset.c); };
+  const stores = [...new Set(ITEMS.map(i => i.store))].sort();
+  $("#storeScroller").innerHTML = stores.map(s => `<button type="button" class="store-chip" data-s="${esc(s)}">${esc(s)}</button>`).join("");
+  $("#storeScroller").onclick = e => { const b = e.target.closest(".store-chip"); if(!b) return; openBrowse("all", b.dataset.s); };
+}
+
+const tilePhoto = {};
+function catTile(c){
+  if (!(c in tilePhoto)){
+    const pool = ITEMS.filter(i => i.category === c && i.image);
+    tilePhoto[c] = pool.length ? pool[Math.floor(Math.random()*pool.length)].image : "";
+  }
+  const bg = tilePhoto[c] ? `style="background-image:url('${esc(tilePhoto[c])}')"` : "";
+  return `<button type="button" class="cat-tile" data-c="${esc(c)}" ${bg}><span class="cat-tile-name">${esc(c)}</span></button>`;
+}
+
+function openBrowse(cat, store){
+  S.cat = cat; S.sub = null;
+  if (store){ S.stores = new Set([store]); }
+  VIEW = "browse"; TAB = "shop"; setTabs();
+  renderBrowse();
+  window.scrollTo({top:0});
+  if (tg) tg.BackButton.show();
+  track("category",{c:S.cat, store:store||null});
+}
+
+function scrollTop(){ window.scrollTo({top:0}); }
+function blank(){ return {stores:new Set(), prices:new Set(), body:new Set(), mats:new Set(), colors:new Set(), base:false, trend:false, sale:false, sort:S.sort}; }
+function copyFilters(){ return {stores:new Set(S.stores), prices:new Set(S.prices), body:new Set(S.body), mats:new Set(S.mats), colors:new Set(S.colors), base:S.base, trend:S.trend, sale:S.sale, sort:S.sort}; }
+function serialize(){ return {cat:S.cat, sub:S.sub, stores:[...S.stores], prices:[...S.prices], body:[...S.body], mats:[...S.mats], colors:[...S.colors], base:S.base, trend:S.trend, sale:S.sale, sort:S.sort}; }
 
 function matches(i, F, skip){
   if (S.cat !== "all" && i.category !== S.cat) return false;
@@ -303,13 +413,11 @@ function list(){
 
 function activeCount(F){ return F.stores.size+F.prices.size+F.body.size+F.mats.size+F.colors.size+(F.base?1:0)+(F.trend?1:0)+(F.sale?1:0); }
 
-function render(){
-  document.querySelectorAll("#cats button").forEach(b => b.classList.toggle("on", b.dataset.c === S.cat));
-  // подкатегории
+function renderBrowse(){
   const subs = S.cat === "all" ? [] : [...new Set(ITEMS.filter(i => i.category === S.cat && i.subcategory).map(i => i.subcategory))];
   $("#subs").hidden = subs.length < 2;
   $("#subs").innerHTML = subs.map(s => `<button type="button" class="chip${S.sub===s?" on":""}" data-s="${esc(s)}">${esc(s)}</button>`).join("");
-  // активные фильтры
+
   const act = [];
   S.stores.forEach(v => act.push(["stores",v,v]));
   S.prices.forEach(v => act.push(["prices",v,PRICES.find(p=>p.k===v).t]));
@@ -325,11 +433,15 @@ function render(){
 
   const L = list();
   $("#count").hidden = false;
-  $("#count").textContent = plural(L.length,"вещь","вещи","вещей");
+  $("#count").textContent = (S.cat === "all" ? "Все вещи" : S.cat) + " · " + plural(L.length,"вещь","вещи","вещей");
   setState(L.length ? "" : `<div class="state"><h2>Ничего не нашлось</h2><p>Попробуйте убрать часть фильтров.</p><button class="ghost" type="button" id="clearAll">Сбросить фильтры</button></div>`);
-  const ca = $("#clearAll"); if (ca) ca.onclick = () => { Object.assign(S, blank()); S.sub = null; render(); };
+  const ca = $("#clearAll"); if (ca) ca.onclick = () => { Object.assign(S, blank()); S.sub = null; renderBrowse(); };
   $("#grid").innerHTML = L.map(card).join("");
-  $("#grid").querySelectorAll("img").forEach(img => { if (img.complete && img.naturalWidth) img.classList.add("ok"); img.onload = () => img.classList.add("ok"); img.onerror = () => { img.closest(".pic").classList.add("noimg"); }; });
+  bindImgs($("#grid"));
+}
+
+function bindImgs(root){
+  root.querySelectorAll("img").forEach(img => { if (img.complete && img.naturalWidth) img.classList.add("ok"); img.onload = () => img.classList.add("ok"); img.onerror = () => { img.closest(".pic") && img.closest(".pic").classList.add("noimg"); }; });
 }
 
 function card(i){
@@ -337,15 +449,36 @@ function card(i){
   if (i.promo_label) badges.push(`<span class="badge sale">${esc(i.promo_label)}</span>`);
   if (i.trend) badges.push(`<span class="badge trend">Тренд</span>`);
   if (i.base) badges.push(`<span class="badge">База</span>`);
+  const on = WISH.has(i.id);
   return `<button type="button" class="card" data-id="${i.id}">
-    <div class="pic"><img alt="${esc(i.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" src="${esc(i.image)}">${badges.length?`<div class="badges">${badges.join("")}</div>`:""}</div>
+    <div class="pic"><img alt="${esc(i.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" src="${esc(i.image)}">${badges.length?`<div class="badges">${badges.join("")}</div>`:""}
+      <button type="button" class="heart${on?" on":""}" data-id="${i.id}" aria-label="В список покупок"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9.5-8.9C.7 7.6 2.4 4 6 4c2 0 3.5 1.1 4.5 2.4C11.5 5.1 13 4 15 4c3.6 0 5.3 3.6 3.5 7.1C19 15.4 12 20 12 20z"/></svg></button>
+    </div>
     <div class="body"><span class="store">${esc(i.store)}</span><h3>${esc(i.name)}</h3>${i.color?`<span class="col">${esc(i.color)}</span>`:""}
     <div class="row"><span class="price">${money(i.price)}</span>${i.old_price?`<span class="old">${money(i.old_price)}</span>`:""}</div></div></button>`;
 }
 
+function renderActiveCards(){
+  if (TAB === "list") renderList();
+  else if (VIEW === "browse") { $("#grid").innerHTML = list().map(card).join(""); bindImgs($("#grid")); }
+}
+
+function renderList(){
+  const n = WISH.size; $("#lcount").hidden = !n; if (n) $("#lcount").textContent = n;
+  const items = ITEMS.filter(i => WISH.has(i.id));
+  if (!items.length){
+    $("#listGrid").className = "";
+    $("#listGrid").innerHTML = `<div class="state"><h2>Список пуст</h2><p>Добавляйте вещи сердечком на карточке — соберём их здесь для похода по магазинам.</p></div>`;
+    return;
+  }
+  $("#listGrid").className = "grid";
+  $("#listGrid").innerHTML = items.map(card).join("");
+  bindImgs($("#listGrid"));
+}
+
 function removeActive(k,v){
   if (["base","trend","sale"].includes(k)) S[k] = false; else S[k].delete(v);
-  render(); track("filters", serialize());
+  renderBrowse(); track("filters", serialize());
 }
 
 /* --- filters sheet --- */
@@ -361,6 +494,7 @@ function drawFilters(){
   const hasBody = ITEMS.some(i => (i.body_types||[]).length);
   const hasBase = ITEMS.some(i => i.base), hasTrend = ITEMS.some(i => i.trend), hasSale = ITEMS.some(i => i.old_price);
   let h = "";
+  h += `<div class="fgroup"><h4>Сортировка</h4><div class="opts">${SORTS.map(s => `<button type="button" class="chip${draft.sort===s.k?" on":""}" data-sort="${s.k}">${esc(s.t)}</button>`).join("")}</div></div>`;
   if (hasBody) h += `<div class="fgroup"><h4>Тип фигуры</h4><div class="opts">${Object.entries(BODY).map(([k,t]) => opt("body",k,t,cnt("body",i=>(i.body_types||[]).includes(k)),draft.body.has(k))).join("")}</div></div>`;
   h += `<div class="fgroup"><h4>Цена</h4><div class="opts">${PRICES.map(p => opt("prices",p.k,p.t,cnt("prices",i=>i.price>=p.min&&i.price<p.max),draft.prices.has(p.k))).join("")}</div></div>`;
   h += `<div class="fgroup"><h4>Магазин</h4><div class="opts">${stores.map(s => opt("stores",s,s,cnt("stores",i=>i.store===s),draft.stores.has(s))).join("")}</div></div>`;
@@ -376,6 +510,7 @@ function drawFilters(){
   const total = ITEMS.filter(i => matches(i, draft)).length;
   $("#apply").textContent = total ? "Показать " + plural(total,"вещь","вещи","вещей") : "Ничего не найдено";
   $("#fbody").onclick = e => {
+    const sb = e.target.closest("[data-sort]"); if (sb){ draft.sort = sb.dataset.sort; haptic(); drawFilters(); return; }
     const c = e.target.closest(".chip[data-g]");
     if (c && !c.disabled){ const set = draft[c.dataset.g]; set.has(c.dataset.v) ? set.delete(c.dataset.v) : set.add(c.dataset.v); haptic(); drawFilters(); return; }
     const s = e.target.closest(".sw"); if (s){ draft[s.dataset.t] = !draft[s.dataset.t]; haptic(); drawFilters(); }
@@ -384,6 +519,10 @@ function drawFilters(){
 
 /* --- detail sheet --- */
 let current = null;
+function updateWishUI(){
+  if (!current) return;
+  $("#dWish").classList.toggle("on", WISH.has(current.id));
+}
 function openDetail(id){
   const i = ITEMS.find(x => x.id === id); if (!i) return;
   current = i;
@@ -401,9 +540,11 @@ function openDetail(id){
     ${i.comment?`<div class="note"><b>Комментарий стилиста.</b> ${esc(i.comment)}</div>`:""}
     ${facts.length?`<div class="facts">${facts.map(([k,v]) => `<div><b>${k}</b><span>${esc(v)}</span></div>`).join("")}</div>`:""}
     <p class="fine">Цена и наличие — на момент подборки, на сайте магазина могут отличаться.</p>`;
+  updateWishUI();
   openSheet("#dsheet");
   track("item_open",{id:i.id});
 }
+$("#dWish").onclick = () => { if (!current) return; toggleWish(current.id); haptic(); renderActiveCards(); };
 $("#goStore").onclick = () => {
   if (!current) return;
   track("store_click",{id:current.id, store:current.store});
@@ -420,7 +561,7 @@ function closeSheets(silent){
   document.querySelectorAll(".sheet.on").forEach(s => { s.classList.remove("on"); s.setAttribute("aria-hidden","true"); });
   $("#veil").classList.remove("on");
   document.body.style.overflow = "";
-  if (tg && silent !== true) tg.BackButton.hide();
+  if (tg && silent !== true && VIEW !== "browse") tg.BackButton.hide();
 }
 function haptic(){ try{ tg && tg.HapticFeedback.selectionChanged(); }catch(e){} }
 
