@@ -53,6 +53,25 @@ async function allItems(sb: any) {
   return { data: out, error: null };
 }
 
+async function setMark(sb: any, body: any) {
+  const id = Number(body.id);
+  if (!Number.isInteger(id)) return json({ error: "bad_id" }, 400);
+  const q = body.on ? sb.from("delete_marks").upsert({ item_id: id }) : sb.from("delete_marks").delete().eq("item_id", id);
+  const { error } = await q;
+  if (error) return json({ error: error.message }, 500);
+  return json({ ok: true });
+}
+
+async function markedText(sb: any) {
+  const { data: marks } = await sb.from("delete_marks").select("item_id").limit(5000);
+  const ids = (marks ?? []).map((m: any) => m.item_id);
+  if (!ids.length) return { text: "", count: 0 };
+  const { data } = await sb.from("items").select("id,store,name,color,url").in("id", ids).order("store").order("id");
+  const rows = data ?? [];
+  const text = rows.map((x: any) => [x.store, x.name, x.color, x.url].filter(Boolean).join(" · ")).join("\n") + "\n";
+  return { text, count: rows.length };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   if (req.method !== "POST") return json({ error: "method" }, 405);
@@ -67,14 +86,7 @@ Deno.serve(async (req) => {
     if (ok !== true) return json({ error: "forbidden" }, 403);
     if (body.action === "event") return json({ ok: true });
     // пометка карточек на удаление — только для команды, на этапе разработки
-    if (body.action === "mark") {
-      const id = Number(body.id);
-      if (!Number.isInteger(id)) return json({ error: "bad_id" }, 400);
-      const q = body.on ? sb.from("delete_marks").upsert({ item_id: id }) : sb.from("delete_marks").delete().eq("item_id", id);
-      const { error } = await q;
-      if (error) return json({ error: error.message }, 500);
-      return json({ ok: true });
-    }
+    if (body.action === "mark") return await setMark(sb, body);
     const { data, error } = await allItems(sb);
     if (error) return json({ error: error.message }, 500);
     const { data: marks } = await sb.from("delete_marks").select("item_id").limit(5000);
@@ -103,6 +115,20 @@ Deno.serve(async (req) => {
     access = (rows ?? []).some((r) => !r.expires_at || new Date(r.expires_at) > new Date());
   }
 
+  const isAdmin = admins.includes(String(user.id));
+  if (isAdmin && body.action === "mark") return await setMark(sb, body);
+  if (isAdmin && body.action === "export_marks") {
+    const { text, count } = await markedText(sb);
+    if (!count) return json({ error: "empty" }, 400);
+    const fd = new FormData();
+    fd.append("chat_id", String(user.id));
+    fd.append("caption", `К удалению: ${count}`);
+    fd.append("document", new Blob(["\ufeff" + text], { type: "text/plain" }), `к-удалению-${new Date().toISOString().slice(0, 10)}.txt`);
+    const r = await fetch(`https://api.telegram.org/bot${botToken}/sendDocument`, { method: "POST", body: fd });
+    if (!r.ok) return json({ error: "send_failed" }, 502);
+    return json({ ok: true, count });
+  }
+
   if (body.action === "event") {
     const type = String(body.type ?? "").slice(0, 40);
     if (type) await sb.from("events").insert({ tg_id: user.id, type, payload: body.payload ?? null });
@@ -114,5 +140,10 @@ Deno.serve(async (req) => {
 
   const { data, error } = await allItems(sb);
   if (error) return json({ error: error.message }, 500);
+  if (isAdmin) {
+    const { data: marks } = await sb.from("delete_marks").select("item_id").limit(5000);
+    const del = new Set((marks ?? []).map((m: any) => m.item_id));
+    return json({ access: true, dev: true, items: data.map((i: any) => (del.has(i.id) ? { ...i, del: true } : i)), user: { first_name: user.first_name ?? "" } });
+  }
   return json({ access: true, items: data, user: { first_name: user.first_name ?? "" } });
 });

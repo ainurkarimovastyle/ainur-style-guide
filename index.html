@@ -274,7 +274,7 @@ const previewToken = qs.get("preview");
 let ITEMS = [];
 const S = {cat:"all", sub:null, sort:"def", stores:new Set(), prices:new Set(), body:new Set(), mats:new Set(), colors:new Set(), base:false, trend:false, sale:false, delOnly:false};
 let draft = null;
-const DEV = !!previewToken; // режим команды: можно помечать карточки на удаление
+let DEV = !!previewToken; // режим команды: можно помечать карточки на удаление
 let TAB = "shop"; // shop | list
 
 let WISH = new Set();
@@ -313,6 +313,7 @@ async function boot(){
   try { res = await api({action:"items"}); } catch(e){ res = {status:0}; }
   if (res.status === 200 && res.data && res.data.access){
     ITEMS = res.data.items || [];
+    if (res.data.dev) DEV = true;
     setState("");
     initUI();
     showHome();
@@ -369,19 +370,25 @@ function updateDelBar(){
   b.textContent = S.delOnly ? `Показать все · к удалению: ${n}` : `🗑 К удалению: ${n}`;
   b.classList.toggle("off", !S.delOnly);
 }
-function exportMarked(){
+async function exportMarked(){
   const list = ITEMS.filter(x => x.del);
   if (!list.length) return;
+  const e = document.getElementById("delexp");
+  const say = t => { if (e){ e.textContent = t; setTimeout(() => { e.textContent = "⬇ Скачать список"; }, 3000); } };
+  if (tg){ // в Telegram скачивание недоступно — бот присылает файл в чат
+    say("Отправляю…");
+    try { const r = await api({action:"export_marks"}); say(r.status === 200 ? "Список отправлен в чат с ботом" : "Не получилось, попробуйте ещё"); } catch(_) { say("Не получилось, попробуйте ещё"); }
+    return;
+  }
   const txt = list.map(x => [x.store, x.name, x.color, x.url].filter(Boolean).join(" · ")).join("\n") + "\n";
-  const urls = list.map(x => x.url).join("\n");
   try {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["\ufeff" + txt], {type:"text/plain;charset=utf-8"}));
     a.download = "к-удалению-" + new Date().toISOString().slice(0,10) + ".txt";
     document.body.appendChild(a); a.click(); a.remove();
   } catch(_) {}
-  if (navigator.clipboard) navigator.clipboard.writeText(urls).catch(()=>{});
-  const e = document.getElementById("delexp"); if (e){ e.textContent = "Скачано · ссылки скопированы"; setTimeout(() => { e.textContent = "⬇ Скачать список"; }, 2500); }
+  if (navigator.clipboard) navigator.clipboard.writeText(list.map(x => x.url).join("\n")).catch(()=>{});
+  say("Скачано · ссылки скопированы");
 }
 function cardKey(e){
   if (e.key !== "Enter" && e.key !== " ") return;
