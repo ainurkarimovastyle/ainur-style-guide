@@ -251,7 +251,7 @@ Deno.serve(async (req) => {
   }
   const sheets = all.filter((r) => r.store === "sheet").sort((a, b) => a.item_id - b.item_id);
   const scraped = new Map<string, any>();
-  for (const r of all) if (r.store !== "sheet") scraped.set(`${r.store}#${r.item_id}`, r.data);
+  for (const r of all) if (r.store !== "sheet" && r.store !== "manual") scraped.set(`${r.store}#${r.item_id}`, r.data);
 
   // строки таблицы → позиции (id = порядковый номер ссылки во всех вкладках)
   const rows: any[] = [];
@@ -275,7 +275,12 @@ Deno.serve(async (req) => {
       });
     }
   }
-  for (const m of MANUAL_ROWS) {
+  // дополнительные ручные позиции хранятся в staging_raw (store = 'manual'),
+  // чтобы добавлять вещи без перевыкладки функции: data = { category, store, url, comment? }
+  const manual: any[] = [...MANUAL_ROWS];
+  for (const r of all) if (r.store === "manual") manual.push({ id: r.item_id, ...r.data });
+  manual.sort((a, b) => a.id - b.id);
+  for (const m of manual) {
     rows.push({
       id: m.id, category: m.category, store: m.store, url: m.url,
       base: false, trend: false, body_types: [] as string[],
