@@ -66,9 +66,20 @@ Deno.serve(async (req) => {
     const { data: ok } = await sb.rpc("check_preview_token", { t: String(body.preview) });
     if (ok !== true) return json({ error: "forbidden" }, 403);
     if (body.action === "event") return json({ ok: true });
+    // пометка карточек на удаление — только для команды, на этапе разработки
+    if (body.action === "mark") {
+      const id = Number(body.id);
+      if (!Number.isInteger(id)) return json({ error: "bad_id" }, 400);
+      const q = body.on ? sb.from("delete_marks").upsert({ item_id: id }) : sb.from("delete_marks").delete().eq("item_id", id);
+      const { error } = await q;
+      if (error) return json({ error: error.message }, 500);
+      return json({ ok: true });
+    }
     const { data, error } = await allItems(sb);
     if (error) return json({ error: error.message }, 500);
-    return json({ access: true, preview: true, items: data });
+    const { data: marks } = await sb.from("delete_marks").select("item_id").limit(5000);
+    const del = new Set((marks ?? []).map((m: any) => m.item_id));
+    return json({ access: true, preview: true, items: data.map((i: any) => (del.has(i.id) ? { ...i, del: true } : i)) });
   }
 
   const botToken = Deno.env.get("BOT_TOKEN");
