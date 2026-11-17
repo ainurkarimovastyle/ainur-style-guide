@@ -74,6 +74,8 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .card.feature .pill{background:rgba(255,255,255,.12);color:#fff}
 .card.feature .pill.wine{background:var(--wine)}
 .card.feature .price{color:#fff;font-size:16px}
+.bonus{margin:10px 0 0;padding:9px 11px;border-radius:14px;background:rgba(122,28,44,.35);border:1px solid rgba(255,255,255,.12);font:500 12px/1.4 var(--sans);color:#fff}
+.bonus b{display:inline-block;margin-right:6px;padding:2px 7px;border-radius:999px;background:var(--wine);font:700 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase}
 .stores{margin:8px 0 0;font:500 11.5px/1.4 var(--sans);color:rgba(255,255,255,.55)}
 
 /* ───── контакты ───── */
@@ -91,7 +93,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .grab{width:40px;height:4px;border-radius:4px;background:var(--fill);margin:0 auto 16px}
 .s-eyebrow{font:600 12px/1 var(--sans);color:var(--wine)}
 .s-title{font:600 24px/1.1 var(--sans);letter-spacing:-.03em;margin:8px 0 8px}
-.s-desc{margin:0 0 14px;font:400 14px/1.45 var(--sans);color:var(--ink-2)}
+.s-desc{white-space:pre-line;margin:0 0 14px;font:400 14px/1.45 var(--sans);color:var(--ink-2)}
 .s-price{display:flex;align-items:baseline;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:14px}
 .s-price b{font:700 24px/1 var(--sans);color:var(--wine);letter-spacing:-.02em}
 .s-price span{font:400 12px/1 var(--sans);color:var(--ink-3)}
@@ -128,7 +130,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
     <button class="tab" role="tab" data-f="all" aria-selected="true">Всё</button>
     <button class="tab" role="tab" data-f="guide" aria-selected="false">Гайды</button>
     <button class="tab" role="tab" data-f="learn" aria-selected="false">Обучение</button>
-    <button class="tab" role="tab" data-f="free" aria-selected="false">Бесплатно</button>
+    <button class="tab" role="tab" data-f="free" aria-selected="false">Полезное</button>
   </nav>
   <div id="menu"></div>
 
@@ -181,13 +183,14 @@ const BELL='<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-1
 
 const GROUPS = [
   {id:"guide", title:"Гайды", items:[
-    {id:"shopping", icon:"bag", feature:true, title:"Shopping Guide",
-     desc:"Готовые вещи сезона сразу из всех магазинов в одном месте. Удобные фильтры по магазинам, категориям и цветам.",
+    {id:"shopping", icon:"bag", feature:true, title:"Shopping Guide · Зима 2026/27",
+     desc:"1500+ позиций и особенные находки сезона сразу из всех магазинов в одном месте. Удобные фильтры по магазинам, категориям и цветам.",
+     bonus:"Прямой эфир со мной: ответы на вопросы по стилю и вашему личному гардеробу",
      stores:"Zara · Massimo Dutti · Mango · Lime · 12 Storeez · Este Fashion",
-     pills:[["wine","Хит"],["","Зима 26/27"]],
+     pills:[["wine","Хит"]],
      status:"open", price:14000, action:"guide"},
     {id:"newyear", icon:"star", title:"Shopping Guide «Новый год 2027»",
-     desc:"Подборка самых актуальных и стильных позиций для новогодней ночи.",
+     desc:"Образы, на которые оборачиваются. Самые актуальные и стильные вещи, чтобы собрать все взгляды на корпоративе и в новогоднюю ночь — и услышать «где ты это купила?»",
      pills:[["soft","Откроется 01.12"]],
      status:"soon", price:null, action:"wait", eyebrow:"Откроется 01.12"},
   ]},
@@ -199,7 +202,7 @@ const GROUPS = [
     {id:"colortype", icon:"palette", title:"Определи свой цветотип и тип фигуры",
      desc:"Что вам идёт и почему.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait"},
   ]},
-  {id:"free", title:"Бесплатно", items:[
+  {id:"free", title:"Полезное", items:[
     {id:"trends", icon:"trend", title:"Шпаргалка по трендам",
      desc:"Короткий разбор трендов сезона в Telegram-канале.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle/661"},
     {id:"podcast", icon:"mic", title:"Подкаст «Как найти свой стиль»",
@@ -223,7 +226,7 @@ function render(filter){
       const dim = it.status!=="open";
       return `<button class="card ${it.feature?"feature":""} ${dim?"dim":""}" data-id="${it.id}">
         <span class="thumb">${ICONS[it.icon]}</span>
-        <span><h4 class="ct">${it.title}</h4><p class="cd">${it.desc}</p>${it.stores?`<p class="stores">${it.stores}</p>`:""}<span class="meta">${pills.join("")}</span></span>
+        <span><h4 class="ct">${it.title}</h4><p class="cd">${it.desc}</p>${it.stores?`<p class="stores">${it.stores}</p>`:""}${it.bonus?`<p class="bonus"><b>★ Бонус</b>${it.bonus}</p>`:""}<span class="meta">${pills.join("")}</span></span>
         <span class="go">${dim?BELL:ARROW}</span>
       </button>`;
     }).join("") + `</div></section>`
@@ -252,7 +255,7 @@ function openLink(url){
 function sheet(it){
   $("#sEy").textContent = it.status==="open" ? "Доступ к гайду" : (it.eyebrow || "Скоро");
   $("#sTi").textContent = it.title;
-  $("#sDe").textContent = it.desc;
+  $("#sDe").textContent = it.desc + (it.bonus ? "\n\n★ Бонус: " + it.bonus : "");
   const pr = $("#sPr");
   pr.classList.toggle("hidden", typeof it.price!=="number");
   if(typeof it.price==="number"){
