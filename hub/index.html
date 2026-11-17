@@ -3,171 +3,136 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#3f1120">
-<title>Ainur Karimova · стилист</title>
+<meta name="theme-color" content="#F2F2F6">
+<title>Ainur Karimova · Stylist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{
-  --wine-0:#2c0a15;   /* самый тёмный */
-  --wine-1:#3f1120;   /* фон */
-  --wine-2:#5a1a2d;   /* поднятые поверхности */
-  --wine-3:#7a2a3f;   /* акценты на тёмном */
-  --cream:#f4ece4;    /* светлые карточки и заголовки */
-  --cream-2:#e6d9cd;
-  --gold:#d2b07a;     /* золото: кольца, кнопки, цена */
-  --gold-2:#b8935a;
-  --txt:#f4ece4;
-  --txt-2:rgba(244,236,228,.72);
-  --txt-3:rgba(244,236,228,.48);
-  --glass:rgba(244,236,228,.09);
-  --glass-b:rgba(244,236,228,.16);
-  --serif:"Cormorant Garamond","Times New Roman",serif;
-  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  --r-lg:24px; --r-md:16px;
+  color-scheme: light;
+  /* как в гайде: графит + белый */
+  --bg:#F2F2F6; --card:#FFFFFF; --ink:#0E0E10; --ink-2:#55555C; --ink-3:#9A9AA2;
+  --line:rgba(14,14,16,.07); --fill:#E8E8EE;
+  /* акцент: бордо */
+  --wine:#7A1C2C; --wine-soft:#F4E7E9;
+  --r-lg:24px; --r-md:18px;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--wine-1);color:var(--txt);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
-body{min-height:100vh;background:
-  radial-gradient(120% 60% at 85% -10%, rgba(210,176,122,.16), transparent 55%),
-  radial-gradient(90% 50% at -10% 30%, rgba(122,42,63,.55), transparent 60%),
-  linear-gradient(180deg,var(--wine-1),var(--wine-0) 120%);
-  background-attachment:fixed}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--sans);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
 a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
-.wrap{max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 18px calc(env(safe-area-inset-bottom,0px) + 36px)}
-
-/* ───── шапка ───── */
-.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
-.brand{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-3)}
-.icons{display:flex;gap:10px}
-.ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--glass);border:1px solid var(--glass-b);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.ic svg{width:18px;height:18px;stroke:var(--cream);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:none;padding:0;cursor:pointer}
+.wrap{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 22px) 20px calc(env(safe-area-inset-bottom,0px) + 36px)}
+.hidden{display:none!important}
 
 /* ───── профиль ───── */
-.profile{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
-.ava{width:92px;height:92px;border-radius:50%;padding:3px;background:conic-gradient(from 210deg,var(--gold),#f3dfb8,var(--gold-2),var(--gold));box-shadow:0 10px 30px rgba(0,0,0,.35)}
-.ava span{display:block;width:100%;height:100%;border-radius:50%;border:3px solid var(--wine-1);background:#222 url("ainur.jpg") center/cover}
-.name{font-family:var(--serif);font-weight:500;font-size:38px;line-height:.98;letter-spacing:-.01em;margin:0}
-.name i{color:var(--gold);font-weight:500}
-.role{margin:8px 0 0;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--txt-2)}
+.profile{position:relative;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding-top:8px}
+.ava{width:88px;height:88px;border-radius:50%;padding:3px;background:var(--card);box-shadow:0 0 0 1.5px var(--wine),0 8px 24px rgba(14,14,16,.10)}
+.ava span{display:block;width:100%;height:100%;border-radius:50%;background:#222 url("ainur.jpg") center/cover}
+.name{font:600 30px/1.02 var(--sans);letter-spacing:-.035em;margin:0}
+.name span{display:block;color:var(--ink-3);font-weight:500}
+.badge{position:absolute;top:0;right:0;display:inline-flex;align-items:center;gap:6px;padding:6px 11px 6px 8px;border-radius:999px;background:var(--wine);color:#fff;font:600 10.5px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;box-shadow:0 6px 16px rgba(122,28,44,.25)}
+.badge svg{width:13px;height:13px;fill:#fff}
 
-.bio{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:9px}
-.bio li{display:flex;gap:11px;align-items:flex-start;font-size:15px;line-height:1.4;color:var(--txt)}
-.bio li::before{content:"";flex:0 0 5px;height:5px;margin-top:9px;border-radius:50%;background:var(--gold)}
-.bio a{border-bottom:1px solid rgba(210,176,122,.55);color:var(--cream)}
-.sold{display:inline-block;margin-left:2px;padding:1px 9px;border-radius:99px;background:rgba(244,236,228,.12);font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--gold)}
+.bio{margin:18px 0 0;padding:16px 18px;list-style:none;display:grid;gap:5px;background:var(--card);border-radius:var(--r-lg)}
+.bio li{display:flex;gap:10px;align-items:flex-start;font:500 14.5px/1.35 var(--sans);color:var(--ink)}
+.bio li::before{content:"";flex:0 0 5px;height:5px;margin-top:7.5px;border-radius:50%;background:var(--wine)}
+.bio a{color:var(--wine);font-weight:600}
+.sold{display:inline-block;margin-left:4px;padding:2px 8px;border-radius:999px;background:var(--ink);color:#fff;font:700 10px/1.4 var(--sans);letter-spacing:.08em;vertical-align:1px}
 
-.quote{margin:22px 0 0;padding:16px 18px;border-radius:var(--r-lg);background:var(--glass);border:1px solid var(--glass-b);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-family:var(--serif);font-size:21px;line-height:1.22;color:var(--cream)}
-.quote small{display:block;margin-top:8px;font:600 10.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--txt-3)}
-
-/* ───── заголовок меню и вкладки ───── */
-.h2{font-family:var(--serif);font-weight:500;font-size:40px;line-height:.98;margin:34px 0 16px;letter-spacing:-.01em}
-.h2 i{color:var(--gold)}
-.tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -18px 18px;padding:2px 18px}
+/* ───── меню ───── */
+.h2{font:600 24px/1.1 var(--sans);letter-spacing:-.03em;margin:30px 0 14px}
+.tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px 4px;padding:2px 20px}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;padding:8px 14px;border-radius:99px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-3);transition:.2s}
-.tab[aria-selected=true]{background:var(--cream);color:var(--wine-1)}
+.tab{flex:0 0 auto;padding:9px 16px;border-radius:999px;background:var(--card);font:500 13.5px/1 var(--sans);color:var(--ink-2);transition:.15s}
+.tab[aria-selected=true]{background:var(--wine);color:#fff}
 
-/* ───── карточки услуг ───── */
-.group{margin:0 0 6px}
-.group-t{margin:18px 2px 10px;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--txt-3)}
-.cards{display:grid;gap:12px}
-.card{position:relative;display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;padding:14px;border-radius:var(--r-lg);background:var(--glass);border:1px solid var(--glass-b);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);text-align:left;width:100%;transition:transform .15s,background .2s}
-.card:active{transform:scale(.985);background:rgba(244,236,228,.14)}
-.card.feature{background:linear-gradient(135deg,rgba(210,176,122,.22),rgba(244,236,228,.08));border-color:rgba(210,176,122,.45)}
-.thumb{width:64px;height:76px;border-radius:14px;background:var(--wine-2);display:grid;place-items:center;overflow:hidden;border:1px solid var(--glass-b)}
-.card.feature .thumb{background:var(--cream);border-color:transparent}
-.thumb svg{width:30px;height:30px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.card.feature .thumb svg{stroke:var(--wine-1)}
-.ct{font-family:var(--serif);font-weight:600;font-size:21px;line-height:1.08;margin:0}
-.cd{margin:5px 0 0;font-size:13px;line-height:1.38;color:var(--txt-2)}
-.meta{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:9px}
-.pill{padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:.06em;background:rgba(244,236,228,.12);color:var(--cream)}
-.pill.gold{background:var(--gold);color:var(--wine-1)}
-.pill.off{background:transparent;border:1px solid var(--glass-b);color:var(--txt-3)}
-.price{font-size:13px;font-weight:600;color:var(--gold)}
-.go{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--wine-1);align-self:end}
+.group-t{margin:22px 2px 10px;font:600 13px/1 var(--sans);color:var(--ink-3)}
+.cards{display:grid;gap:10px}
+.card{position:relative;display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px;border-radius:var(--r-lg);background:var(--card);text-align:left;width:100%;transition:transform .15s}
+.card:active{transform:scale(.985)}
+.thumb{width:56px;height:56px;border-radius:16px;background:var(--fill);display:grid;place-items:center;align-self:start}
+.thumb svg{width:26px;height:26px;stroke:var(--ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ct{font:600 16.5px/1.2 var(--sans);letter-spacing:-.02em;margin:0}
+.cd{margin:4px 0 0;font:400 13px/1.38 var(--sans);color:var(--ink-2)}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px}
+.pill{padding:4px 9px;border-radius:999px;font:600 11px/1 var(--sans);background:var(--fill);color:var(--ink-2)}
+.pill.wine{background:var(--wine);color:#fff}
+.pill.soft{background:var(--wine-soft);color:var(--wine)}
+.price{font:700 14px/1 var(--sans);color:var(--wine);letter-spacing:-.01em}
+.go{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--wine);color:#fff;align-self:end}
 .go svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.card.dim .go{background:rgba(244,236,228,.12);color:var(--txt-3)}
-.card.dim .thumb svg{stroke:var(--txt-3)}
-.card.dim .ct{color:var(--txt-2)}
+.card.dim .go{background:var(--fill);color:var(--ink-3)}
+
+/* главная карточка — графит */
+.card.feature{background:var(--ink);color:#fff}
+.card.feature .thumb{background:rgba(255,255,255,.10)}
+.card.feature .thumb svg{stroke:#fff}
+.card.feature .cd{color:rgba(255,255,255,.72)}
+.card.feature .pill{background:rgba(255,255,255,.12);color:#fff}
+.card.feature .pill.wine{background:var(--wine)}
+.card.feature .price{color:#fff;font-size:16px}
+.stores{margin:8px 0 0;font:500 11.5px/1.4 var(--sans);color:rgba(255,255,255,.55)}
 
 /* ───── контакты ───── */
-.contacts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
-.ct-b{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:var(--r-md);background:var(--glass);border:1px solid var(--glass-b);font-size:12px;font-weight:600;letter-spacing:.06em}
-.ct-b svg{width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.legal{margin:30px 0 0;text-align:center;font-size:11px;line-height:1.55;color:var(--txt-3)}
-.legal a{border-bottom:1px solid var(--glass-b)}
+.contacts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ct-b{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:var(--r-md);background:var(--card);font:500 12.5px/1 var(--sans)}
+.ct-b svg{width:22px;height:22px;stroke:var(--wine);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.legal{margin:28px 0 0;text-align:center;font:400 11px/1.55 var(--sans);color:var(--ink-3)}
+.legal a{border-bottom:1px solid var(--line)}
 
 /* ───── нижний лист ───── */
-.shade{position:fixed;inset:0;background:rgba(20,4,10,.6);opacity:0;pointer-events:none;transition:.25s;z-index:40}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:480px;margin:0 auto;transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);padding:10px 18px calc(env(safe-area-inset-bottom,0px) + 20px);border-radius:28px 28px 0 0;background:linear-gradient(180deg,#f7f0e8,#ecdfd2);color:var(--wine-0)}
+.shade{position:fixed;inset:0;background:rgba(14,14,16,.42);opacity:0;pointer-events:none;transition:.25s;z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:520px;margin:0 auto;transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);padding:10px 20px calc(env(safe-area-inset-bottom,0px) + 20px);border-radius:28px 28px 0 0;background:var(--card)}
 .open .shade{opacity:1;pointer-events:auto}
 .open .sheet{transform:none}
-.grab{width:42px;height:4px;border-radius:4px;background:rgba(44,10,21,.2);margin:0 auto 16px}
-.s-eyebrow{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--wine-3)}
-.s-title{font-family:var(--serif);font-weight:500;font-size:32px;line-height:1;margin:8px 0 8px}
-.s-desc{margin:0 0 14px;font-size:14px;line-height:1.45;color:#5e4650}
-.s-price{display:flex;align-items:baseline;justify-content:space-between;padding:12px 0;border-top:1px solid rgba(44,10,21,.12);border-bottom:1px solid rgba(44,10,21,.12);margin-bottom:14px}
-.s-price b{font-family:var(--serif);font-weight:600;font-size:28px;color:var(--wine-1)}
-.s-price span{font-size:12px;color:#7d6670}
-.pay{display:grid;gap:9px}
-.btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 18px;border-radius:16px;font-size:15px;font-weight:600;background:var(--wine-1);color:var(--cream)}
-.btn small{font-weight:500;font-size:12px;opacity:.7}
-.btn.alt{background:transparent;color:var(--wine-1);border:1.5px solid rgba(63,17,32,.28)}
-.btn.main{background:var(--wine-1)}
-.btn[disabled]{opacity:.5}
-.note{margin:12px 0 0;text-align:center;font-size:12px;color:#7d6670}
-.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,30px);opacity:0;z-index:60;padding:11px 18px;border-radius:99px;background:var(--cream);color:var(--wine-1);font-size:13px;font-weight:600;transition:.25s;pointer-events:none;white-space:nowrap}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--fill);margin:0 auto 16px}
+.s-eyebrow{font:600 12px/1 var(--sans);color:var(--wine)}
+.s-title{font:600 24px/1.1 var(--sans);letter-spacing:-.03em;margin:8px 0 8px}
+.s-desc{margin:0 0 14px;font:400 14px/1.45 var(--sans);color:var(--ink-2)}
+.s-price{display:flex;align-items:baseline;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:14px}
+.s-price b{font:700 24px/1 var(--sans);color:var(--wine);letter-spacing:-.02em}
+.s-price span{font:400 12px/1 var(--sans);color:var(--ink-3)}
+.pay{display:grid;gap:8px}
+.btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 18px;border-radius:16px;font:600 15px/1 var(--sans);background:var(--wine);color:#fff}
+.btn small{font:500 12px/1 var(--sans);opacity:.75}
+.btn.alt{background:var(--fill);color:var(--ink)}
+.btn.dark{background:var(--ink);color:#fff}
+.note{margin:12px 0 0;text-align:center;font:400 12px/1.4 var(--sans);color:var(--ink-3)}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,30px);opacity:0;z-index:60;padding:11px 18px;border-radius:999px;background:var(--ink);color:#fff;font:600 13px/1 var(--sans);transition:.25s;pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1;transform:translate(-50%,0)}
-.hidden{display:none!important}
-@media (min-width:520px){body{padding-top:20px}}
 </style>
 </head>
 <body>
-<div class="wrap" id="app">
-
-  <header class="top">
-    <span class="brand">Ainur Karimova</span>
-    <div class="icons">
-      <a class="ic" id="icShare" href="#" aria-label="Поделиться"><svg viewBox="0 0 24 24"><path d="M12 15V3m0 0 4 4m-4-4L8 7M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></a>
-      <a class="ic" href="https://t.me/ainurkarimova_style" aria-label="Написать"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></a>
-    </div>
-  </header>
+<div class="wrap">
 
   <!-- профиль -->
   <section class="profile">
-    <a class="ava" href="https://instagram.com/ainurkarimova.style" aria-label="Instagram Айнур"><span></span></a>
-    <div>
-      <h1 class="name">Айнур<br><i>Каримова</i></h1>
-      <p class="role">Стилист · Астана</p>
-    </div>
+    <a class="ava" href="https://instagram.com/ainurkarimova.style" aria-label="Instagram"><span></span></a>
+    <h1 class="name">Ainur<span>Karimova</span></h1>
+    <span class="badge"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.7 6 6.5.6-4.9 4.4 1.4 6.4L12 16.9 6.3 20.2l1.4-6.4L2.8 9.4l6.5-.6z"/></svg>Top Stylist · Astana</span>
   </section>
 
   <ul class="bio">
     <li>Эксперт по имиджу</li>
     <li><span>Ювелирный консультант. Партнёр <a href="https://instagram.com/astteria.kazakhstan">@astteria.kazakhstan</a></span></li>
-    <li>Обучение по стилистике индивидуально / в группе</li>
-    <li><span>Места на личную работу <span class="sold">SOLD OUT ✕</span></span></li>
+    <li>Обучение стилистике индивидуально / в группе</li>
+    <li><span>Места на личную работу <span class="sold">SOLD OUT</span></span></li>
   </ul>
 
-  <p class="quote">Стиль — это не тренды, а отражение вашего характера.<small>Айнур Каримова</small></p>
-
   <!-- меню -->
-  <h2 class="h2">Выберите <i>формат</i></h2>
+  <h2 class="h2">Выбирай формат</h2>
   <nav class="tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" data-f="all" aria-selected="true">Всё</button>
     <button class="tab" role="tab" data-f="guide" aria-selected="false">Гайды</button>
-    <button class="tab" role="tab" data-f="work" aria-selected="false">Работа</button>
     <button class="tab" role="tab" data-f="learn" aria-selected="false">Обучение</button>
     <button class="tab" role="tab" data-f="free" aria-selected="false">Бесплатно</button>
   </nav>
   <div id="menu"></div>
 
-  <h3 class="group-t" style="margin-top:26px">Связаться</h3>
+  <h3 class="group-t" style="margin-top:28px">Связаться</h3>
   <div class="contacts">
     <a class="ct-b" href="https://instagram.com/ainurkarimova.style"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6"/></svg>Instagram</a>
     <a class="ct-b" href="https://t.me/ainurkarimova_style"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l5.5 2L10 19l3-3.5 4.5 3.3L21 4zM8.5 13 17 7.5"/></svg>Telegram</a>
@@ -180,7 +145,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 <!-- нижний лист -->
 <div id="layer">
   <div class="shade" id="shade"></div>
-  <div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="sheet" role="dialog" aria-modal="true">
     <div class="grab"></div>
     <div class="s-eyebrow" id="sEy"></div>
     <h3 class="s-title" id="sTi"></h3>
@@ -195,55 +160,52 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:poin
 <script>
 /* ───────────────────────────────────────────────
    ГЛАВНЫЙ ЭКРАН · конфигурация меню
-   status: open — доступно сейчас
-           soon — скоро
-           sold — места закончились
-   price:  число в тенге или null (тогда «Цена скоро»)
-   action: guide — открыть гайд, pay — окно оплаты,
-           link — внешняя ссылка, wait — лист ожидания
+   status: open — доступно, soon — скоро
+   price:  число в тенге или null
+   action: guide — гайд с оплатой, wait — лист ожидания, link — ссылка
    ─────────────────────────────────────────────── */
-const GUIDE_URL = "../";          // адрес основного гайда
+const GUIDE_URL = "../";
 const CONTACT   = "https://t.me/ainurkarimova_style";
 const ICONS = {
   bag:'<svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
-  user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>',
+  star:'<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="2.4"/></svg>',
+  group:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.2A5 5 0 0 1 21 19"/></svg>',
   book:'<svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5v-13zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5v-13z"/></svg>',
   palette:'<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.5-1.8-.3-1 .3-2 1.4-2H17a4 4 0 0 0 4-4c0-5-4-10.2-9-10.2z"/><circle cx="7.8" cy="11" r=".9"/><circle cx="10.5" cy="7.2" r=".9"/><circle cx="15" cy="8" r=".9"/></svg>',
-  cap:'<svg viewBox="0 0 24 24"><path d="m3 9 9-4.5L21 9l-9 4.5L3 9z"/><path d="M7 11.5V16c0 1.2 2.2 2.5 5 2.5s5-1.3 5-2.5v-4.5M21 9v6"/></svg>',
-  gem:'<svg viewBox="0 0 24 24"><path d="m6 4-3 5 9 11 9-11-3-5H6zM3 9h18M9 4l3 5 3-5M9 9l3 11 3-11"/></svg>',
   mic:'<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
   send:'<svg viewBox="0 0 24 24"><path d="M21 4 3 11l5.5 2L10 19l3-3.5 4.5 3.3L21 4z"/></svg>',
   trend:'<svg viewBox="0 0 24 24"><path d="m4 16 5-5 4 4 7-8M15 7h5v5"/></svg>'
 };
 const ARROW='<svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>';
-const PLUS='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+const BELL='<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16zM10 20.5a2 2 0 0 0 4 0"/></svg>';
 
 const GROUPS = [
   {id:"guide", title:"Гайды", items:[
     {id:"shopping", icon:"bag", feature:true, title:"Shopping Guide",
-     desc:"Готовые вещи из Zara, Mango, Massimo Dutti, Lime и 12 Storeez: подборка по типу фигуры, образам и трендам сезона.",
-     status:"open", price:null, action:"guide", cta:"Открыть гайд", tag:"Новое"},
-  ]},
-  {id:"work", title:"Личная работа", items:[
-    {id:"personal", icon:"user", title:"Работа со стилистом",
-     desc:"Консультация, разбор гардероба, шопинг-сопровождение.",
-     status:"sold", price:"150 000 ₸ / час", action:"wait", tag:"SOLD OUT"},
+     desc:"Готовые вещи сезона сразу из всех магазинов в одном месте. Удобные фильтры по магазинам, категориям и цветам.",
+     stores:"Zara · Massimo Dutti · Mango · Lime · 12 Storeez · Este Fashion",
+     pills:[["wine","Хит"],["","Зима 26/27"]],
+     status:"open", price:14000, action:"guide"},
+    {id:"newyear", icon:"star", title:"Shopping Guide «Новый год 2027»",
+     desc:"Подборка самых актуальных и стильных позиций для новогодней ночи.",
+     pills:[["soft","Откроется 01.12"]],
+     status:"soon", price:null, action:"wait", eyebrow:"Откроется 01.12"},
   ]},
   {id:"learn", title:"Обучение", items:[
-    {id:"image", icon:"book", title:"Личный имидж: как найти свой стиль",
-     desc:"Пошаговая система, индивидуально или в группе.", status:"soon", price:null, action:"wait"},
-    {id:"formula", icon:"palette", title:"Формула стиля",
-     desc:"Цветотип и тип фигуры: что вам идёт и почему.", status:"soon", price:null, action:"wait"},
-    {id:"vip", icon:"cap", title:"VIP-обучение для стилистов",
-     desc:"Интенсив по личному стилю или профессии стилиста.", status:"soon", price:null, action:"wait"},
+    {id:"intensive", icon:"group", title:"Интенсив-группа по стилю",
+     desc:"Обучение в группе вместе с Айнур.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait"},
+    {id:"findstyle", icon:"book", title:"Как найти свой стиль",
+     desc:"Пошаговая система, которая помогает собрать свой образ.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait"},
+    {id:"colortype", icon:"palette", title:"Определи свой цветотип и тип фигуры",
+     desc:"Что вам идёт и почему.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait"},
   ]},
   {id:"free", title:"Бесплатно", items:[
     {id:"trends", icon:"trend", title:"Шпаргалка по трендам",
-     desc:"Короткий разбор трендов сезона в Telegram-канале.", status:"open", price:0, action:"link", url:"https://t.me/ainurkarimovastyle/661"},
+     desc:"Короткий разбор трендов сезона в Telegram-канале.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle/661"},
     {id:"podcast", icon:"mic", title:"Подкаст «Как найти свой стиль»",
-     desc:"Слушайте в Telegram.", status:"open", price:0, action:"link", url:"https://t.me/ainurkarimovastyle/11"},
+     desc:"Слушайте в Telegram.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle/11"},
     {id:"channel", icon:"send", title:"Telegram-канал Айнур",
-     desc:"Образы, разборы и закулисье работы стилиста.", status:"open", price:0, action:"link", url:"https://t.me/ainurkarimovastyle"},
+     desc:"Образы, разборы и закулисье работы стилиста.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle"},
   ]},
 ];
 
@@ -252,27 +214,20 @@ const $ = s => document.querySelector(s);
 const money = n => n.toLocaleString("ru-RU").replace(/ /g," ") + " ₸";
 const ALL = GROUPS.flatMap(g => g.items);
 
-/* ── вывод меню ── */
 function render(filter){
-  const html = GROUPS.filter(g => filter==="all" || g.id===filter).map(g =>
-    `<section class="group"><h3 class="group-t">${g.title}</h3><div class="cards">` +
+  $("#menu").innerHTML = GROUPS.filter(g => filter==="all" || g.id===filter).map(g =>
+    `<section><h3 class="group-t">${g.title}</h3><div class="cards">` +
     g.items.map(it => {
+      const pills = (it.pills||[]).map(([c,t]) => `<span class="pill ${c}">${t}</span>`);
+      if(typeof it.price==="number") pills.push(`<span class="price">${money(it.price)}</span>`);
       const dim = it.status!=="open";
-      const pills = [];
-      if(it.tag) pills.push(`<span class="pill ${it.status==="sold"?"off":"gold"}">${it.tag}</span>`);
-      if(it.status==="soon") pills.push(`<span class="pill off">Скоро</span>`);
-      if(it.price===0) pills.push(`<span class="pill">Бесплатно</span>`);
-      else if(typeof it.price==="number") pills.push(`<span class="price">${money(it.price)}</span>`);
-      else if(typeof it.price==="string") pills.push(`<span class="price">${it.price}</span>`);
-      else if(it.status==="open") pills.push(`<span class="price">Цена скоро</span>`);
       return `<button class="card ${it.feature?"feature":""} ${dim?"dim":""}" data-id="${it.id}">
-        <span class="thumb">${ICONS[it.icon]||ICONS.gem}</span>
-        <span><h4 class="ct">${it.title}</h4><p class="cd">${it.desc}</p><span class="meta">${pills.join("")}</span></span>
-        <span class="go">${it.status==="soon"||it.status==="sold"?PLUS:ARROW}</span>
+        <span class="thumb">${ICONS[it.icon]}</span>
+        <span><h4 class="ct">${it.title}</h4><p class="cd">${it.desc}</p>${it.stores?`<p class="stores">${it.stores}</p>`:""}<span class="meta">${pills.join("")}</span></span>
+        <span class="go">${dim?BELL:ARROW}</span>
       </button>`;
     }).join("") + `</div></section>`
   ).join("");
-  $("#menu").innerHTML = html;
 }
 $("#tabs").addEventListener("click", e => {
   const b = e.target.closest(".tab"); if(!b) return;
@@ -282,44 +237,41 @@ $("#tabs").addEventListener("click", e => {
 });
 $("#menu").addEventListener("click", e => {
   const c = e.target.closest(".card"); if(!c) return;
-  act(ALL.find(i => i.id===c.dataset.id));
+  const it = ALL.find(i => i.id===c.dataset.id);
+  tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light");
+  if(it.action==="link") return openLink(it.url);
+  sheet(it);
 });
 
-/* ── действия ── */
 function openLink(url){
   if(tg && /^https:\/\/t\.me\//.test(url) && tg.openTelegramLink) tg.openTelegramLink(url);
   else if(tg && tg.openLink) tg.openLink(url);
   else window.open(url, "_blank");
 }
-function act(it){
-  tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light");
-  if(it.action==="link") return openLink(it.url);
-  if(it.action==="guide" && it.status==="open") return sheet(it);
-  sheet(it);
-}
 
-/* ── нижний лист: оплата / лист ожидания ── */
 function sheet(it){
-  const ey = {open:"Доступ к гайду", soon:"Скоро", sold:"Места закончились"}[it.status];
-  $("#sEy").textContent = ey;
+  $("#sEy").textContent = it.status==="open" ? "Доступ к гайду" : (it.eyebrow || "Скоро");
   $("#sTi").textContent = it.title;
   $("#sDe").textContent = it.desc;
-  const pr = $("#sPr"); pr.classList.toggle("hidden", it.status==="soon" && it.price==null);
-  pr.querySelector("b").textContent = typeof it.price==="number" ? money(it.price) : (it.price || "Цена скоро");
-  pr.querySelector("span").textContent = it.status==="sold" ? "запись закрыта" : (it.action==="guide" ? "единоразово, доступ навсегда" : "");
+  const pr = $("#sPr");
+  pr.classList.toggle("hidden", typeof it.price!=="number");
+  if(typeof it.price==="number"){
+    pr.querySelector("b").textContent = money(it.price);
+    pr.querySelector("span").textContent = "сезон зима 26/27";
+  }
   const pay = $("#sPay"); pay.innerHTML = "";
   const add = (cls, label, sub, fn) => {
     const b = document.createElement("button"); b.className = "btn "+cls;
     b.innerHTML = `<span>${label}</span><small>${sub||""}</small>`; b.onclick = fn; pay.appendChild(b);
   };
   if(it.action==="guide"){
-    add("main", "Открыть гайд", "если уже куплен", () => { location.href = GUIDE_URL; });
-    add("alt", "Оплатить Kaspi", "Казахстан", () => toast("Оплата подключается"));
-    add("alt", "Оплатить картой / СБП", "Россия, Беларусь", () => toast("Оплата подключается"));
+    add("", "Оплатить Kaspi", "Казахстан", () => toast("Оплата подключается"));
+    add("dark", "Оплатить картой / СБП", "Россия, Беларусь", () => toast("Оплата подключается"));
+    add("alt", "Открыть гайд", "если уже оплачен", () => { location.href = GUIDE_URL; });
     $("#sNote").textContent = "После оплаты доступ откроется автоматически на этом аккаунте Telegram.";
   } else {
-    add("main", it.status==="sold" ? "Встать в лист ожидания" : "Сообщить, когда откроется", "в Telegram", () => openLink(CONTACT));
-    $("#sNote").textContent = it.status==="sold" ? "Напишите Айнур — предупредим, когда появятся места." : "Напишите Айнур, чтобы не пропустить старт.";
+    add("", "Сообщить мне о старте", "в Telegram", () => openLink(CONTACT));
+    $("#sNote").textContent = "Напишите Айнур, чтобы не пропустить открытие.";
   }
   $("#layer").classList.add("open");
   tg && tg.BackButton && (tg.BackButton.show(), tg.BackButton.onClick(close));
@@ -331,16 +283,10 @@ function close(){
 $("#shade").addEventListener("click", close);
 let toastT; function toast(t){ const el=$("#toast"); el.textContent=t; el.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("on"),1800); }
 $("#offer").addEventListener("click", e => { e.preventDefault(); toast("Оферта скоро появится"); });
-$("#icShare").addEventListener("click", e => {
-  e.preventDefault();
-  const u = "https://t.me/share/url?url=" + encodeURIComponent(location.href) + "&text=" + encodeURIComponent("Ainur Karimova · стилист");
-  openLink(u);
-});
 
-/* ── Telegram ── */
 if(tg){
   tg.ready(); tg.expand();
-  try{ tg.setHeaderColor("#3f1120"); tg.setBackgroundColor("#3f1120"); }catch(e){}
+  try{ tg.setHeaderColor("#F2F2F6"); tg.setBackgroundColor("#F2F2F6"); }catch(e){}
 }
 render("all");
 </script>
