@@ -16,7 +16,7 @@ const STORES: Record<string, string> = {
   "befree.ru": "Befree",
   "loverepublic.ru": "Love Republic",
 };
-const EXCLUDED = new Set(["Befree", "Love Republic"]);
+const EXCLUDED = new Set(["Befree", "Love Republic", "Stradivarius"]);
 const BODY = ["hourglass", "pear", "apple", "rectangle", "inv_triangle"];
 
 // Ручные позиции, добавленные напрямую (без строки в Google-таблице).
