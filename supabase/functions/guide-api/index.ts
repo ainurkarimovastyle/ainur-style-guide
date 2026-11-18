@@ -50,6 +50,10 @@ async function allItems(sb: any) {
     out.push(...data);
     if (data.length < page) break;
   }
+  // плашка «Находка»: хранится отдельно от items, поэтому переживает пересборку каталога
+  const { data: fl } = await sb.from("finds").select("item_id").limit(5000);
+  const fs = new Set((fl ?? []).map((m: any) => m.item_id));
+  for (const i of out) if (fs.has(i.id)) i.find = true;
   return { data: out, error: null };
 }
 
@@ -57,6 +61,15 @@ async function setMark(sb: any, body: any) {
   const id = Number(body.id);
   if (!Number.isInteger(id)) return json({ error: "bad_id" }, 400);
   const q = body.on ? sb.from("delete_marks").upsert({ item_id: id }) : sb.from("delete_marks").delete().eq("item_id", id);
+  const { error } = await q;
+  if (error) return json({ error: error.message }, 500);
+  return json({ ok: true });
+}
+
+async function setFind(sb: any, body: any) {
+  const id = Number(body.id);
+  if (!Number.isInteger(id)) return json({ error: "bad_id" }, 400);
+  const q = body.on ? sb.from("finds").upsert({ item_id: id }) : sb.from("finds").delete().eq("item_id", id);
   const { error } = await q;
   if (error) return json({ error: error.message }, 500);
   return json({ ok: true });
@@ -87,6 +100,7 @@ Deno.serve(async (req) => {
     if (body.action === "event") return json({ ok: true });
     // пометка карточек на удаление — только для команды, на этапе разработки
     if (body.action === "mark") return await setMark(sb, body);
+    if (body.action === "find") return await setFind(sb, body);
     const { data, error } = await allItems(sb);
     if (error) return json({ error: error.message }, 500);
     const { data: marks } = await sb.from("delete_marks").select("item_id").limit(5000);
@@ -117,6 +131,7 @@ Deno.serve(async (req) => {
 
   const isAdmin = admins.includes(String(user.id));
   if (isAdmin && body.action === "mark") return await setMark(sb, body);
+  if (isAdmin && body.action === "find") return await setFind(sb, body);
   if (isAdmin && body.action === "export_marks") {
     const { text, count } = await markedText(sb);
     if (!count) return json({ error: "empty" }, 400);

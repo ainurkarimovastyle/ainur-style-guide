@@ -84,6 +84,11 @@ img{display:block;max-width:100%}
 .badge{font:600 11px/1 var(--sans);padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--ink)}
 .badge.sale{background:var(--ink);color:#fff}
 .badge.trend{color:var(--accent)}
+.badge.find{background:#7A1C2C;color:#fff}
+.findbtn{position:absolute;right:46px;bottom:8px;z-index:2;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.findbtn svg{width:16px;height:16px;fill:none;stroke:#7A1C2C;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.findbtn.on{background:#7A1C2C}
+.findbtn.on svg{stroke:#fff;fill:#fff}
 .heart{position:absolute;right:8px;top:8px;z-index:2;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .heart svg{width:16px;height:16px;fill:none;stroke:var(--ink);stroke-width:1.8}
 .heart.on{background:var(--ink)}
@@ -347,6 +352,8 @@ function initUI(){
 function cardClick(e){
   const d = e.target.closest(".delbtn");
   if (d){ e.stopPropagation(); toggleMark(+d.dataset.id); return; }
+  const fd = e.target.closest(".findbtn");
+  if (fd){ e.stopPropagation(); toggleFind(+fd.dataset.id); return; }
   const h = e.target.closest(".heart");
   if (h){ e.stopPropagation(); toggleWish(+h.dataset.id); haptic(); renderActiveCards(); return; }
   const c = e.target.closest(".card"); if(!c) return; openDetail(+c.dataset.id);
@@ -358,6 +365,22 @@ function toggleMark(id){
   updateDelBar();
   api({action:"mark", id, on: !!i.del}).then(r => { if (r.status !== 200) { i.del = !i.del; renderBrowse(); updateDelBar(); } }).catch(() => { i.del = !i.del; renderBrowse(); updateDelBar(); });
   if (S.delOnly && !i.del) renderBrowse();
+}
+function toggleFind(id){
+  const i = ITEMS.find(x => x.id === id); if (!i) return;
+  i.find = !i.find; haptic();
+  const paint = () => document.querySelectorAll(`.card[data-id="${id}"]`).forEach(c => {
+    const b = c.querySelector(".findbtn"); b && b.classList.toggle("on", !!i.find);
+    const bs = c.querySelector(".badges");
+    const has = c.querySelector(".badge.find");
+    if (i.find && !has){
+      const el = document.createElement("span"); el.className = "badge find"; el.textContent = "★ Находка";
+      if (bs) bs.appendChild(el); else { const w = document.createElement("div"); w.className = "badges"; w.appendChild(el); const pic = c.querySelector(".pic"); pic && pic.appendChild(w); }
+    } else if (!i.find && has) has.remove();
+  });
+  paint();
+  const undo = () => { i.find = !i.find; paint(); };
+  api({action:"find", id, on: !!i.find}).then(r => { if (r.status !== 200) undo(); }).catch(undo);
 }
 function updateDelBar(){
   if (!DEV) return;
@@ -518,12 +541,13 @@ function card(i){
   if (i.promo_label) badges.push(`<span class="badge sale">${esc(i.promo_label)}</span>`);
   if (i.trend) badges.push(`<span class="badge trend">Тренд</span>`);
   if (i.base) badges.push(`<span class="badge">База</span>`);
-  if (i.comment && i.comment.startsWith("★")) badges.push(`<span class="badge">★ Находка из рилс</span>`);
+  if (i.find || (i.comment && i.comment.startsWith("★"))) badges.push(`<span class="badge find">★ Находка</span>`);
   const on = WISH.has(i.id);
   const dm = DEV ? `<button type="button" class="delbtn${i.del?" on":""}" data-id="${i.id}" aria-label="Пометить на удаление"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/></svg></button>` : "";
+  const fb = DEV ? `<button type="button" class="findbtn${i.find?" on":""}" data-id="${i.id}" aria-label="Плашка «Находка»"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 17l-5.4 3 1.2-6L3.3 9.8l6.1-.7z"/></svg></button>` : "";
   return `<div class="card${i.del?" marked":""}" tabindex="0" role="button" data-id="${i.id}">
     <div class="pic"><img alt="${esc(i.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" src="${esc(i.image)}">${badges.length?`<div class="badges">${badges.join("")}</div>`:""}
-      <button type="button" class="heart${on?" on":""}" data-id="${i.id}" aria-label="В список покупок"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9.5-8.9C.7 7.6 2.4 4 6 4c2 0 3.5 1.1 4.5 2.4C11.5 5.1 13 4 15 4c3.6 0 5.3 3.6 3.5 7.1C19 15.4 12 20 12 20z"/></svg></button>${dm}
+      <button type="button" class="heart${on?" on":""}" data-id="${i.id}" aria-label="В список покупок"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9.5-8.9C.7 7.6 2.4 4 6 4c2 0 3.5 1.1 4.5 2.4C11.5 5.1 13 4 15 4c3.6 0 5.3 3.6 3.5 7.1C19 15.4 12 20 12 20z"/></svg></button>${fb}${dm}
     </div>
     <div class="body"><span class="store">${esc(i.store)}</span><h3>${esc(i.name)}</h3>${i.color?`<span class="col">${esc(i.color)}</span>`:""}
     <div class="row"><span class="price">${money(i.price)}</span>${i.old_price?`<span class="old">${money(i.old_price)}</span>`:""}</div></div></div>`;
@@ -602,7 +626,7 @@ function openDetail(id){
   if (i.color) facts.push(["Цвет", i.color]);
   if (i.composition) facts.push(["Состав", i.composition]);
   if ((i.body_types||[]).length) facts.push(["Фигура", i.body_types.map(b => BODY[b]).join(", ")]);
-  const tags = [i.trend&&"Тренд", i.base&&"База", i.promo_label&&("Скидка "+i.promo_label)].filter(Boolean);
+  const tags = [i.trend&&"Тренд", i.base&&"База", i.find&&"Находка", i.promo_label&&("Скидка "+i.promo_label)].filter(Boolean);
   $("#dbody").innerHTML = `
     <div class="pic"><img alt="${esc(i.name)}" referrerpolicy="no-referrer" src="${esc(i.image)}"></div>
     <div class="store d-store">${esc(i.store)} · ${esc(i.subcategory || i.category)}</div>
