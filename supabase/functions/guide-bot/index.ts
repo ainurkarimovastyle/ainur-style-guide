@@ -16,7 +16,7 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
 const HUB = "https://ainurkarimovastyle.github.io/ainur-style-guide/hub/";
-const PHOTO = HUB + "ainur.jpg";
+const PHOTO = HUB + "welcome.jpg";
 const FN_URL = "https://zafgwbfgutlbudqevpal.supabase.co/functions/v1/guide-bot";
 const TZ = "Asia/Almaty"; // даты в картотеке считаем по времени Астаны
 
