@@ -81,19 +81,19 @@ img{display:block;max-width:100%}
 .pic img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
 .pic img.ok{opacity:1}
 .badges{position:absolute;left:8px;top:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
-.badge{font:600 11px/1 var(--sans);padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--ink)}
+.badge{font:600 11px/1 var(--sans);padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.92);color:var(--ink)}
 .badge.sale{background:var(--ink);color:#fff}
 .badge.trend{color:var(--accent)}
 .badge.find{background:#7A1C2C;color:#fff}
-.findbtn{position:absolute;right:46px;bottom:8px;z-index:2;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.findbtn{position:absolute;right:46px;bottom:8px;z-index:2;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .findbtn svg{width:16px;height:16px;fill:none;stroke:#7A1C2C;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .findbtn.on{background:#7A1C2C}
 .findbtn.on svg{stroke:#fff;fill:#fff}
-.heart{position:absolute;right:8px;top:8px;z-index:2;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.heart{position:absolute;right:8px;top:8px;z-index:2;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .heart svg{width:16px;height:16px;fill:none;stroke:var(--ink);stroke-width:1.8}
 .heart.on{background:var(--ink)}
 .heart.on svg{fill:#fff;stroke:#fff}
-.delbtn{position:absolute;right:8px;bottom:8px;z-index:2;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.delbtn{position:absolute;right:8px;bottom:8px;z-index:2;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .delbtn svg{width:16px;height:16px;fill:none;stroke:#B3261E;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .delbtn.on{background:#B3261E}
 .delbtn.on svg{stroke:#fff}
@@ -528,13 +528,29 @@ function renderBrowse(){
   const L = list();
   $("#count").hidden = false;
   $("#count").textContent = (S.cat === "all" ? "Все вещи" : S.cat) + " · " + plural(L.length,"вещь","вещи","вещей");
-  $("#grid").innerHTML = L.length ? L.map(card).join("") : `<div class="state" style="grid-column:1/-1;padding:40px 10px"><h2>Ничего не нашлось</h2><p>Попробуйте другую категорию или уберите часть фильтров.</p><button class="ghost" type="button" id="clearAll">Сбросить всё</button></div>`;
+  RL = L; RN = 0; $("#grid").innerHTML = "";
+  if (L.length) moreCards(true);
+  else $("#grid").innerHTML = `<div class="state" style="grid-column:1/-1;padding:40px 10px"><h2>Ничего не нашлось</h2><p>Попробуйте другую категорию или уберите часть фильтров.</p><button class="ghost" type="button" id="clearAll">Сбросить всё</button></div>`;
   const ca = $("#clearAll"); if (ca) ca.onclick = () => { Object.assign(S, blank()); S.cat = "all"; S.sub = null; markSelection(); renderBrowse(); };
-  bindImgs($("#grid"));
+}
+
+// отрисовываем карточки порциями: 1700+ карточек сразу тормозят прокрутку
+let RL = [], RN = 0, RIO = null;
+const CHUNK = 40;
+function moreCards(first){
+  const g = $("#grid"); if (RN >= RL.length) return;
+  const part = RL.slice(RN, RN + (first ? CHUNK : CHUNK));
+  RN += part.length;
+  g.insertAdjacentHTML("beforeend", part.map(card).join(""));
+  bindImgs(g);
+  let sn = $("#gridSentinel");
+  if (!sn){ sn = document.createElement("div"); sn.id = "gridSentinel"; sn.style.cssText = "height:1px;width:100%"; g.insertAdjacentElement("afterend", sn); }
+  if (!RIO) RIO = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) moreCards(); }, {rootMargin: "1500px 0px"});
+  RIO.disconnect(); if (RN < RL.length) RIO.observe(sn);
 }
 
 function bindImgs(root){
-  root.querySelectorAll("img").forEach(img => { if (img.complete && img.naturalWidth) img.classList.add("ok"); img.onload = () => img.classList.add("ok"); img.onerror = () => { img.closest(".pic") && img.closest(".pic").classList.add("noimg"); }; });
+  root.querySelectorAll("img:not([data-b])").forEach(img => { img.dataset.b = 1; if (img.complete && img.naturalWidth) img.classList.add("ok"); img.onload = () => img.classList.add("ok"); img.onerror = () => { img.closest(".pic") && img.closest(".pic").classList.add("noimg"); }; });
 }
 
 function card(i){
