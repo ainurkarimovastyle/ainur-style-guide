@@ -50,6 +50,10 @@ async function allItems(sb: any) {
     out.push(...data);
     if (data.length < page) break;
   }
+  // позиции, удалённые админами из гайда: хранятся отдельно, поэтому не возвращаются при пересборке каталога
+  const { data: rm } = await sb.from("removed_items").select("item_id").limit(10000);
+  const rs = new Set((rm ?? []).map((m: any) => m.item_id));
+  if (rs.size) { for (let k = out.length - 1; k >= 0; k--) if (rs.has(out[k].id)) out.splice(k, 1); }
   // плашка «Находка»: хранится отдельно от items, поэтому переживает пересборку каталога
   const { data: fl } = await sb.from("finds").select("item_id").limit(5000);
   const fs = new Set((fl ?? []).map((m: any) => m.item_id));
@@ -73,6 +77,24 @@ async function setFind(sb: any, body: any) {
   const { error } = await q;
   if (error) return json({ error: error.message }, 500);
   return json({ ok: true });
+}
+
+// удалить из гайда все карточки, отмеченные «к удалению»; запись о них остаётся в removed_items (можно вернуть)
+async function deleteMarked(sb: any) {
+  const { data: marks, error: e0 } = await sb.from("delete_marks").select("item_id").limit(10000);
+  if (e0) return json({ error: e0.message }, 500);
+  const ids = (marks ?? []).map((m: any) => m.item_id);
+  if (!ids.length) return json({ error: "empty" }, 400);
+  const { data: rows } = await sb.from("items").select("id,name,store,url").in("id", ids);
+  const live = rows ?? [];
+  if (live.length) {
+    const { error } = await sb.from("removed_items").upsert(live.map((x: any) => ({ item_id: x.id, name: x.name, store: x.store, url: x.url })));
+    if (error) return json({ error: error.message }, 500);
+    await sb.from("items").update({ active: false }).in("id", live.map((x: any) => x.id));
+  }
+  await sb.from("delete_marks").delete().in("item_id", ids);
+  await sb.from("finds").delete().in("item_id", ids);
+  return json({ ok: true, removed: live.map((x: any) => x.id), count: live.length });
 }
 
 async function flagsPayload(sb: any) {
@@ -108,6 +130,7 @@ Deno.serve(async (req) => {
     if (body.action === "mark") return await setMark(sb, body);
     if (body.action === "find") return await setFind(sb, body);
     if (body.action === "flags") return await flagsPayload(sb);
+    if (body.action === "delete_marked") return await deleteMarked(sb);
     const { data, error } = await allItems(sb);
     if (error) return json({ error: error.message }, 500);
     const { data: marks } = await sb.from("delete_marks").select("item_id").limit(5000);
@@ -140,6 +163,7 @@ Deno.serve(async (req) => {
   if (isAdmin && body.action === "mark") return await setMark(sb, body);
   if (isAdmin && body.action === "find") return await setFind(sb, body);
   if (isAdmin && body.action === "flags") return await flagsPayload(sb);
+  if (isAdmin && body.action === "delete_marked") return await deleteMarked(sb);
   if (isAdmin && body.action === "export_marks") {
     const { text, count } = await markedText(sb);
     if (!count) return json({ error: "empty" }, 400);
