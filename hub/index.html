@@ -31,10 +31,10 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .profile{position:relative;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding-top:8px}
 .ava{width:88px;height:88px;border-radius:50%;padding:3px;background:var(--card);box-shadow:0 0 0 1.5px var(--wine),0 8px 24px rgba(14,14,16,.10)}
 .ava span{display:block;width:100%;height:100%;border-radius:50%;background:#222 url("ainur.jpg") center/cover}
-.name{font:600 30px/1.02 var(--sans);letter-spacing:-.035em;margin:0}
+.name{font:600 30px/1.02 var(--sans);letter-spacing:-.035em;margin:14px 0 0}
 .name span{display:block;color:var(--ink-3);font-weight:500}
-.badge{position:absolute;top:0;right:0;display:inline-flex;align-items:center;gap:6px;padding:6px 11px 6px 8px;border-radius:999px;background:var(--wine);color:#fff;font:600 10.5px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;box-shadow:0 6px 16px rgba(122,28,44,.25)}
-.badge svg{width:13px;height:13px;fill:#fff}
+.badge{position:absolute;top:-2px;right:0;display:inline-flex;align-items:center;gap:4px;padding:4px 8px 4px 6px;border-radius:999px;background:var(--wine);color:#fff;font:600 8.5px/1 var(--sans);letter-spacing:.07em;text-transform:uppercase;box-shadow:0 4px 12px rgba(122,28,44,.22);white-space:nowrap}
+.badge svg{width:9px;height:9px;fill:#fff}
 
 .bio{margin:18px 0 0;padding:16px 18px;list-style:none;display:grid;gap:5px;background:var(--card);border-radius:var(--r-lg)}
 .bio li{display:flex;gap:10px;align-items:flex-start;font:500 14.5px/1.35 var(--sans);color:var(--ink)}
@@ -51,20 +51,24 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 
 .group-t{margin:22px 2px 10px;font:600 13px/1 var(--sans);color:var(--ink-3)}
 .cards{display:grid;gap:10px}
-.card{position:relative;display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:14px;border-radius:var(--r-lg);background:var(--card);text-align:left;width:100%;transition:transform .15s}
+.card{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:14px 14px 14px;border-radius:var(--r-lg);background:var(--card);text-align:left;width:100%;transition:transform .15s}
 .card:active{transform:scale(.985)}
-.thumb{width:56px;height:56px;border-radius:16px;background:var(--fill);display:grid;place-items:center;align-self:start}
-.thumb svg{width:26px;height:26px;stroke:var(--ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.ct{font:600 16.5px/1.2 var(--sans);letter-spacing:-.02em;margin:0}
-.cd{margin:4px 0 0;font:400 13px/1.38 var(--sans);color:var(--ink-2)}
-.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:9px}
+.head{display:flex;align-items:center;gap:12px}
+.thumb{flex:0 0 44px;width:44px;height:44px;border-radius:13px;background:var(--fill);display:grid;place-items:center}
+.thumb svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ct{flex:1;min-width:0;font:600 17px/1.2 var(--sans);letter-spacing:-.02em;margin:0;text-align:left}
+.cd{margin:0;font:400 13.5px/1.42 var(--sans);color:var(--ink-2);text-align:left;text-wrap:pretty}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0}
 .pill{padding:4px 9px;border-radius:999px;font:600 11px/1 var(--sans);background:var(--fill);color:var(--ink-2)}
 .pill.wine{background:var(--wine);color:#fff}
 .pill.soft{background:var(--wine-soft);color:var(--wine)}
 .price{font:700 14px/1 var(--sans);color:var(--wine);letter-spacing:-.01em}
-.go{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--wine);color:#fff;align-self:end}
+.go{flex:0 0 36px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--wine);color:#fff}
 .go svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .card.dim .go{background:var(--fill);color:var(--ink-3)}
+.card.dim .go.on{background:var(--wine);color:#fff}
+.card.dim .go.on svg{fill:currentColor}
 
 /* главная карточка — графит */
 .card.feature{background:var(--ink);color:#fff}
@@ -74,9 +78,9 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .card.feature .pill{background:rgba(255,255,255,.12);color:#fff}
 .card.feature .pill.wine{background:var(--wine)}
 .card.feature .price{color:#fff;font-size:16px}
-.bonus{margin:10px 0 0;padding:9px 11px;border-radius:14px;background:rgba(122,28,44,.35);border:1px solid rgba(255,255,255,.12);font:500 12px/1.4 var(--sans);color:#fff}
+.bonus{margin:0;padding:9px 11px;border-radius:14px;background:rgba(122,28,44,.35);border:1px solid rgba(255,255,255,.12);font:500 12px/1.4 var(--sans);color:#fff}
 .bonus b{display:inline-block;margin-right:6px;padding:2px 7px;border-radius:999px;background:var(--wine);font:700 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase}
-.stores{margin:8px 0 0;font:500 11.5px/1.4 var(--sans);color:rgba(255,255,255,.55)}
+.stores{margin:0;text-align:left;font:500 11.5px/1.4 var(--sans);color:rgba(255,255,255,.55)}
 
 /* ───── контакты ───── */
 .contacts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -190,24 +194,24 @@ const GROUPS = [
      pills:[["wine","Хит"]],
      status:"open", price:14000, action:"guide"},
     {id:"newyear", icon:"star", title:"Shopping Guide «Новый год 2027»",
-     desc:"Образы, на которые оборачиваются. Самые актуальные и стильные вещи, чтобы собрать все взгляды на корпоративе и в новогоднюю ночь — и услышать «где ты это купила?»",
+     desc:"Образы, на которые оборачиваются. Самые актуальные и стильные вещи, чтобы собрать все взгляды на корпоративе и в новогоднюю ночь и услышать: «где ты это купила? 😍»",
      pills:[["soft","Откроется 01.12"]],
-     status:"soon", price:null, action:"wait", eyebrow:"Откроется 01.12"},
+     status:"soon", price:null, action:"wait", topic:"newyear", eyebrow:"Откроется 01.12"},
   ]},
   {id:"learn", title:"Обучение", items:[
     {id:"intensive", icon:"group", title:"Интенсив-группа по стилю",
-     desc:"Обучение в группе вместе с Айнур.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait"},
+     desc:"Маленькая группа и я рядом на каждом шаге. За интенсив вы соберёте свой стиль и гардероб, где всё сочетается между собой, и перестанете покупать лишнее.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"intensive"},
     {id:"findstyle", icon:"book", title:"Как найти свой стиль",
-     desc:"Пошаговая система, которая помогает собрать свой образ.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait"},
+     desc:"Пошаговая система, после которой вы точно знаете, что вам идёт, и больше не стоите перед полным шкафом с мыслью «надеть нечего». Без долгой теории, только практика.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"findstyle"},
     {id:"colortype", icon:"palette", title:"Определи свой цветотип и тип фигуры",
-     desc:"Что вам идёт и почему.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait"},
+     desc:"Узнайте, какие цвета делают вас ярче, а какие «гасят», и какие силуэты подчёркивают вашу фигуру. Больше никаких покупок, которые красиво смотрятся только на вешалке.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"colortype"},
   ]},
   {id:"free", title:"Полезное", items:[
     {id:"trends", icon:"trend", title:"Шпаргалка по трендам",
-     desc:"Короткий разбор трендов сезона в Telegram-канале.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle/661"},
+     desc:"Короткий разбор трендов сезона в Telegram-канале.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/789"},
     {id:"podcast", icon:"mic", title:"Подкаст «Как найти свой стиль»",
-     desc:"Слушайте в Telegram.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle/11"},
-    {id:"channel", icon:"send", title:"Telegram-канал Айнур",
+     desc:"Слушайте в Telegram.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/11"},
+    {id:"channel", icon:"send", title:"Мой telegram-канал",
      desc:"Образы, разборы и закулисье работы стилиста.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle"},
   ]},
 ];
@@ -216,6 +220,7 @@ const tg = window.Telegram && Telegram.WebApp;
 const $ = s => document.querySelector(s);
 const money = n => n.toLocaleString("ru-RU").replace(/ /g," ") + " ₸";
 const ALL = GROUPS.flatMap(g => g.items);
+const SUBS = new Set(); // темы, на которые человек уже нажал колокольчик
 
 function render(filter){
   $("#menu").innerHTML = GROUPS.filter(g => filter==="all" || g.id===filter).map(g =>
@@ -224,10 +229,11 @@ function render(filter){
       const pills = (it.pills||[]).map(([c,t]) => `<span class="pill ${c}">${t}</span>`);
       if(typeof it.price==="number") pills.push(`<span class="price">${money(it.price)}</span>`);
       const dim = it.status!=="open";
+      const bell = dim && it.topic ? `<span class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" role="button" aria-label="Сообщить мне о старте">${BELL}</span>` : `<span class="go">${dim?BELL:ARROW}</span>`;
       return `<button class="card ${it.feature?"feature":""} ${dim?"dim":""}" data-id="${it.id}">
-        <span class="thumb">${ICONS[it.icon]}</span>
-        <span><h4 class="ct">${it.title}</h4><p class="cd">${it.desc}</p>${it.stores?`<p class="stores">${it.stores}</p>`:""}${it.bonus?`<p class="bonus"><b>★ Бонус</b>${it.bonus}</p>`:""}<span class="meta">${pills.join("")}</span></span>
-        <span class="go">${dim?BELL:ARROW}</span>
+        <span class="head"><span class="thumb">${ICONS[it.icon]}</span><h4 class="ct">${it.title}</h4></span>
+        <p class="cd">${it.desc}</p>${it.stores?`<p class="stores">${it.stores}</p>`:""}${it.bonus?`<p class="bonus"><b>★ Бонус</b>${it.bonus}</p>`:""}
+        <span class="foot"><span class="meta">${pills.join("")}</span>${bell}</span>
       </button>`;
     }).join("") + `</div></section>`
   ).join("");
@@ -239,6 +245,8 @@ $("#tabs").addEventListener("click", e => {
   tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged();
 });
 $("#menu").addEventListener("click", e => {
+  const bl = e.target.closest("[data-bell]");
+  if(bl){ e.stopPropagation(); tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light"); toggleBell(bl.dataset.bell); return; }
   const c = e.target.closest(".card"); if(!c) return;
   const it = ALL.find(i => i.id===c.dataset.id);
   tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light");
@@ -247,13 +255,36 @@ $("#menu").addEventListener("click", e => {
   sheet(it);
 });
 
+async function apiCall(body){
+  const r = await fetch(API, {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({initData: tg.initData, ...body})});
+  return r.json();
+}
+async function toggleBell(topic){
+  if(!(tg && tg.initData)){ toast("Откройте приложение в Telegram"); return; }
+  const on = !SUBS.has(topic);
+  let write = false;
+  if(on){
+    const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+    if(u && u.allows_write_to_pm) write = true;
+    else if(tg.requestWriteAccess) write = await new Promise(res => { try{ tg.requestWriteAccess(ok => res(!!ok)); }catch(e){ res(false); } });
+  }
+  on ? SUBS.add(topic) : SUBS.delete(topic);
+  const op = document.querySelector('.tab[aria-selected="true"]'); render(op ? op.dataset.f : "all");
+  if($("#layer").classList.contains("open") && curItem && curItem.topic===topic) sheet(curItem);
+  toast(on ? "Записала. Напишу, когда откроется ❤️" : "Убрала из списка");
+  try{ const j = await apiCall({action:"subscribe", topic, on, write}); if(!j.ok) throw 0; }
+  catch(e){ on ? SUBS.delete(topic) : SUBS.add(topic); const o2=document.querySelector('.tab[aria-selected="true"]'); render(o2 ? o2.dataset.f : "all"); toast("Не получилось, попробуйте ещё"); }
+}
+
 function openLink(url){
   if(tg && /^https:\/\/t\.me\//.test(url) && tg.openTelegramLink) tg.openTelegramLink(url);
   else if(tg && tg.openLink) tg.openLink(url);
   else window.open(url, "_blank");
 }
 
+let curItem = null;
 function sheet(it){
+  curItem = it;
   $("#sEy").textContent = it.status==="open" ? "Доступ к гайду" : (it.eyebrow || "Скоро");
   $("#sTi").textContent = it.title;
   $("#sDe").textContent = it.desc + (it.bonus ? "\n\n★ Бонус: " + it.bonus : "");
@@ -274,8 +305,9 @@ function sheet(it){
     add("alt", "Открыть гайд", "если уже оплачен", () => { location.href = GUIDE_URL; });
     $("#sNote").textContent = "После оплаты доступ откроется автоматически на этом аккаунте Telegram.";
   } else {
-    add("", "Сообщить мне о старте", "в Telegram", () => openLink(CONTACT));
-    $("#sNote").textContent = "Напишите Айнур, чтобы не пропустить открытие.";
+    const sub = it.topic && SUBS.has(it.topic);
+    add(sub ? "alt" : "", sub ? "Вы в списке ✓" : "Сообщить мне о старте", sub ? "нажмите, чтобы отменить" : "напишу в Telegram", () => it.topic ? toggleBell(it.topic) : openLink(CONTACT));
+    $("#sNote").textContent = "Напишу вам в Telegram, как только откроется, и вы узнаете первой.";
   }
   $("#layer").classList.add("open");
   tg && tg.BackButton && (tg.BackButton.show(), tg.BackButton.onClick(close));
@@ -297,6 +329,7 @@ const PREVIEW = new URLSearchParams(location.search).get("preview");
     const r = await fetch(API, {method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify(PREVIEW ? {preview:PREVIEW, action:"me"} : {initData:tg.initData, action:"me"})});
     const j = await r.json();
+    if(j && Array.isArray(j.subs)){ j.subs.forEach(t => SUBS.add(t)); const on0 = document.querySelector('.tab[aria-selected="true"]'); render(on0 ? on0.dataset.f : "all"); }
     if(j && j.admin){
       GROUPS.push({id:"admin", title:"Для админов", items:[
         {id:"clients", icon:"group", title:"Клиенты бота", desc:"Картотека: кто и когда открыл бота, выбор по датам, выгрузка для рассылок.",

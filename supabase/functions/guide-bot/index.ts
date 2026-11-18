@@ -20,6 +20,14 @@ const PHOTO = HUB + "welcome.jpg";
 const FN_URL = "https://zafgwbfgutlbudqevpal.supabase.co/functions/v1/guide-bot";
 const TZ = "Asia/Almaty"; // даты в картотеке считаем по времени Астаны
 
+// темы, на которые можно «подписаться колокольчиком» (ключ → название для админов)
+const TOPICS: Record<string, string> = {
+  newyear: "Shopping Guide «Новый год 2027»",
+  intensive: "Интенсив-группа по стилю",
+  findstyle: "Как найти свой стиль",
+  colortype: "Цветотип и тип фигуры",
+};
+
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 function welcomeText(name?: string | null) {
@@ -150,6 +158,60 @@ async function csvOf(sb: any, body: any) {
   return { csv: "﻿" + [head.map(cell).join(";"), ...lines].join("\r\n") + "\r\n", count: lines.length };
 }
 
+async function waitUsers(sb: any, ids: number[]) {
+  const m = new Map<number, any>();
+  for (let i = 0; i < ids.length; i += 150) {
+    const { data } = await sb.from("users").select("tg_id,username,first_name,last_name,started_at,allows_write,blocked_at").in("tg_id", ids.slice(i, i + 150));
+    for (const u of data ?? []) m.set(u.tg_id, u);
+  }
+  return m;
+}
+const canWrite = (u: any) => !!u && !u.blocked_at && !!(u.started_at || u.allows_write);
+
+async function waitlistRows(sb: any, body: any) {
+  let q = sb.from("waitlist").select("tg_id,topic,created_at");
+  if (body.topic) q = q.eq("topic", body.topic);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(body.from ?? "")) q = q.gte("created_at", dayStart(body.from));
+  if (/^\d{4}-\d{2}-\d{2}$/.test(body.to ?? "")) q = q.lt("created_at", dayAfter(body.to));
+  const { data, error } = await q.order("created_at", { ascending: body.dir === "asc" }).limit(20000);
+  if (error) return { error: error.message };
+  const users = await waitUsers(sb, [...new Set((data ?? []).map((x: any) => x.tg_id))] as number[]);
+  let rows = (data ?? []).map((w: any) => ({ ...w, u: users.get(w.tg_id) }));
+  if (body.reach) rows = rows.filter((r: any) => canWrite(r.u));
+  return { rows };
+}
+
+async function waitlistApi(sb: any, body: any) {
+  if (!body.topic) { // сводка по темам
+    const all: any = await waitlistRows(sb, { from: body.from, to: body.to });
+    if (all.error) return json({ error: all.error }, 500);
+    return json({
+      topics: Object.entries(TOPICS).map(([k, label]) => {
+        const r = all.rows.filter((x: any) => x.topic === k);
+        return { topic: k, label, count: r.length, reach: r.filter((x: any) => canWrite(x.u)).length };
+      }),
+    });
+  }
+  const r: any = await waitlistRows(sb, body);
+  if (r.error) return json({ error: r.error }, 500);
+  return json({
+    topic: body.topic, label: TOPICS[body.topic] ?? body.topic, total: r.rows.length, reach: r.rows.filter((x: any) => canWrite(x.u)).length,
+    rows: r.rows.slice(0, 500).map((x: any) => ({
+      tg_id: x.tg_id, username: x.u?.username ?? null, name: [x.u?.first_name, x.u?.last_name].filter(Boolean).join(" "),
+      when: fmt(x.created_at), status: x.u?.blocked_at ? "заблокировал бота" : canWrite(x.u) ? "можно писать" : "только открыл приложение",
+    })),
+  });
+}
+
+async function waitlistCsv(sb: any, body: any) {
+  const r: any = await waitlistRows(sb, body);
+  if (r.error) return { error: r.error };
+  const cell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const head = ["Telegram ID", "Username", "Имя", "Фамилия", "Тема", "Нажал колокольчик", "Статус"];
+  const lines = r.rows.map((x: any) => [x.tg_id, x.u?.username ? "@" + x.u.username : "", x.u?.first_name, x.u?.last_name, TOPICS[x.topic] ?? x.topic, fmt(x.created_at), x.u?.blocked_at ? "заблокировал бота" : canWrite(x.u) ? "можно писать" : "только открыл приложение"].map(cell).join(";"));
+  return { csv: "\ufeff" + [head.map(cell).join(";"), ...lines].join("\r\n") + "\r\n", count: lines.length };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   if (req.method !== "POST") return json({ error: "method" }, 405);
@@ -226,11 +288,43 @@ Deno.serve(async (req) => {
       const { data: rows } = await sb.from("access").select("expires_at,revoked").eq("tg_id", user.id).eq("revoked", false);
       access = (rows ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date());
     }
-    return json({ ok: true, admin: isAdmin, access });
+    const { data: sub } = await sb.from("waitlist").select("topic").eq("tg_id", user.id);
+    return json({ ok: true, admin: isAdmin, access, subs: (sub ?? []).map((x: any) => x.topic) });
+  }
+
+  if (body.action === "subscribe") { // колокольчик: записаться / отписаться от темы
+    if (!user) return json({ error: "no_user" }, 400);
+    const topic = String(body.topic ?? "");
+    if (!TOPICS[topic]) return json({ error: "bad_topic" }, 400);
+    if (body.on === false) {
+      await sb.from("waitlist").delete().eq("tg_id", user.id).eq("topic", topic);
+    } else {
+      await sb.from("users").upsert({
+        tg_id: user.id, username: user.username ?? null, first_name: user.first_name ?? null, last_name: user.last_name ?? null,
+        language_code: user.language_code ?? null, last_seen_at: new Date().toISOString(),
+        ...(body.write || user.allows_write_to_pm ? { allows_write: true } : {}),
+      }, { onConflict: "tg_id" });
+      await sb.from("waitlist").upsert({ tg_id: user.id, topic }, { onConflict: "tg_id,topic", ignoreDuplicates: true });
+      await sb.from("events").insert({ tg_id: user.id, type: "bell", payload: { topic } });
+    }
+    return json({ ok: true });
   }
 
   if (!isAdmin) return json({ error: "forbidden" }, 403);
   if (body.action === "clients") return await clients(sb, body);
+  if (body.action === "waitlist") return await waitlistApi(sb, body);
+  if (body.action === "export_waitlist") {
+    const r: any = await waitlistCsv(sb, body);
+    if (r.error) return json({ error: r.error }, 500);
+    if (!user) return json({ ok: true, csv: r.csv, count: r.count });
+    const fd = new FormData();
+    fd.append("chat_id", String(user.id));
+    fd.append("caption", `${TOPICS[body.topic] ?? "Все темы"}: ${r.count}`);
+    fd.append("document", new Blob([r.csv], { type: "text/csv" }), `колокольчик-${body.topic ?? "все"}-${new Date().toISOString().slice(0, 10)}.csv`);
+    const resp = await fetch(`https://api.telegram.org/bot${botToken}/sendDocument`, { method: "POST", body: fd });
+    if (!resp.ok) return json({ error: "send_failed" }, 502);
+    return json({ ok: true, count: r.count });
+  }
   if (body.action === "export_clients") {
     const r: any = await csvOf(sb, body);
     if (r.error) return json({ error: r.error }, 500);
