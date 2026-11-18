@@ -24,10 +24,10 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 
 function welcomeText(name?: string | null) {
   const hi = name ? `Привет, ${esc(name)}!` : "Привет!";
-  return `${hi} Я Айнур, стилист из Астаны 🤍\n\n` +
-    `Здесь я собрала всё, что помогает одеваться красиво и без лишних трат: гайды по сезонам, обучение и разборы.\n\n` +
-    `Загляните в Shopping Guide «Зима 2026/27» — больше 1500 вещей из любимых магазинов, которые я отобрала сама, плюс особые находки сезона ✨\n\n` +
-    `Нажмите «Открыть», внутри всё понятно и без лишних шагов.`;
+  return `${hi} Я Айнур, стилист из Астаны ❤️\n\n` +
+    `Здесь я собрала всё, что помогает одеваться красиво и без лишних трат: гайды по сезонам, обучение и бесплатные материалы.\n\n` +
+    `Загляни в Shopping Guide «Зима 2026/27» — там больше 1500 вещей из любимых магазинов, которые я отобрала сама, плюс особые находки сезона ✨\n\n` +
+    `Нажимай «Открыть» и выбирай интересное.`;
 }
 const OPEN_KB = { inline_keyboard: [[{ text: "Открыть", web_app: { url: HUB } }]] };
 
@@ -102,7 +102,7 @@ async function handleUpdate(sb: any, token: string, upd: any) {
   if (isStart) {
     await sendWelcome(sb, token, msg.chat.id, f.first_name);
   } else {
-    const r = await tgApi(token, "sendMessage", { chat_id: msg.chat.id, text: "Нажмите кнопку ниже, чтобы открыть гайды и обучение.", reply_markup: OPEN_KB });
+    const r = await tgApi(token, "sendMessage", { chat_id: msg.chat.id, text: "Нажимай кнопку ниже, чтобы открыть гайды и обучение.", reply_markup: OPEN_KB });
     if (!r.ok && r.error_code === 403) await sb.from("users").update({ blocked_at: nowIso }).eq("tg_id", f.id);
   }
 }
