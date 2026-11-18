@@ -382,6 +382,33 @@ function toggleFind(id){
   const undo = () => { i.find = !i.find; paint(); };
   api({action:"find", id, on: !!i.find}).then(r => { if (r.status !== 200) undo(); }).catch(undo);
 }
+// админы: подтягиваем пометки «к удалению» и «находка» от других админов без перезапуска
+let SYNCING = false;
+async function syncFlags(){
+  if (!DEV || SYNCING || document.hidden) return; SYNCING = true;
+  try {
+    const r = await api({action:"flags"}); if (r.status !== 200 || !r.data || !r.data.del) return;
+    const del = new Set(r.data.del), fnd = new Set(r.data.find || []); let ch = false;
+    for (const i of ITEMS){
+      const d = del.has(i.id), f = fnd.has(i.id);
+      if (!!i.del !== d || !!i.find !== f){
+        ch = true; i.del = d; i.find = f;
+        document.querySelectorAll(`.card[data-id="${i.id}"]`).forEach(c => {
+          c.classList.toggle("marked", d); const b = c.querySelector(".delbtn"); b && b.classList.toggle("on", d);
+          const fb = c.querySelector(".findbtn"); fb && fb.classList.toggle("on", f);
+          const has = c.querySelector(".badge.find");
+          if (f && !has){ let bs = c.querySelector(".badges"); if (!bs){ bs = document.createElement("div"); bs.className = "badges"; c.querySelector(".pic").appendChild(bs); } const el = document.createElement("span"); el.className = "badge find"; el.textContent = "★ Находка"; bs.appendChild(el); }
+          else if (!f && has && !(i.comment && i.comment.startsWith("★"))) has.remove();
+        });
+      }
+    }
+    if (ch){ updateDelBar(); if (S.delOnly) renderBrowse(); }
+  } catch(e){} finally { SYNCING = false; }
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) syncFlags(); });
+window.addEventListener("focus", syncFlags);
+setInterval(syncFlags, 20000);
+
 function updateDelBar(){
   if (!DEV) return;
   let b = document.getElementById("delbar");

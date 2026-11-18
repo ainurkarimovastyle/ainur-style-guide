@@ -75,6 +75,12 @@ async function setFind(sb: any, body: any) {
   return json({ ok: true });
 }
 
+async function flagsPayload(sb: any) {
+  const { data: m } = await sb.from("delete_marks").select("item_id").limit(5000);
+  const { data: f } = await sb.from("finds").select("item_id").limit(5000);
+  return json({ del: (m ?? []).map((x: any) => x.item_id), find: (f ?? []).map((x: any) => x.item_id) });
+}
+
 async function markedText(sb: any) {
   const { data: marks } = await sb.from("delete_marks").select("item_id").limit(5000);
   const ids = (marks ?? []).map((m: any) => m.item_id);
@@ -101,6 +107,7 @@ Deno.serve(async (req) => {
     // пометка карточек на удаление — только для команды, на этапе разработки
     if (body.action === "mark") return await setMark(sb, body);
     if (body.action === "find") return await setFind(sb, body);
+    if (body.action === "flags") return await flagsPayload(sb);
     const { data, error } = await allItems(sb);
     if (error) return json({ error: error.message }, 500);
     const { data: marks } = await sb.from("delete_marks").select("item_id").limit(5000);
@@ -132,6 +139,7 @@ Deno.serve(async (req) => {
   const isAdmin = admins.includes(String(user.id));
   if (isAdmin && body.action === "mark") return await setMark(sb, body);
   if (isAdmin && body.action === "find") return await setFind(sb, body);
+  if (isAdmin && body.action === "flags") return await flagsPayload(sb);
   if (isAdmin && body.action === "export_marks") {
     const { text, count } = await markedText(sb);
     if (!count) return json({ error: "empty" }, 400);
