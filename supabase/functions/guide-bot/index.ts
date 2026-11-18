@@ -17,6 +17,7 @@ const json = (body: unknown, status = 200) =>
 
 const HUB = "https://ainurkarimovastyle.github.io/ainur-style-guide/hub/";
 const PHOTO = HUB + "welcome.jpg";
+const HUB_V = HUB + "?v=20261118b"; // номер версии сбивает кеш Telegram при обновлении хаба
 const FN_URL = "https://zafgwbfgutlbudqevpal.supabase.co/functions/v1/guide-bot";
 const TZ = "Asia/Almaty"; // даты в картотеке считаем по времени Астаны
 
@@ -37,7 +38,7 @@ function welcomeText(name?: string | null) {
     `Загляни в Shopping Guide «Зима 2026/27» — там больше 1500 вещей из любимых магазинов, которые я отобрала сама, плюс особые находки сезона ✨\n\n` +
     `Нажимай «Открыть» и выбирай интересное.`;
 }
-const OPEN_KB = { inline_keyboard: [[{ text: "Открыть", web_app: { url: HUB } }]] };
+const OPEN_KB = { inline_keyboard: [[{ text: "Открыть", web_app: { url: HUB_V } }]] };
 
 const enc = new TextEncoder();
 async function hmac(key: ArrayBuffer | Uint8Array, data: string) {
@@ -248,7 +249,7 @@ Deno.serve(async (req) => {
       const out: any = {};
       if (body.webhook) out.webhook = await tgApi(botToken, "setWebhook", { url: FN_URL, secret_token: whSecret, allowed_updates: ["message", "my_chat_member"], drop_pending_updates: false });
       if (body.commands) out.commands = await tgApi(botToken, "setMyCommands", { commands: [{ command: "start", description: "Открыть гайды и обучение" }] });
-      if (body.menu) out.menu = await tgApi(botToken, "setChatMenuButton", { menu_button: { type: "web_app", text: "Открыть", web_app: { url: HUB } } });
+      if (body.menu) out.menu = await tgApi(botToken, "setChatMenuButton", { menu_button: { type: "web_app", text: "Открыть", web_app: { url: HUB_V } } });
       return json(out);
     }
     if (body.action === "send_welcome") {
