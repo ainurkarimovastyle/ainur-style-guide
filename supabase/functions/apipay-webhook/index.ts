@@ -2,6 +2,7 @@
 // Секреты: APIPAY_WEBHOOK_SECRET, BOT_TOKEN, MAIN_BOT_TOKEN, ADMIN_IDS.
 // Развернуть с verify_jwt=false: доступ защищён HMAC-подписью ApiPay.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+declare const EdgeRuntime: { waitUntil(promise: Promise<unknown>): void };
 
 const enc = new TextEncoder();
 const GUIDE = "https://t.me/ainurkarimova_bot?start=guide";
@@ -65,18 +66,18 @@ Deno.serve(async (req) => {
     p_event: action, p_status: String(invoice.status ?? ""),
   });
   if (error) { console.error("apipay apply event", error); return new Response("db_error", { status: 500 }); }
-  if (result === "granted") {
-    const paymentBot = Deno.env.get("BOT_TOKEN");
-    if (paymentBot) await tg(paymentBot, order.tg_id, "Оплата прошла ✅ Доступ к Shopping Guide открыт. Нажмите «Открыть гид».", true);
-  }
-  if (result === "revoked") {
-    const paymentBot = Deno.env.get("BOT_TOKEN");
-    if (paymentBot) await tg(paymentBot, order.tg_id, "Возврат оформлен. Доступ к гайду закрыт.");
-  }
   if (result === "granted" || result === "revoked") {
-    const mainBot = Deno.env.get("MAIN_BOT_TOKEN");
-    if (mainBot) for (const admin of (Deno.env.get("ADMIN_IDS") ?? "").split(",").map((s) => Number(s.trim())).filter(Number.isSafeInteger))
-      await tg(mainBot, admin, `${result === "granted" ? "💳 Оплата Kaspi" : "↩️ Возврат Kaspi"}: ${amount} ₸, Telegram ID ${order.tg_id}, счёт ${invoiceId}`);
+    const notify = async () => {
+      const paymentBot = Deno.env.get("BOT_TOKEN");
+      if (paymentBot) await tg(paymentBot, order.tg_id,
+        result === "granted" ? "Оплата прошла ✅ Доступ к Shopping Guide открыт. Нажмите «Открыть гид»." : "Возврат оформлен. Доступ к гайду закрыт.",
+        result === "granted");
+      const mainBot = Deno.env.get("MAIN_BOT_TOKEN");
+      if (mainBot) for (const admin of (Deno.env.get("ADMIN_IDS") ?? "").split(",").map((s) => Number(s.trim())).filter(Number.isSafeInteger))
+        await tg(mainBot, admin, `${result === "granted" ? "💳 Оплата Kaspi" : "↩️ Возврат Kaspi"}: ${amount} ₸, Telegram ID ${order.tg_id}, счёт ${invoiceId}`);
+    };
+    if (typeof EdgeRuntime !== "undefined") EdgeRuntime.waitUntil(notify());
+    else await notify(); // локальные проверки без Supabase runtime
   }
   return new Response("ok");
 });
