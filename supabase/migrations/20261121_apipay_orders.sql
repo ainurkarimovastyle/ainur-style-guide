@@ -21,7 +21,7 @@ alter table public.apipay_orders enable row level security;
 -- не выдают доступ дважды и не возвращают его после полного возврата.
 create or replace function public.apipay_apply_event(
   p_order_ref uuid, p_invoice_id bigint, p_amount_kzt integer,
-  p_event text, p_status text
+  p_event text, p_status text, p_is_sandbox boolean
 ) returns text language plpgsql security definer set search_path = '' as $$
 declare
   o public.apipay_orders%rowtype;
@@ -36,6 +36,8 @@ begin
   if p_event = 'refunded' then
     update public.apipay_orders set status = 'refunded', invoice_id = p_invoice_id, updated_at = now()
       where order_ref = p_order_ref;
+    update public.payments set status = 'refunded', updated_at = now()
+      where provider = 'kaspi' and external_id = p_invoice_id::text and tg_id = o.tg_id;
     update public.access set revoked = true where source = 'apipay'
       and payment_ref = p_invoice_id::text and tg_id = o.tg_id and revoked = false;
     get diagnostics revoked_count = row_count;
@@ -45,6 +47,10 @@ begin
   if p_status = 'paid' then
     update public.apipay_orders set status = 'paid', invoice_id = p_invoice_id, updated_at = now()
       where order_ref = p_order_ref;
+    insert into public.users (tg_id) values (o.tg_id) on conflict (tg_id) do nothing;
+    insert into public.payments (provider, external_id, tg_id, product, amount, currency, phone, status, sandbox)
+      values ('kaspi', p_invoice_id::text, o.tg_id, 'guide-winter-26', p_amount_kzt, 'KZT', o.phone_number, 'paid', p_is_sandbox)
+      on conflict (provider, external_id) do update set status = 'paid', updated_at = now();
     insert into public.access (tg_id, source, payment_ref, amount, currency, expires_at)
       values (o.tg_id, 'apipay', p_invoice_id::text, p_amount_kzt, 'KZT', null)
       on conflict (source, payment_ref) where payment_ref is not null do nothing;
@@ -60,5 +66,5 @@ begin
   return 'ignored';
 end;
 $$;
-revoke all on function public.apipay_apply_event(uuid,bigint,integer,text,text) from public, anon, authenticated;
-grant execute on function public.apipay_apply_event(uuid,bigint,integer,text,text) to service_role;
+revoke all on function public.apipay_apply_event(uuid,bigint,integer,text,text,boolean) from public, anon, authenticated;
+grant execute on function public.apipay_apply_event(uuid,bigint,integer,text,text,boolean) to service_role;
