@@ -85,21 +85,18 @@ function tributeGuideLink() {
   const id = (Deno.env.get("TRIBUTE_PRODUCTS") ?? "").split(",")[0]?.trim().replace(/^p/i, "");
   return id && /^\d+$/.test(id) ? `https://t.me/tribute/app?startapp=p${id}` : null;
 }
-async function sendMoveNotice(legacy: string, newName: string, chatId: number) {
-  return await tgApi(legacy, "sendMessage", {
-    chat_id: chatId,
-    text: `Я переехала в новый бот @${newName} ❤️\n\nТам гайды, обучение и всё, что было здесь. Нажми кнопку ниже и «Старт».`,
-    reply_markup: { inline_keyboard: [[{ text: "Перейти в новый бот", url: `https://t.me/${newName}?start=moved` }]] },
-  });
-}
 async function legacyUpdate(sb: any, legacy: string, main: string, upd: any) {
   const msg = upd.message;
   if (!msg || msg.chat?.type !== "private" || !msg.from || msg.from.is_bot) return;
-  const newName = (await tgApi(main, "getMe", {})).result?.username;
-  const { data: rows } = await sb.from("access").select("expires_at").eq("tg_id", msg.from.id).eq("revoked", false);
+  const newName = (await tgApi(main, "getMe", {})).result?.username ?? "ainurkarimova_bot";
+  const { data: rows, error } = await sb.from("access").select("expires_at").eq("tg_id", msg.from.id).eq("revoked", false);
+  if (error) {
+    await tgApi(legacy, "sendMessage", { chat_id: msg.chat.id, text: "Не получилось проверить доступ. Пожалуйста, попробуйте позже." });
+    return;
+  }
   const paid = (rows ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date());
   const product = tributeGuideLink();
-  const mainUrl = newName ? `https://t.me/${newName}?start=guide` : null;
+  const mainUrl = `https://t.me/${newName}?start=guide`;
   const buttons: any[] = [];
   if (!paid && product) buttons.push([{ text: "Оплатить через Tribute", url: product }]);
   if (mainUrl) buttons.push([{ text: paid ? "Открыть гид" : "Открыть витрину", url: mainUrl }]);
@@ -312,14 +309,6 @@ Deno.serve(async (req) => {
     }
     if (body.action === "legacy_webhook" && legacyOn) { // старый бот продолжает слать апдейты сюда, но со своим секретом
       return json(await tgApi(legacyToken!, "setWebhook", { url: FN_URL, secret_token: whLegacy, allowed_updates: ["message", "my_chat_member"], drop_pending_updates: false }));
-    }
-    if (body.action === "move_notice" && legacyOn) { // разослать пользователям старого бота ссылку на новый
-      const newName = (await tgApi(botToken, "getMe", {})).result?.username;
-      if (!newName) return json({ error: "no_main_bot" }, 500);
-      const { data: us } = await sb.from("users").select("tg_id").not("started_at", "is", null).is("blocked_at", null);
-      const out: any[] = [];
-      for (const u of us ?? []) out.push({ tg_id: u.tg_id, ok: (await sendMoveNotice(legacyToken!, newName, u.tg_id)).ok });
-      return json({ sent: out });
     }
     if (body.action === "send_welcome") {
       const id = Number(body.tg_id);
