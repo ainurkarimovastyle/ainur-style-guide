@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
   if (!['invoice.status_changed', 'invoice.refunded'].includes(event?.event)) return new Response("ok");
 
   const invoice = event?.invoice;
-  if (!invoice || invoice.is_sandbox !== isSandbox || !/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(String(invoice.external_order_id ?? "")))
+  if (!invoice || invoice.is_sandbox !== isSandbox || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(invoice.external_order_id ?? "")))
     return new Response("ok");
   const invoiceId = Number(invoice.id);
   const amount = amountKzt(invoice.amount);
