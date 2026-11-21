@@ -301,7 +301,6 @@ function sheet(it){
     b.innerHTML = `<span>${label}</span><small>${sub||""}</small>`; b.onclick = fn; pay.appendChild(b);
   };
   if(it.action==="guide"){
-    add("dark", "Оплатить через Tribute", "Россия, Беларусь", () => openLink(PAY_BOT_URL));
     add("dark", "Оплатить через Kaspi", "Казахстан · 14 000 ₸", () => openLink(PAY_BOT_URL));
     add("alt", "Открыть гайд", "если уже оплачен", () => { location.href = GUIDE_URL; });
     $("#sNote").textContent = "После оплаты доступ откроется автоматически на этом аккаунте Telegram.";
