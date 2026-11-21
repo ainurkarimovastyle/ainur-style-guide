@@ -80,6 +80,22 @@ async function sendWelcome(sb: any, token: string, chatId: number, name?: string
   return r;
 }
 
+// ───────── старый бот: переезд ─────────
+async function sendMoveNotice(legacy: string, newName: string, chatId: number) {
+  return await tgApi(legacy, "sendMessage", {
+    chat_id: chatId,
+    text: `Я переехала в новый бот @${newName} ❤️\n\nТам гайды, обучение и всё, что было здесь. Нажми кнопку ниже и «Старт».`,
+    reply_markup: { inline_keyboard: [[{ text: "Перейти в новый бот", url: `https://t.me/${newName}?start=moved` }]] },
+  });
+}
+async function legacyUpdate(sb: any, legacy: string, main: string, upd: any) {
+  const msg = upd.message;
+  if (!msg || msg.chat?.type !== "private" || !msg.from || msg.from.is_bot) return;
+  const newName = (await tgApi(main, "getMe", {})).result?.username;
+  if (newName) await sendMoveNotice(legacy, newName, msg.chat.id);
+  await sb.from("events").insert({ tg_id: msg.from.id, type: "legacy_bot_message", payload: null });
+}
+
 // ───────── webhook ─────────
 async function handleUpdate(sb: any, token: string, upd: any) {
   const nowIso = new Date().toISOString();
@@ -218,16 +234,26 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "method" }, 405);
 
   const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-  const botToken = Deno.env.get("BOT_TOKEN");
+  // основной бот (витрина) — MAIN_BOT_TOKEN; старый @ainurkarimova_pay_bot — BOT_TOKEN (на время переезда)
+  const legacyToken = Deno.env.get("BOT_TOKEN") ?? null;
+  const botToken = Deno.env.get("MAIN_BOT_TOKEN") ?? legacyToken;
   if (!botToken) return json({ error: "not_configured" }, 503);
   const whSecret = hex(await hmac(enc.encode(botToken), "guide-bot-webhook"));
+  const legacyOn = !!legacyToken && legacyToken !== botToken;
+  const whLegacy = legacyOn ? hex(await hmac(enc.encode(legacyToken!), "guide-bot-webhook")) : null;
 
   // 1) webhook от Telegram
   const hdr = req.headers.get("x-telegram-bot-api-secret-token");
   if (hdr) {
-    if (hdr !== whSecret) return json({ error: "forbidden" }, 403);
-    try { await handleUpdate(sb, botToken, await req.json()); } catch (e) { console.error("update", e); }
-    return new Response("ok");
+    if (hdr === whSecret) {
+      try { await handleUpdate(sb, botToken, await req.json()); } catch (e) { console.error("update", e); }
+      return new Response("ok");
+    }
+    if (whLegacy && hdr === whLegacy) { // старый бот: отправляем в новый
+      try { await legacyUpdate(sb, legacyToken!, botToken, await req.json()); } catch (e) { console.error("legacy", e); }
+      return new Response("ok");
+    }
+    return json({ error: "forbidden" }, 403);
   }
 
   let body: any = {};
@@ -252,6 +278,23 @@ Deno.serve(async (req) => {
       if (body.menu) out.menu = await tgApi(botToken, "setChatMenuButton", { menu_button: { type: "web_app", text: "Открыть", web_app: { url: HUB_V } } });
       return json(out);
     }
+    if (body.action === "legacy_info" && legacyOn) {
+      return json({
+        me: (await tgApi(legacyToken!, "getMe", {})).result?.username,
+        webhook: (await tgApi(legacyToken!, "getWebhookInfo", {})).result,
+      });
+    }
+    if (body.action === "legacy_webhook" && legacyOn) { // старый бот продолжает слать апдейты сюда, но со своим секретом
+      return json(await tgApi(legacyToken!, "setWebhook", { url: FN_URL, secret_token: whLegacy, allowed_updates: ["message", "my_chat_member"], drop_pending_updates: false }));
+    }
+    if (body.action === "move_notice" && legacyOn) { // разослать пользователям старого бота ссылку на новый
+      const newName = (await tgApi(botToken, "getMe", {})).result?.username;
+      if (!newName) return json({ error: "no_main_bot" }, 500);
+      const { data: us } = await sb.from("users").select("tg_id").not("started_at", "is", null).is("blocked_at", null);
+      const out: any[] = [];
+      for (const u of us ?? []) out.push({ tg_id: u.tg_id, ok: (await sendMoveNotice(legacyToken!, newName, u.tg_id)).ok });
+      return json({ sent: out });
+    }
     if (body.action === "send_welcome") {
       const id = Number(body.tg_id);
       if (!Number.isInteger(id)) return json({ error: "bad_id" }, 400);
@@ -269,7 +312,8 @@ Deno.serve(async (req) => {
     if (ok !== true) return json({ error: "forbidden" }, 403);
     isAdmin = true;
   } else {
-    user = await verifyInitData(String(body.initData ?? ""), botToken);
+    user = await verifyInitData(String(body.initData ?? ""), botToken)
+      ?? (legacyOn ? await verifyInitData(String(body.initData ?? ""), legacyToken!) : null);
     if (!user?.id) return json({ error: "unauthorized" }, 401);
     isAdmin = admins.includes(String(user.id));
   }

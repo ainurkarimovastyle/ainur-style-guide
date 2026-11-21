@@ -138,9 +138,12 @@ Deno.serve(async (req) => {
     return json({ access: true, preview: true, items: data.map((i: any) => (del.has(i.id) ? { ...i, del: true } : i)) });
   }
 
-  const botToken = Deno.env.get("BOT_TOKEN");
+  // гид открывается из основного бота (MAIN_BOT_TOKEN) и, на время переезда, из старого (BOT_TOKEN)
+  const tokens = [Deno.env.get("MAIN_BOT_TOKEN"), Deno.env.get("BOT_TOKEN")].filter(Boolean) as string[];
+  const botToken = tokens[0];
   if (!botToken) return json({ error: "not_configured" }, 503);
-  const user = await verifyInitData(String(body.initData ?? ""), botToken);
+  let user: any = null;
+  for (const t of tokens) { user = await verifyInitData(String(body.initData ?? ""), t); if (user) break; }
   if (!user?.id) return json({ error: "unauthorized" }, 401);
 
   await sb.from("users").upsert({
