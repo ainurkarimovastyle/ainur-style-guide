@@ -80,7 +80,11 @@ async function sendWelcome(sb: any, token: string, chatId: number, name?: string
   return r;
 }
 
-// ───────── старый бот: переезд ─────────
+// ───────── платёжный бот ─────────
+function tributeGuideLink() {
+  const id = (Deno.env.get("TRIBUTE_PRODUCTS") ?? "").split(",")[0]?.trim().replace(/^p/i, "");
+  return id && /^\d+$/.test(id) ? `https://t.me/tribute/app?startapp=p${id}` : null;
+}
 async function sendMoveNotice(legacy: string, newName: string, chatId: number) {
   return await tgApi(legacy, "sendMessage", {
     chat_id: chatId,
@@ -92,8 +96,23 @@ async function legacyUpdate(sb: any, legacy: string, main: string, upd: any) {
   const msg = upd.message;
   if (!msg || msg.chat?.type !== "private" || !msg.from || msg.from.is_bot) return;
   const newName = (await tgApi(main, "getMe", {})).result?.username;
-  if (newName) await sendMoveNotice(legacy, newName, msg.chat.id);
-  await sb.from("events").insert({ tg_id: msg.from.id, type: "legacy_bot_message", payload: null });
+  const { data: rows } = await sb.from("access").select("expires_at").eq("tg_id", msg.from.id).eq("revoked", false);
+  const paid = (rows ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date());
+  const product = tributeGuideLink();
+  const mainUrl = newName ? `https://t.me/${newName}?start=guide` : null;
+  const buttons: any[] = [];
+  if (!paid && product) buttons.push([{ text: "Оплатить через Tribute", url: product }]);
+  if (mainUrl) buttons.push([{ text: paid ? "Открыть гид" : "Открыть витрину", url: mainUrl }]);
+  const text = paid
+    ? "Оплата найдена ✅ Доступ к Shopping Guide уже открыт. Нажмите «Открыть гид»."
+    : product
+    ? "Shopping Guide · Зима 26/27\n\nВыберите «Оплатить через Tribute». После покупки доступ откроется на этом аккаунте Telegram."
+    : "Shopping Guide · Зима 26/27\n\nОплата через Tribute пока подключается. Загляните сюда позже.";
+  await tgApi(legacy, "sendMessage", {
+    chat_id: msg.chat.id, text,
+    ...(buttons.length ? { reply_markup: { inline_keyboard: buttons } } : {}),
+  });
+  await sb.from("events").insert({ tg_id: msg.from.id, type: "payment_bot_message", payload: null });
 }
 
 // ───────── webhook ─────────
@@ -155,12 +174,19 @@ async function clients(sb: any, body: any) {
   if (error) return json({ error: error.message }, 500);
   const { count: reach } = await clientsQuery(sb, { ...body, reach: true }, true).q;
   const { count: all } = await clientsQuery(sb, {}, true).q;
+  const paid = new Map<number, any>();
+  const ids = (data ?? []).map((u: any) => u.tg_id);
+  if (ids.length) {
+    const { data: acc } = await sb.from("access").select("tg_id,source,granted_at,expires_at").in("tg_id", ids).eq("revoked", false);
+    for (const a of acc ?? []) if (!a.expires_at || new Date(a.expires_at) > new Date()) paid.set(a.tg_id, a);
+  }
   return json({
     total: count ?? 0, reach: reach ?? 0, all: all ?? 0, shown: (data ?? []).length,
     rows: (data ?? []).map((u: any) => ({
       tg_id: u.tg_id, username: u.username, name: [u.first_name, u.last_name].filter(Boolean).join(" "),
       created: fmt(u.created_at), started: fmt(u.started_at), seen: fmt(u.last_seen_at),
       src: u.start_param, status: status(u),
+      paid: paid.has(u.tg_id) ? { source: paid.get(u.tg_id).source, at: fmt(paid.get(u.tg_id).granted_at) } : null,
     })),
   });
 }
