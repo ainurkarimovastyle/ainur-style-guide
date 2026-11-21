@@ -5,7 +5,7 @@ import { createHmac, webcrypto } from 'node:crypto';
 import { stripTypeScriptTypes } from 'node:module';
 import vm from 'node:vm';
 
-test('payment bot shows Kaspi and points paid buyers to the main bot', async () => {
+test('payment bot shows configured Kaspi and Tribute methods, then points paid buyers to the main bot', async () => {
   const messages = [];
   let handler;
   let paid = false;
@@ -47,11 +47,17 @@ test('payment bot shows Kaspi and points paid buyers to the main bot', async () 
   let sent = messages.at(-1);
   assert.ok(sent.url.includes('/botpayment-token/sendMessage'));
   assert.equal(sent.body.reply_markup.inline_keyboard[0][0].callback_data, 'apipay_start');
+  assert.equal(sent.body.reply_markup.inline_keyboard.length, 2);
+  env.TRIBUTE_PRODUCTS = '123';
+  assert.equal((await start()).status, 200);
+  sent = messages.at(-1);
+  assert.equal(sent.body.reply_markup.inline_keyboard[1][0].url, 'https://t.me/tribute/app?startapp=p123');
   paid = true;
   assert.equal((await start()).status, 200);
   sent = messages.at(-1);
   assert.equal(sent.body.reply_markup.inline_keyboard[0][0].url, 'https://t.me/ainurkarimova_bot?start=guide');
   assert.ok(!JSON.stringify(sent.body).includes('apipay_start'));
+  assert.ok(!JSON.stringify(sent.body).includes('startapp=p123'));
 });
 
 test('main bot sends buyers to the payment bot', async () => {
