@@ -130,7 +130,7 @@ async function load(){
       <span class="st ${cls}">${esc(u.status)}</span>${u.paid?` <span class="st ok">Оплачено · ${esc(PAYSRC[u.paid.source] || u.paid.source)} · ${esc(u.paid.at)}</span>`:""}</div>`;
   }).join("") : `<div class="empty">Никого за этот период.</div>`;
 }
-const PAYSRC = {apipay:"Kaspi", kaspi:"Kaspi", manual:"вручную"};
+const PAYSRC = {apipay:"Kaspi", kaspi:"Kaspi", tribute:"Tribute", manual:"вручную"};
 
 async function loadBell(){
   $("#list").innerHTML = ""; $("#cap").textContent = "Загружаю…";
