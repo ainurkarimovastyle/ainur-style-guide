@@ -72,7 +72,8 @@ test('Tribute purchase grants access once and a matching refund revokes it', asy
   assert.equal(access.length, 0);
   assert.equal((await send('new_digital_product')).status, 200);
   assert.equal(access.length, 1);
-  assert.ok(messages.some((m) => m.url.includes('/botmain-token/sendMessage') && m.body.chat_id === 42));
+  assert.ok(messages.some((m) => m.url.includes('/botpayment-token/sendMessage') && m.body.chat_id === 42
+    && m.body.reply_markup.inline_keyboard[0][0].url === 'https://t.me/ainurkarimova_bot?start=guide'));
   assert.equal((await send('new_digital_product')).status, 200);
   assert.equal(access.length, 1);
   assert.equal((await send('digital_product_refunded')).status, 200);
