@@ -22,7 +22,7 @@ alter table public.apipay_orders enable row level security;
 create or replace function public.apipay_apply_event(
   p_order_ref uuid, p_invoice_id bigint, p_amount_kzt integer,
   p_event text, p_status text, p_is_sandbox boolean
-) returns text language plpgsql security definer set search_path = '' as $$
+) returns text language plpgsql security invoker set search_path = '' as $$
 declare
   o public.apipay_orders%rowtype;
   inserted_count integer;
