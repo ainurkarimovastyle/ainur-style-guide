@@ -9,26 +9,23 @@ Telegram Mini App с подборкой вещей из магазинов Ас�
 
 База: Supabase-проект `ainur-style-guide` (таблицы `items`, `users`, `access`, `events`, `staging_raw`).
 
-**Перед запуском:** Telegram требует Telegram Stars для продажи цифровых товаров внутри ботов и мини-приложений. Подготовленная связка с Tribute и Kaspi/ApiPay остаётся черновиком и не должна включаться в работающих ботах как оплата цифрового гайда. Правило: https://core.telegram.org/bots/payments-stars. Для продажи внутри Telegram нужен сценарий со Stars; внешние продажи следует проектировать отдельно от покупки внутри бота.
+**Перед запуском:** Telegram требует Stars для продажи цифровых товаров внутри ботов и мини-приложений: https://core.telegram.org/bots/payments-stars. Техническая связка с Kaspi подготовлена по запросу владельца проекта; использование внешней платёжной системы внутри Telegram несёт риск ограничения бота. Счёт ApiPay сам по себе не меняет это правило.
 
 Секреты функций (задаются в панели Supabase → Edge Functions → Secrets):
 - `BOT_TOKEN` — токен бота, в котором открывается гайд;
 - `ADMIN_IDS` — Telegram ID через запятую, у кого доступ без оплаты;
 - Ссылка на платёжного бота в `guide-bot`, `guide-api` и витрине: `https://t.me/ainurkarimova_pay_bot?start=guide_winter_2627`.
 
-Оплата через Tribute готовится отдельно от публикации сайта и бота:
+Связка двух ботов:
 - Основной бот `@ainurkarimova_bot` показывает витрину, кнопку оплаты и открывает купленный гид.
-- Платёжный бот `@ainurkarimova_pay_bot` принимает покупателя из основного бота или витрины, предлагает Tribute и Kaspi и после покупки возвращает в основной бот.
-- После одобрения товара в Tribute указать его числовой ID в секрете `TRIBUTE_PRODUCTS`.
-- В секретах Supabase указать `TRIBUTE_API_KEY`, `BOT_TOKEN` и `MAIN_BOT_TOKEN`; ключ Tribute не хранить в репозитории.
-- В Tribute указать URL вебхука `https://zafgwbfgutlbudqevpal.supabase.co/functions/v1/tribute-webhook`.
-- Применить миграцию `supabase/migrations/20261121_access_payments.sql` и развернуть `guide-bot`, `guide-api`, `tribute-webhook` с `verify_jwt=false` для внешнего вебхука.
-- Проверить контрольную покупку и возврат до публикации кнопки оплаты.
+- Платёжный бот `@ainurkarimova_pay_bot` принимает покупателя из основного бота или витрины, выставляет счёт Kaspi и после оплаты возвращает в основной бот.
 
 Оплата через Kaspi / ApiPay (код подготовлен, до регистрации не активен):
-- Кнопка в витрине открывает платёжного бота. В нём покупатель выбирает Kaspi и отправляет номер телефона Казахстана. Бот создаёт счёт на 14 000 ₸ через `POST /invoices` ApiPay.
+- Кнопка в витрине открывает платёжного бота. В нём покупатель отправляет номер телефона Казахстана. Бот создаёт счёт на 14 000 ₸ через `POST /invoices` ApiPay.
 - Подтверждённая оплата записывается в уже существующую таблицу `payments` и выдаёт доступ в `access`. Полный возврат меняет статус платежа и закрывает доступ.
 - После регистрации в ApiPay настроить Kaspi Pay, получить API-ключ и создать вебхук на `https://zafgwbfgutlbudqevpal.supabase.co/functions/v1/apipay-webhook` для `invoice.status_changed` и `invoice.refunded`.
 - В секретах Supabase указать `APIPAY_API_KEY`, `APIPAY_WEBHOOK_SECRET`, `BOT_TOKEN`, `MAIN_BOT_TOKEN`. Для тестов ApiPay в песочнице временно задать `APIPAY_SANDBOX_MODE=true`; перед реальными платежами удалить этот секрет или задать `false`.
-- Применить `supabase/migrations/20261121_apipay_orders.sql`, развернуть `guide-bot`, `guide-api` и `apipay-webhook` с `verify_jwt=false` для внешнего вебхука, затем обновить Telegram-вебхук платёжного бота служебным действием `legacy_webhook`.
+- Применить `supabase/migrations/20261121_access_payments.sql` и `supabase/migrations/20261121_apipay_orders.sql`, развернуть `guide-bot`, `guide-api` и `apipay-webhook` (для внешнего вебхука `verify_jwt=false`), затем обновить Telegram-вебхук платёжного бота служебным действием `legacy_webhook`.
 - Проверить создание тестового счёта, успешную оплату, повторное уведомление и полный возврат в песочнице ApiPay. Бот показывает кнопку Kaspi только после установки обоих секретов; доступ выдаёт только подписанное уведомление о статусе `paid`.
+
+ApiPay автоматизирует Kaspi Pay. Для карт Visa/Mastercard и покупателей из РФ/Беларуси понадобится отдельный провайдер и отдельный обработчик подтверждения оплаты; без выбора провайдера эти кнопки не показываем.
