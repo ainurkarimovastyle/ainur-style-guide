@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
   if (!order || order.amount_kzt !== amount || (order.invoice_id && order.invoice_id !== invoiceId)) return new Response("ok");
   const { data: result, error } = await sb.rpc("apipay_apply_event", {
     p_order_ref: orderRef, p_invoice_id: invoiceId, p_amount_kzt: amount,
-    p_event: action, p_status: String(invoice.status ?? ""),
+    p_event: action, p_status: String(invoice.status ?? ""), p_is_sandbox: isSandbox,
   });
   if (error) { console.error("apipay apply event", error); return new Response("db_error", { status: 500 }); }
   if (result === "granted" || result === "revoked") {
