@@ -17,7 +17,8 @@ const json = (body: unknown, status = 200) =>
 
 const HUB = "https://ainurkarimovastyle.github.io/ainur-style-guide/hub/";
 const PHOTO = HUB + "welcome.jpg";
-const HUB_V = HUB + "?v=20261118b"; // номер версии сбивает кеш Telegram при обновлении хаба
+const HUB_V = HUB + "?v=20261121pay"; // номер версии сбивает кеш Telegram при обновлении хаба
+const PAY_BOT_URL = "https://t.me/ainurkarimova_pay_bot?start=guide_winter_2627";
 const FN_URL = "https://zafgwbfgutlbudqevpal.supabase.co/functions/v1/guide-bot";
 const TZ = "Asia/Almaty"; // даты в картотеке считаем по времени Астаны
 
@@ -38,7 +39,10 @@ function welcomeText(name?: string | null) {
     `Загляни в Shopping Guide «Зима 2026/27» — там больше 1500 вещей из любимых магазинов, которые я отобрала сама, плюс особые находки сезона ✨\n\n` +
     `Нажимай «Открыть» и выбирай интересное.`;
 }
-const OPEN_KB = { inline_keyboard: [[{ text: "Открыть", web_app: { url: HUB_V } }]] };
+const OPEN_KB = { inline_keyboard: [
+  [{ text: "Открыть", web_app: { url: HUB_V } }],
+  [{ text: "Оплатить Shopping Guide", url: PAY_BOT_URL }],
+] };
 
 const enc = new TextEncoder();
 async function hmac(key: ArrayBuffer | Uint8Array, data: string) {
@@ -80,20 +84,141 @@ async function sendWelcome(sb: any, token: string, chatId: number, name?: string
   return r;
 }
 
-// ───────── старый бот: переезд ─────────
-async function sendMoveNotice(legacy: string, newName: string, chatId: number) {
-  return await tgApi(legacy, "sendMessage", {
-    chat_id: chatId,
-    text: `Я переехала в новый бот @${newName} ❤️\n\nТам гайды, обучение и всё, что было здесь. Нажми кнопку ниже и «Старт».`,
-    reply_markup: { inline_keyboard: [[{ text: "Перейти в новый бот", url: `https://t.me/${newName}?start=moved` }]] },
-  });
+// ───────── платёжный бот ─────────
+function tributeGuideLink() {
+  const id = (Deno.env.get("TRIBUTE_PRODUCTS") ?? "").split(",")[0]?.trim().replace(/^p/i, "");
+  return id && /^\d+$/.test(id) ? `https://t.me/tribute/app?startapp=p${id}` : null;
 }
 async function legacyUpdate(sb: any, legacy: string, main: string, upd: any) {
-  const msg = upd.message;
-  if (!msg || msg.chat?.type !== "private" || !msg.from || msg.from.is_bot) return;
-  const newName = (await tgApi(main, "getMe", {})).result?.username;
-  if (newName) await sendMoveNotice(legacy, newName, msg.chat.id);
-  await sb.from("events").insert({ tg_id: msg.from.id, type: "legacy_bot_message", payload: null });
+  const callback = upd.callback_query;
+  const msg = callback?.message ?? upd.message;
+  if (!msg || msg.chat?.type !== "private") return;
+  const buyer = callback?.from ?? msg.from;
+  if (!buyer || buyer.is_bot) return;
+  if (callback) await tgApi(legacy, "answerCallbackQuery", { callback_query_id: callback.id });
+  if (callback?.data === "apipay_start") {
+    await startApipay(sb, legacy, buyer.id, msg.chat.id);
+    return;
+  }
+  if (!callback && (msg.contact || (msg.text && !msg.text.startsWith("/")))) {
+    if (await submitApipayPhone(sb, legacy, buyer.id, msg)) return;
+  }
+  const newName = (await tgApi(main, "getMe", {})).result?.username ?? "ainurkarimova_bot";
+  const { data: rows, error } = await sb.from("access").select("expires_at").eq("tg_id", buyer.id).eq("revoked", false);
+  if (error) {
+    await tgApi(legacy, "sendMessage", { chat_id: msg.chat.id, text: "Не получилось проверить доступ. Пожалуйста, попробуйте позже." });
+    return;
+  }
+  const paid = (rows ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date());
+  const product = tributeGuideLink();
+  const kaspiReady = !!Deno.env.get("APIPAY_API_KEY") && !!Deno.env.get("APIPAY_WEBHOOK_SECRET");
+  const mainUrl = `https://t.me/${newName}?start=guide`;
+  const buttons: any[] = [];
+  if (!paid && product) buttons.push([{ text: "Оплатить через Tribute", url: product }]);
+  if (!paid && kaspiReady) buttons.push([{ text: "Оплатить через Kaspi · 14 000 ₸", callback_data: "apipay_start" }]);
+  if (mainUrl) buttons.push([{ text: paid ? "Открыть гид" : "Открыть витрину", url: mainUrl }]);
+  const text = paid
+    ? "Оплата найдена ✅ Доступ к Shopping Guide уже открыт. Нажмите «Открыть гид»."
+    : product || kaspiReady
+    ? "Shopping Guide · Зима 26/27\n\nВыберите удобный способ оплаты. После покупки доступ откроется на этом аккаунте Telegram."
+    : "Shopping Guide · Зима 26/27\n\nОплата пока подключается. Загляните сюда позже.";
+  await tgApi(legacy, "sendMessage", {
+    chat_id: msg.chat.id, text,
+    ...(buttons.length ? { reply_markup: { inline_keyboard: buttons } } : {}),
+  });
+  await sb.from("events").insert({ tg_id: buyer.id, type: "payment_bot_message", payload: null });
+}
+
+const APIPAY_AMOUNT_KZT = 14000;
+const APIPAY_PRODUCT = "guide_winter_2627";
+function kaspiPhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length !== 11 || !/^[78]/.test(digits)) return null;
+  return "8" + digits.slice(1);
+}
+async function activeApipayOrder(sb: any, tgId: number) {
+  return await sb.from("apipay_orders").select("order_ref,status,phone_number")
+    .eq("tg_id", tgId).eq("product_key", APIPAY_PRODUCT)
+    .in("status", ["awaiting_phone", "creating", "processing", "pending"])
+    .order("created_at", { ascending: false }).limit(1).maybeSingle();
+}
+async function startApipay(sb: any, legacy: string, tgId: number, chatId: number) {
+  if (!Deno.env.get("APIPAY_API_KEY") || !Deno.env.get("APIPAY_WEBHOOK_SECRET")) {
+    await tgApi(legacy, "sendMessage", { chat_id: chatId, text: "Оплата Kaspi пока подключается. Попробуйте позже." });
+    return;
+  }
+  const { data: acc } = await sb.from("access").select("expires_at").eq("tg_id", tgId).eq("revoked", false);
+  if ((acc ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date())) {
+    await tgApi(legacy, "sendMessage", { chat_id: chatId, text: "Гайд уже оплачен ✅ Откройте его в @ainurkarimova_bot." });
+    return;
+  }
+  const { data: existing, error: lookupError } = await activeApipayOrder(sb, tgId);
+  if (lookupError) throw lookupError;
+  if (existing && existing.status !== "awaiting_phone") {
+    await tgApi(legacy, "sendMessage", { chat_id: chatId, text: "Счёт уже отправлен в Kaspi. Проверьте приложение и дождитесь подтверждения оплаты." });
+    return;
+  }
+  if (!existing) {
+    const { error } = await sb.from("apipay_orders").insert({
+      order_ref: crypto.randomUUID(), tg_id: tgId, product_key: APIPAY_PRODUCT,
+      amount_kzt: APIPAY_AMOUNT_KZT, status: "awaiting_phone",
+    });
+    if (error && error.code !== "23505") throw error;
+  }
+  await tgApi(legacy, "sendMessage", {
+    chat_id: chatId,
+    text: "Введите номер, на который придёт счёт в Kaspi: +7 7XX XXX XX XX. Можно нажать кнопку «Отправить мой номер». Сумма: 14 000 ₸.",
+    reply_markup: { keyboard: [[{ text: "Отправить мой номер", request_contact: true }]], resize_keyboard: true, one_time_keyboard: true },
+  });
+}
+async function submitApipayPhone(sb: any, legacy: string, tgId: number, msg: any) {
+  const { data: order, error } = await activeApipayOrder(sb, tgId);
+  if (error) throw error;
+  if (!order || order.status !== "awaiting_phone") return false;
+  if (msg.contact?.user_id && msg.contact.user_id !== tgId) {
+    await tgApi(legacy, "sendMessage", { chat_id: msg.chat.id, text: "Отправьте свой номер телефона или введите его сообщением." });
+    return true;
+  }
+  const phone = kaspiPhone(String(msg.contact?.phone_number ?? msg.text ?? ""));
+  if (!phone) {
+    await tgApi(legacy, "sendMessage", { chat_id: msg.chat.id, text: "Нужен номер Казахстана: +7 7XX XXX XX XX. Попробуйте ещё раз." });
+    return true;
+  }
+  const claimed = await sb.from("apipay_orders")
+    .update({ status: "creating", phone_number: phone, updated_at: new Date().toISOString() })
+    .eq("order_ref", order.order_ref).eq("status", "awaiting_phone").select("order_ref").maybeSingle();
+  if (claimed.error) throw claimed.error;
+  if (!claimed.data) return true; // повторное сообщение не создаёт второй счёт
+  await tgApi(legacy, "sendMessage", { chat_id: msg.chat.id, text: "Отправляю счёт в Kaspi…", reply_markup: { remove_keyboard: true } });
+  try {
+    const response = await fetch("https://api.apipay.kz/api/v1/invoices", {
+      method: "POST",
+      headers: { "X-API-Key": Deno.env.get("APIPAY_API_KEY")!, "Content-Type": "application/json" },
+      body: JSON.stringify({ phone_number: phone, amount: APIPAY_AMOUNT_KZT,
+        description: "Shopping Guide Зима 26/27", external_order_id: order.order_ref,
+        external_order_id_idempotency: order.order_ref }),
+    });
+    const invoice = await response.json();
+    const duplicate = response.status === 409 && invoice.error_code === "duplicate_idempotency_key";
+    if ((response.status !== 201 && !duplicate) || !Number.isSafeInteger(Number(invoice.id ?? invoice.invoice_id))) {
+      console.error("apipay create invoice", response.status, invoice.error_code ?? invoice.error);
+      await sb.from("apipay_orders").update({ status: "error", updated_at: new Date().toISOString() })
+        .eq("order_ref", order.order_ref).eq("status", "creating");
+      await tgApi(legacy, "sendMessage", { chat_id: msg.chat.id, text: "Не удалось отправить счёт. Попробуйте позже или напишите в поддержку." });
+      return true;
+    }
+    const invoiceId = Number(invoice.id ?? invoice.invoice_id);
+    await sb.from("apipay_orders").update({ invoice_id: invoiceId, status: invoice.status === "pending" ? "pending" : "processing", updated_at: new Date().toISOString() })
+      .eq("order_ref", order.order_ref).eq("status", "creating");
+    await tgApi(legacy, "sendMessage", { chat_id: msg.chat.id,
+      text: "Счёт отправлен ✅ Откройте Kaspi и подтвердите оплату 14 000 ₸. После оплаты доступ к гайду откроется автоматически." });
+  } catch (e) {
+    // Неизвестно, успел ли ApiPay создать счёт. Оставляем заказ активным, чтобы не выставить второй.
+    console.error("apipay create invoice transport", e);
+    await tgApi(legacy, "sendMessage", { chat_id: msg.chat.id,
+      text: "Не удалось проверить отправку счёта. Посмотрите уведомления в Kaspi. Если счёт не пришёл, напишите в поддержку." });
+  }
+  return true;
 }
 
 // ───────── webhook ─────────
@@ -155,12 +280,19 @@ async function clients(sb: any, body: any) {
   if (error) return json({ error: error.message }, 500);
   const { count: reach } = await clientsQuery(sb, { ...body, reach: true }, true).q;
   const { count: all } = await clientsQuery(sb, {}, true).q;
+  const paid = new Map<number, any>();
+  const ids = (data ?? []).map((u: any) => u.tg_id);
+  if (ids.length) {
+    const { data: acc } = await sb.from("access").select("tg_id,source,granted_at,expires_at").in("tg_id", ids).eq("revoked", false);
+    for (const a of acc ?? []) if (!a.expires_at || new Date(a.expires_at) > new Date()) paid.set(a.tg_id, a);
+  }
   return json({
     total: count ?? 0, reach: reach ?? 0, all: all ?? 0, shown: (data ?? []).length,
     rows: (data ?? []).map((u: any) => ({
       tg_id: u.tg_id, username: u.username, name: [u.first_name, u.last_name].filter(Boolean).join(" "),
       created: fmt(u.created_at), started: fmt(u.started_at), seen: fmt(u.last_seen_at),
       src: u.start_param, status: status(u),
+      paid: paid.has(u.tg_id) ? { source: paid.get(u.tg_id).source, at: fmt(paid.get(u.tg_id).granted_at) } : null,
     })),
   });
 }
@@ -285,15 +417,7 @@ Deno.serve(async (req) => {
       });
     }
     if (body.action === "legacy_webhook" && legacyOn) { // старый бот продолжает слать апдейты сюда, но со своим секретом
-      return json(await tgApi(legacyToken!, "setWebhook", { url: FN_URL, secret_token: whLegacy, allowed_updates: ["message", "my_chat_member"], drop_pending_updates: false }));
-    }
-    if (body.action === "move_notice" && legacyOn) { // разослать пользователям старого бота ссылку на новый
-      const newName = (await tgApi(botToken, "getMe", {})).result?.username;
-      if (!newName) return json({ error: "no_main_bot" }, 500);
-      const { data: us } = await sb.from("users").select("tg_id").not("started_at", "is", null).is("blocked_at", null);
-      const out: any[] = [];
-      for (const u of us ?? []) out.push({ tg_id: u.tg_id, ok: (await sendMoveNotice(legacyToken!, newName, u.tg_id)).ok });
-      return json({ sent: out });
+      return json(await tgApi(legacyToken!, "setWebhook", { url: FN_URL, secret_token: whLegacy, allowed_updates: ["message", "callback_query", "my_chat_member"], drop_pending_updates: false }));
     }
     if (body.action === "send_welcome") {
       const id = Number(body.tg_id);

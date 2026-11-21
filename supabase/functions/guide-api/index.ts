@@ -13,6 +13,7 @@ const CORS = {
 };
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
+const PAY_BOT_URL = "https://t.me/ainurkarimova_pay_bot?start=guide_winter_2627";
 
 const enc = new TextEncoder();
 async function hmac(key: ArrayBuffer | Uint8Array, data: string) {
@@ -186,7 +187,7 @@ Deno.serve(async (req) => {
   }
 
   await sb.from("events").insert({ tg_id: user.id, type: access ? "open" : "open_locked", payload: null });
-  if (!access) return json({ access: false, pay_url: Deno.env.get("PAY_URL") ?? null });
+  if (!access) return json({ access: false, pay_url: PAY_BOT_URL });
 
   const { data, error } = await allItems(sb);
   if (error) return json({ error: error.message }, 500);
