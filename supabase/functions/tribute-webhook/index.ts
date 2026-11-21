@@ -49,7 +49,7 @@ async function notifyAdmins(token: string, text: string) {
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("method", { status: 405 });
   const key = Deno.env.get("TRIBUTE_API_KEY");
-   const token = Deno.env.get("MAIN_BOT_TOKEN") ?? Deno.env.get("BOT_TOKEN");
+   const token = Deno.env.get("MAIN_BOT_TOKEN");
   if (!key || !token) return new Response("not_configured", { status: 503 });
 
   const raw = await req.text();
