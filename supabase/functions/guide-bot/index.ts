@@ -139,12 +139,20 @@ async function clients(sb: any, body: any) {
   if (error) return json({ error: error.message }, 500);
   const { count: reach } = await clientsQuery(sb, { ...body, reach: true }, true).q;
   const { count: all } = await clientsQuery(sb, {}, true).q;
+  // отметка об оплате: действующий доступ из таблицы access
+  const paid = new Map<number, any>();
+  const ids = (data ?? []).map((u: any) => u.tg_id);
+  if (ids.length) {
+    const { data: acc } = await sb.from("access").select("tg_id,source,granted_at,expires_at").in("tg_id", ids).eq("revoked", false);
+    for (const a of acc ?? []) if (!a.expires_at || new Date(a.expires_at) > new Date()) paid.set(a.tg_id, a);
+  }
   return json({
     total: count ?? 0, reach: reach ?? 0, all: all ?? 0, shown: (data ?? []).length,
     rows: (data ?? []).map((u: any) => ({
       tg_id: u.tg_id, username: u.username, name: [u.first_name, u.last_name].filter(Boolean).join(" "),
       created: fmt(u.created_at), started: fmt(u.started_at), seen: fmt(u.last_seen_at),
       src: u.start_param, status: status(u),
+      paid: paid.has(u.tg_id) ? { source: paid.get(u.tg_id).source, at: fmt(paid.get(u.tg_id).granted_at) } : null,
     })),
   });
 }

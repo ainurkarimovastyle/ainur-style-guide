@@ -127,9 +127,10 @@ async function load(){
     const cls = u.status === "можно писать" ? "ok" : (u.status.startsWith("заблок") ? "bad" : "");
     return `<div class="cl"><h4>${esc(u.name || "Без имени")}${u.username?`<small>@${esc(u.username)}</small>`:""}</h4>
       <p>Первый контакт: ${esc(u.created)}${u.started?`<br>Нажал «Старт»: ${esc(u.started)}`:""}<br>Последний визит: ${esc(u.seen)}${u.src?`<br>Источник: ${esc(u.src)}`:""}</p>
-      <span class="st ${cls}">${esc(u.status)}</span></div>`;
+      <span class="st ${cls}">${esc(u.status)}</span>${u.paid?` <span class="st ok">Оплачено · ${esc(PAYSRC[u.paid.source] || u.paid.source)} · ${esc(u.paid.at)}</span>`:""}</div>`;
   }).join("") : `<div class="empty">Никого за этот период.</div>`;
 }
+const PAYSRC = {tribute:"Tribute", kaspi:"Kaspi", manual:"вручную"};
 
 async function loadBell(){
   $("#list").innerHTML = ""; $("#cap").textContent = "Загружаю…";

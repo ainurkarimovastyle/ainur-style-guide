@@ -172,6 +172,8 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
    ─────────────────────────────────────────────── */
 const GUIDE_URL = "../";
 const CONTACT   = "https://t.me/ainurkarimova_style";
+// номер цифрового продукта гайда в Tribute (из ссылки вида .../p123 → "123"); пусто — кнопка пока не работает
+const TRIBUTE_PRODUCT = "";
 const ICONS = {
   bag:'<svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
   star:'<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="2.4"/></svg>',
@@ -301,7 +303,7 @@ function sheet(it){
   };
   if(it.action==="guide"){
     add("", "Оплатить Kaspi", "Казахстан", () => toast("Оплата подключается"));
-    add("dark", "Оплатить картой / СБП", "Россия, Беларусь", () => toast("Оплата подключается"));
+    add("dark", "Оплатить картой / СБП", "Россия, Беларусь", payTribute);
     add("alt", "Открыть гайд", "если уже оплачен", () => { location.href = GUIDE_URL; });
     $("#sNote").textContent = "После оплаты доступ откроется автоматически на этом аккаунте Telegram.";
   } else {
@@ -312,6 +314,22 @@ function sheet(it){
   $("#layer").classList.add("open");
   tg && tg.BackButton && (tg.BackButton.show(), tg.BackButton.onClick(close));
 }
+// Tribute: оплата в его мини-аппе; доступ выдаёт наш вебхук, по возвращении проверяем его
+let waitPay = false;
+function payTribute(){
+  if(!TRIBUTE_PRODUCT){ toast("Оплата подключается"); return; }
+  if(!(tg && tg.initData)){ toast("Откройте приложение в Telegram"); return; }
+  waitPay = true;
+  openLink("https://t.me/tribute/app?startapp=p" + TRIBUTE_PRODUCT);
+}
+async function checkPaid(){
+  for(let i = 0; i < 6 && waitPay; i++){
+    try{ const j = await apiCall({action:"me"}); if(j && j.access){ waitPay = false; toast("Оплата прошла, доступ открыт ❤️"); return; } }catch(e){}
+    await new Promise(r => setTimeout(r, 2500));
+  }
+}
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && waitPay) checkPaid(); });
+
 function close(){
   $("#layer").classList.remove("open");
   tg && tg.BackButton && tg.BackButton.hide();
