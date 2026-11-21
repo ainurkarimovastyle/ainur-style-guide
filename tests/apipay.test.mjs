@@ -107,6 +107,7 @@ test('ApiPay accepts only signed matching payment and revokes after full refund'
   assert.equal(calls.length, 0);
   assert.equal((await send(base)).status, 200);
   assert.equal(calls.length, 1);
+  assert.equal(calls[0].p_is_sandbox, false);
   assert.ok(notifications.some((n) => n.url.includes('/botpay-token/sendMessage') && n.body.chat_id === 42));
   await send(base);
   assert.equal(calls.length, 2);
