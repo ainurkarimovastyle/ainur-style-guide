@@ -9,6 +9,8 @@ Telegram Mini App с подборкой вещей из магазинов Ас�
 
 База: Supabase-проект `ainur-style-guide` (таблицы `items`, `users`, `access`, `events`, `staging_raw`).
 
+**Перед запуском:** Telegram требует Telegram Stars для продажи цифровых товаров внутри ботов и мини-приложений. Подготовленная связка с Tribute и Kaspi/ApiPay остаётся черновиком и не должна включаться в работающих ботах как оплата цифрового гайда. Правило: https://core.telegram.org/bots/payments-stars. Для продажи внутри Telegram нужен сценарий со Stars; внешние продажи следует проектировать отдельно от покупки внутри бота.
+
 Секреты функций (задаются в панели Supabase → Edge Functions → Secrets):
 - `BOT_TOKEN` — токен бота, в котором открывается гайд;
 - `ADMIN_IDS` — Telegram ID через запятую, у кого доступ без оплаты;
