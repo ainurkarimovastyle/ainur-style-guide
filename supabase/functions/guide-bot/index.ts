@@ -85,10 +85,6 @@ async function sendWelcome(sb: any, token: string, chatId: number, name?: string
 }
 
 // ───────── платёжный бот ─────────
-function tributeGuideLink() {
-  const id = (Deno.env.get("TRIBUTE_PRODUCTS") ?? "").split(",")[0]?.trim().replace(/^p/i, "");
-  return id && /^\d+$/.test(id) ? `https://t.me/tribute/app?startapp=p${id}` : null;
-}
 async function legacyUpdate(sb: any, legacy: string, main: string, upd: any) {
   const callback = upd.callback_query;
   const msg = callback?.message ?? upd.message;
@@ -110,17 +106,15 @@ async function legacyUpdate(sb: any, legacy: string, main: string, upd: any) {
     return;
   }
   const paid = (rows ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date());
-  const product = tributeGuideLink();
   const kaspiReady = !!Deno.env.get("APIPAY_API_KEY") && !!Deno.env.get("APIPAY_WEBHOOK_SECRET");
   const mainUrl = `https://t.me/${newName}?start=guide`;
   const buttons: any[] = [];
-  if (!paid && product) buttons.push([{ text: "Оплатить через Tribute", url: product }]);
   if (!paid && kaspiReady) buttons.push([{ text: "Оплатить через Kaspi · 14 000 ₸", callback_data: "apipay_start" }]);
   if (mainUrl) buttons.push([{ text: paid ? "Открыть гид" : "Открыть витрину", url: mainUrl }]);
   const text = paid
     ? "Оплата найдена ✅ Доступ к Shopping Guide уже открыт. Нажмите «Открыть гид»."
-    : product || kaspiReady
-    ? "Shopping Guide · Зима 26/27\n\nВыберите удобный способ оплаты. После покупки доступ откроется на этом аккаунте Telegram."
+    : kaspiReady
+    ? "Shopping Guide · Зима 26/27\n\nНажмите «Оплатить через Kaspi». После покупки доступ откроется на этом аккаунте Telegram."
     : "Shopping Guide · Зима 26/27\n\nОплата пока подключается. Загляните сюда позже.";
   await tgApi(legacy, "sendMessage", {
     chat_id: msg.chat.id, text,
