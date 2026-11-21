@@ -3,11 +3,11 @@
 //  - new_digital_product → запись в access (source=tribute, payment_ref=purchase_id) + сообщение покупателю и админам.
 //  - digital_product_refunded → доступ по этой покупке отзывается.
 //  Повтор одного и того же уведомления доступ второй раз не выдаёт (уникальный индекс source+payment_ref).
-// Секреты Supabase: TRIBUTE_API_KEY, TRIBUTE_PRODUCTS (id продуктов гайда через запятую), MAIN_BOT_TOKEN, ADMIN_IDS.
+// Секреты Supabase: TRIBUTE_API_KEY, TRIBUTE_PRODUCTS (id продуктов гайда через запятую), BOT_TOKEN, MAIN_BOT_TOKEN, ADMIN_IDS.
 // Деплоить с verify_jwt = false: Tribute не шлёт JWT Supabase, защита — подпись.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const HUB_V = "https://ainurkarimovastyle.github.io/ainur-style-guide/hub/?v=20261118b";
+const MAIN_BOT_URL = "https://t.me/ainurkarimova_bot?start=guide";
 const enc = new TextEncoder();
 
 async function hmacSha256(key: string, data: string) {
@@ -49,8 +49,9 @@ async function notifyAdmins(token: string, text: string) {
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("method", { status: 405 });
   const key = Deno.env.get("TRIBUTE_API_KEY");
-   const token = Deno.env.get("MAIN_BOT_TOKEN");
-  if (!key || !token) return new Response("not_configured", { status: 503 });
+  const mainToken = Deno.env.get("MAIN_BOT_TOKEN");
+  const paymentToken = Deno.env.get("BOT_TOKEN");
+  if (!key || !mainToken || !paymentToken) return new Response("not_configured", { status: 503 });
 
   const raw = await req.text();
   const sig = req.headers.get("trbt-signature") ?? "";
@@ -86,13 +87,18 @@ Deno.serve(async (req) => {
       console.error("access insert", error);
       return new Response("db_error", { status: 500 }); // Tribute повторит позже
     }
-    const r = await tg(token, "sendMessage", {
+    let r = await tg(paymentToken, "sendMessage", {
       chat_id: tgId,
-      text: "Оплата прошла, доступ к Shopping Guide открыт ❤️\n\nНажимай «Открыть гид».",
-      reply_markup: { inline_keyboard: [[{ text: "Открыть гид", web_app: { url: HUB_V } }]] },
+      text: "Оплата прошла, доступ к Shopping Guide открыт ❤️\n\nНажимай «Открыть гид» — он откроется в основном боте.",
+      reply_markup: { inline_keyboard: [[{ text: "Открыть гид", url: MAIN_BOT_URL }]] },
+    });
+    if (!r.ok) r = await tg(mainToken, "sendMessage", {
+      chat_id: tgId,
+      text: "Оплата прошла, доступ к Shopping Guide открыт ❤️ Нажимай «Открыть гид».",
+      reply_markup: { inline_keyboard: [[{ text: "Открыть гид", url: MAIN_BOT_URL }]] },
     });
     if (!r.ok && r.error_code === 403) await sb.from("users").update({ blocked_at: new Date().toISOString() }).eq("tg_id", tgId);
-    await notifyAdmins(token,
+    await notifyAdmins(mainToken,
       `💳 Оплата Tribute: ${esc(String(p.product_name ?? "гайд"))} ${esc(money(p.amount, p.currency))}\n` +
       `${p.telegram_username ? "@" + esc(String(p.telegram_username)) : "id " + tgId} · доступ выдан` +
       (r.ok ? "" : "\n(сообщение покупателю не дошло: он ещё не запускал бота)"));
@@ -103,7 +109,7 @@ Deno.serve(async (req) => {
     const { data } = await sb.from("access").update({ revoked: true })
       .eq("source", "tribute").eq("payment_ref", ref).eq("revoked", false).select("id");
     if ((data ?? []).length) {
-      await notifyAdmins(token, `↩️ Возврат Tribute: id ${tgId}${p.telegram_username ? " (@" + esc(String(p.telegram_username)) + ")" : ""}, доступ закрыт`);
+      await notifyAdmins(mainToken, `↩️ Возврат Tribute: id ${tgId}${p.telegram_username ? " (@" + esc(String(p.telegram_username)) + ")" : ""}, доступ закрыт`);
     }
     return new Response("ok");
   }
