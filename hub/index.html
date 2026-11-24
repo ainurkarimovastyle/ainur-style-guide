@@ -70,6 +70,17 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .card.dim .go.on{background:var(--wine);color:#fff}
 .card.dim .go.on svg{fill:currentColor}
 
+.learn-card-top{display:flex;flex-direction:column;align-items:stretch;gap:10px;width:100%;text-align:left}
+.learn-card .cd{display:block;width:100%;text-align:justify;text-align-last:left;text-wrap:wrap}
+.learn-more{border-top:1px solid var(--line);padding-top:10px}
+.learn-more summary{display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none;cursor:pointer;font:600 13px/1.4 var(--sans);color:var(--wine)}
+.learn-more summary::-webkit-details-marker{display:none}
+.learn-more summary::after{content:"⌄";font-size:20px;line-height:1;transition:transform .15s}
+.learn-more[open] summary::after{transform:rotate(180deg)}
+.learn-outcomes{display:grid;gap:9px;margin:12px 0 0;padding:0;list-style:none}
+.learn-outcomes li{font:400 13px/1.45 var(--sans);color:var(--ink-2);text-align:justify;text-align-last:left}
+.learn-note{margin:12px 0 0;font:400 11px/1.4 var(--sans);color:var(--ink-3);text-align:left}
+
 /* главная карточка — графит */
 .card.feature{background:var(--ink);color:#fff}
 .card.feature .thumb{background:rgba(255,255,255,.10)}
@@ -207,7 +218,7 @@ const GROUPS = [
        "💰 Вы перестанете тратить деньги на «не своё». Каждая покупка станет осознанной.",
        "🧭 Система на всю жизнь. Вы всегда сможете вести свой гардероб и больше не вернётесь к хаосу.",
        "📱 Приложение курса с личной картой вашего имиджа"
-     ], durationNote:"*Продолжительность курса — 4 недели.",
+     ],
      pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"intensive"},
     {id:"findstyle", icon:"book", title:"Мой стиль",
      desc:"За 1 день* определите свой стиль, который точно отражает ваш внутренний мир и вашу уникальность.",
@@ -257,8 +268,7 @@ function render(filter){
             <span class="head"><span class="thumb">${ICONS[it.icon]}</span><span class="ct">${it.title}</span></span>
             <span class="cd">${it.desc}</span>
           </button>
-          <details class="learn-more" ${OPEN_LEARN.has(it.id)?"open":""}><summary>${it.outcomesTitle}</summary><ul class="learn-outcomes">${it.outcomes.map(outcome => `<li>${outcome}</li>`).join("")}</ul></details>
-          <p class="learn-note">${it.durationNote}</p>
+          <details class="learn-more" ${OPEN_LEARN.has(it.id)?"open":""}><summary>${it.outcomesTitle}</summary><ul class="learn-outcomes">${it.outcomes.map(outcome => `<li>${outcome}</li>`).join("")}</ul>${it.durationNote?`<p class="learn-note">${it.durationNote}</p>`:""}</details>
           <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" aria-label="Сообщить мне о старте">${BELL}</button></span>
         </article>`;
       }
