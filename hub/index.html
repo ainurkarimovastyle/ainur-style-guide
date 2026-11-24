@@ -71,11 +71,11 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .card.dim .go.on svg{fill:currentColor}
 
 .learn-card-top{display:flex;flex-direction:column;align-items:stretch;gap:10px;width:100%;text-align:left}
-.learn-card .cd{display:block;width:100%;text-align:justify;text-align-last:left;text-wrap:wrap}
-.learn-more{border-top:1px solid var(--line);padding-top:10px}
-.learn-more summary{display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none;cursor:pointer;font:600 13px/1.4 var(--sans);color:var(--wine)}
+.learn-card .cd{display:block;width:100%;font:400 15px/1.5 var(--sans);text-align:justify;text-align-last:left;text-wrap:wrap}
+.learn-more{margin-top:2px}
+.learn-more summary{display:inline-flex;align-items:center;gap:9px;padding:7px 11px;border-radius:999px;background:var(--fill);list-style:none;cursor:pointer;font:600 12px/1.2 var(--sans);color:var(--ink-2)}
 .learn-more summary::-webkit-details-marker{display:none}
-.learn-more summary::after{content:"⌄";font-size:20px;line-height:1;transition:transform .15s}
+.learn-more summary::after{content:"⌄";font-size:17px;line-height:1;transition:transform .15s}
 .learn-more[open] summary::after{transform:rotate(180deg)}
 .learn-outcomes{display:grid;gap:9px;margin:12px 0 0;padding:0;list-style:none}
 .learn-outcomes li{font:400 13px/1.45 var(--sans);color:var(--ink-2);text-align:justify;text-align-last:left}
