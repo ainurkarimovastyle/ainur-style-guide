@@ -199,12 +199,32 @@ const GROUPS = [
      status:"soon", price:null, action:"wait", topic:"newyear", eyebrow:"Откроется 01.12"},
   ]},
   {id:"learn", title:"Обучение", items:[
-    {id:"intensive", icon:"group", title:"Интенсив-группа по стилю",
-     desc:"Маленькая группа и я рядом на каждом шаге. За интенсив вы соберёте свой стиль и гардероб, где всё сочетается между собой, и перестанете покупать лишнее.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"intensive"},
-    {id:"findstyle", icon:"book", title:"Как найти свой стиль",
-     desc:"Пошаговая система, после которой вы точно знаете, что вам идёт, и больше не стоите перед полным шкафом с мыслью «надеть нечего». Без долгой теории, только практика.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"findstyle"},
-    {id:"colortype", icon:"palette", title:"Определи свой цветотип и тип фигуры",
-     desc:"Узнайте, какие цвета делают вас ярче, а какие «гасят», и какие силуэты подчёркивают вашу фигуру. Больше никаких покупок, которые красиво смотрятся только на вешалке.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"colortype"},
+    {id:"intensive", icon:"group", title:"Fashion-курс по стилю",
+     desc:"4 недели лично со мной. Работаю в мини-группе с каждой участницей: разбираю ваши внешние данные и помогаю создать уникальный имидж, который больше ни у кого не повторится. Вы получите мою авторскую базу знаний по стилю и все мои фишки, а выйдете с полноценными знаниями в стилистике.",
+     outcomesTitle:"После курса:", outcomes:[
+       "✨ Вас начнут спрашивать: «Что в вас изменилось?» Вы будете выглядеть собранно и дорого, оставаясь собой.",
+       "🔑 Каждый день у вас готовый образ, собранный именно под вас.",
+       "💰 Вы перестанете тратить деньги на «не своё». Каждая покупка станет осознанной.",
+       "🧭 Система на всю жизнь. Вы всегда сможете вести свой гардероб и больше не вернётесь к хаосу.",
+       "📱 Приложение курса с личной картой вашего имиджа"
+     ], durationNote:"*Продолжительность курса — 4 недели.",
+     pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"intensive"},
+    {id:"findstyle", icon:"book", title:"Мой стиль",
+     desc:"За 1 день* определите свой стиль, который точно отражает ваш внутренний мир и вашу уникальность.",
+     outcomesTitle:"После интенсива:", outcomes:[
+       "🔑 Ваше утро без стресса. Вы одеваетесь за 5 минут и уходите из дома довольной.",
+       "✨ Каждый образ про ваш характер и ритм жизни. А самое главное, вам в нём удобно.",
+       "🧭 Вы больше не выбираете между рюшами и строгими линиями, между юбками и джинсами. Вы понимаете, как выстраивать любой свой образ целиком."
+     ], durationNote:"*Удобный мини-интенсив с моими видео-уроками, который можно пройти за 1 день.",
+     pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"findstyle"},
+    {id:"colortype", icon:"palette", title:"Мой цветотип и тип фигуры: покупки без ошибок",
+     desc:"За 1 день* решите вопрос с оттенками и фасонами, которые лучше всего подходят вашей внешности.",
+     outcomesTitle:"После интенсива:", outcomes:[
+       "✨ Ваше лицо выглядит свежее, а взгляд ярче. Вы найдёте цвета, которые молодят и убирают «усталый» вид.",
+       "🔑 Вы найдёте силуэты, которые подчёркивают достоинства, и перестанете прятаться в бесформенное.",
+       "💰 Каждая покупка попадает в цель. Вы больше не будете выбрасывать деньги на вещи, которые потом не носите."
+     ], durationNote:"*Удобный мини-интенсив с моими видео-уроками, который можно пройти за 1 день.",
+     pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"colortype"},
   ]},
   {id:"free", title:"Полезное", items:[
     {id:"trends", icon:"trend", title:"Шпаргалка по трендам",
@@ -221,6 +241,7 @@ const $ = s => document.querySelector(s);
 const money = n => n.toLocaleString("ru-RU").replace(/ /g," ") + " ₸";
 const ALL = GROUPS.flatMap(g => g.items);
 const SUBS = new Set(); // темы, на которые человек уже нажал колокольчик
+const OPEN_LEARN = new Set();
 
 function render(filter){
   $("#menu").innerHTML = GROUPS.filter(g => filter==="all" || g.id===filter).map(g =>
@@ -230,6 +251,17 @@ function render(filter){
       if(typeof it.price==="number") pills.push(`<span class="price">${money(it.price)}</span>`);
       const dim = it.status!=="open";
       const bell = dim && it.topic ? `<span class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" role="button" aria-label="Сообщить мне о старте">${BELL}</span>` : `<span class="go">${dim?BELL:ARROW}</span>`;
+      if(it.outcomes){
+        return `<article class="card learn-card ${dim?"dim":""}" data-id="${it.id}">
+          <button type="button" class="learn-card-top" data-sheet="${it.id}">
+            <span class="head"><span class="thumb">${ICONS[it.icon]}</span><span class="ct">${it.title}</span></span>
+            <span class="cd">${it.desc}</span>
+          </button>
+          <details class="learn-more" ${OPEN_LEARN.has(it.id)?"open":""}><summary>${it.outcomesTitle}</summary><ul class="learn-outcomes">${it.outcomes.map(outcome => `<li>${outcome}</li>`).join("")}</ul></details>
+          <p class="learn-note">${it.durationNote}</p>
+          <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" aria-label="Сообщить мне о старте">${BELL}</button></span>
+        </article>`;
+      }
       return `<button class="card ${it.feature?"feature":""} ${dim?"dim":""}" data-id="${it.id}">
         <span class="head"><span class="thumb">${ICONS[it.icon]}</span><h4 class="ct">${it.title}</h4></span>
         <p class="cd">${it.desc}</p>${it.stores?`<p class="stores">${it.stores}</p>`:""}${it.bonus?`<p class="bonus"><b>★ Бонус</b>${it.bonus}</p>`:""}
@@ -244,10 +276,16 @@ $("#tabs").addEventListener("click", e => {
   render(b.dataset.f);
   tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged();
 });
+$("#menu").addEventListener("toggle", e => {
+  const details = e.target.closest(".learn-more");
+  if(!details) return;
+  const id = details.closest(".learn-card").dataset.id;
+  details.open ? OPEN_LEARN.add(id) : OPEN_LEARN.delete(id);
+}, true);
 $("#menu").addEventListener("click", e => {
   const bl = e.target.closest("[data-bell]");
   if(bl){ e.stopPropagation(); tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light"); toggleBell(bl.dataset.bell); return; }
-  const c = e.target.closest(".card"); if(!c) return;
+  const c = e.target.closest(".card"); if(!c || (c.classList.contains("learn-card") && !e.target.closest(".learn-card-top"))) return;
   const it = ALL.find(i => i.id===c.dataset.id);
   tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light");
   if(it.action==="link") return openLink(it.url);
