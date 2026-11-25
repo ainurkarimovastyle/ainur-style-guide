@@ -127,10 +127,11 @@ async function load(){
     const cls = u.status === "можно писать" ? "ok" : (u.status.startsWith("заблок") ? "bad" : "");
     return `<div class="cl"><h4>${esc(u.name || "Без имени")}${u.username?`<small>@${esc(u.username)}</small>`:""}</h4>
       <p>Первый контакт: ${esc(u.created)}${u.started?`<br>Нажал «Старт»: ${esc(u.started)}`:""}<br>Последний визит: ${esc(u.seen)}${u.src?`<br>Источник: ${esc(u.src)}`:""}</p>
-      <span class="st ${cls}">${esc(u.status)}</span>${u.paid?` <span class="st ok">Оплачено · ${esc(PAYSRC[u.paid.source] || u.paid.source)} · ${esc(u.paid.at)}</span>`:""}</div>`;
+      <span class="st ${cls}">${esc(u.status)}</span>${(u.purchases||[]).map(p => ` <span class="st ${p.status==="открыт"?"ok":"bad"}">${p.source==="manual"?"Выдано":"Покупка"} · ${esc(PRODUCTS[p.product] || p.product)} · ${esc(PAYSRC[p.source] || p.source)} · ${esc(p.at)}${p.status==="открыт"?"":" · "+esc(p.status)}</span>`).join("")}</div>`;
   }).join("") : `<div class="empty">Никого за этот период.</div>`;
 }
 const PAYSRC = {apipay:"Kaspi", kaspi:"Kaspi", tribute:"Tribute", manual:"вручную"};
+const PRODUCTS = {"guide-winter-26":"Shopping Guide · Зима 26/27"};
 
 async function loadBell(){
   $("#list").innerHTML = ""; $("#cap").textContent = "Загружаю…";

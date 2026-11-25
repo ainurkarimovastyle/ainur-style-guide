@@ -7,6 +7,7 @@ import vm from 'node:vm';
 
 test('payment bot shows configured Kaspi and Tribute methods, then points paid buyers to the main bot', async () => {
   const messages = [];
+  const savedUsers = [];
   let handler;
   let paid = false;
   const env = {
@@ -16,8 +17,9 @@ test('payment bot shows configured Kaspi and Tribute methods, then points paid b
   const db = {
     from(table) {
       if (table === 'events') return { insert: async () => ({ error: null }) };
+      if (table === 'users') return { upsert: async (row) => { savedUsers.push(row); return { error: null }; } };
       if (table === 'access') return {
-        select: () => ({ eq: () => ({ eq: async () => ({ data: paid ? [{ expires_at: null }] : [] }) }) }),
+        select: () => ({ eq() { return this; }, then(resolve) { return Promise.resolve(resolve({ data: paid ? [{ expires_at: null }] : [] })); } }),
       };
       throw Error(`unexpected table: ${table}`);
     },
@@ -44,6 +46,8 @@ test('payment bot shows configured Kaspi and Tribute methods, then points paid b
     }));
   }
   assert.equal((await start()).status, 200);
+  assert.equal(savedUsers[0].tg_id, 42);
+  assert.equal(savedUsers[0].started_at, undefined);
   let sent = messages.at(-1);
   assert.ok(sent.url.includes('/botpayment-token/sendMessage'));
   assert.equal(sent.body.reply_markup.inline_keyboard[0][0].callback_data, 'apipay_start');
@@ -71,6 +75,7 @@ test('main bot sends buyers to the payment bot', async () => {
       select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }),
       upsert: async () => ({ error: null }),
     };
+    if (table === 'access') return { select: () => ({ eq() { return this; }, then(resolve) { return Promise.resolve(resolve({ data: [{ expires_at: null }] })); } }) };
     throw Error(`unexpected table: ${table}`);
   } };
   const source = readFileSync(new URL('../supabase/functions/guide-bot/index.ts', import.meta.url), 'utf8')
@@ -92,4 +97,12 @@ test('main bot sends buyers to the payment bot', async () => {
   assert.equal(response.status, 200);
   assert.ok(messages.some((m) => m.url.includes('/botmain-token/sendPhoto')
     && m.body.reply_markup.inline_keyboard[1][0].url === 'https://t.me/ainurkarimova_pay_bot?start=guide_winter_2627'));
+  const direct = await handler(new Request('https://example.com/guide-bot', {
+    method: 'POST', headers: { 'x-telegram-bot-api-secret-token': secret },
+    body: JSON.stringify({ message: { text: '/start guide', chat: { id: 42, type: 'private' },
+      from: { id: 42, is_bot: false } } }),
+  }));
+  assert.equal(direct.status, 200);
+  assert.ok(messages.some((m) => m.url.includes('/botmain-token/sendMessage')
+    && m.body.reply_markup?.inline_keyboard?.[0]?.[0]?.web_app?.url === 'https://ainurkarimovastyle.github.io/ainur-style-guide/'));
 });

@@ -24,7 +24,8 @@ test('Kaspi bot requests phone and creates one ApiPay invoice with order idempot
   const result = (data = null, error = null) => ({ data, error });
   const db = { from(table) {
     if (table === 'events') return { insert: async () => result() };
-    if (table === 'access') return { select: () => ({ eq: () => ({ eq: async () => result([]) }) }) };
+    if (table === 'users') return { upsert: async () => result() };
+    if (table === 'access') return { select: () => ({ eq() { return this; }, then(resolve) { return Promise.resolve(resolve(result([]))); } }) };
     if (table !== 'apipay_orders') throw Error(table);
     return {
       select: () => ({ eq: () => ({ eq: () => ({ in: () => ({ order: () => ({ limit: () => ({

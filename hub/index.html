@@ -30,7 +30,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 /* ───── профиль ───── */
 .profile{position:relative;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding-top:8px}
 .ava{width:88px;height:88px;border-radius:50%;padding:3px;background:var(--card);box-shadow:0 0 0 1.5px var(--wine),0 8px 24px rgba(14,14,16,.10)}
-.ava span{display:block;width:100%;height:100%;border-radius:50%;background:#222 url("ainur.jpg") center/cover}
+.ava span{display:block;width:100%;height:100%;border-radius:50%;background:#222 url("assets/ainur-portrait.jpg") center/cover}
 .name{font:600 30px/1.02 var(--sans);letter-spacing:-.035em;margin:14px 0 0}
 .name span{display:block;color:var(--ink-3);font-weight:500}
 .badge{position:absolute;top:-2px;right:0;display:inline-flex;align-items:center;gap:4px;padding:4px 8px 4px 6px;border-radius:999px;background:var(--wine);color:#fff;font:600 8.5px/1 var(--sans);letter-spacing:.07em;text-transform:uppercase;box-shadow:0 4px 12px rgba(122,28,44,.22);white-space:nowrap}
@@ -53,14 +53,21 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .cards{display:grid;gap:10px}
 .card{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:14px 14px 14px;border-radius:var(--r-lg);background:var(--card);text-align:left;width:100%;transition:transform .15s}
 .card:active{transform:scale(.985)}
+.guide-card-top{display:block;width:100%;text-align:left}
+.guide-card-top .head{margin-bottom:10px}
+.guide-card-top .cd,.guide-card-top .bonus{display:block}
+.guide-card-top .stores,.guide-card-top .bonus{margin-top:10px}
+.grab-cta{flex:none;padding:9px 12px;border-radius:999px;background:var(--wine);color:#fff;font:600 12px/1 var(--sans);white-space:nowrap}
 .head{display:flex;align-items:center;gap:12px}
 .thumb{flex:0 0 44px;width:44px;height:44px;border-radius:13px;background:var(--fill);display:grid;place-items:center}
 .thumb svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.thumb img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
 .ct{flex:1;min-width:0;font:600 17px/1.2 var(--sans);letter-spacing:-.02em;margin:0;text-align:left}
 .cd{margin:0;font:400 13.5px/1.42 var(--sans);color:var(--ink-2);text-align:left;text-wrap:pretty}
 .foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card.dim .foot{flex-wrap:wrap}
 .meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0}
-.pill{padding:4px 9px;border-radius:999px;font:600 11px/1 var(--sans);background:var(--fill);color:var(--ink-2)}
+.pill{padding:4px 9px;border-radius:999px;font:600 11px/1 var(--sans);background:var(--fill);color:var(--ink-2);white-space:nowrap}
 .pill.wine{background:var(--wine);color:#fff}
 .pill.soft{background:var(--wine-soft);color:var(--wine)}
 .price{font:700 14px/1 var(--sans);color:var(--wine);letter-spacing:-.01em}
@@ -69,6 +76,27 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .card.dim .go{background:var(--fill);color:var(--ink-3)}
 .card.dim .go.on{background:var(--wine);color:#fff}
 .card.dim .go.on svg{fill:currentColor}
+.bell-cta{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0;margin-left:auto}
+.bell-hint{flex:none;font:500 10px/1.2 var(--sans);color:var(--ink-2);text-align:center;white-space:nowrap}
+.card.free-card .thumb{background:var(--wine-soft);box-shadow:0 0 0 1px rgba(122,28,44,.08),0 0 12px rgba(122,28,44,.12)}
+.card.free-card .thumb svg{stroke:var(--wine);filter:drop-shadow(0 0 2px rgba(122,28,44,.38))}
+.learn-card-top{display:flex;flex-direction:column;align-items:stretch;gap:10px;width:100%;text-align:left}
+.learn-card .cd{display:block;width:100%}
+.learn-more{margin-top:2px}
+.learn-more summary{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:10px 12px;border-radius:14px;background:var(--fill);list-style:none;cursor:pointer;font:600 12px/1.3 var(--sans);color:var(--wine)}
+.learn-more summary::-webkit-details-marker{display:none}
+.learn-emoji{flex:none;font-size:18px;line-height:1}
+.learn-hint{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--ink);font:600 10.5px/1 var(--sans);animation:hintPulse 2.8s ease-in-out infinite}
+.learn-hint-expanded{display:none}
+.learn-more[open] .learn-hint{animation:none}
+.learn-more[open] .learn-hint-collapsed{display:none}
+.learn-more[open] .learn-hint-expanded{display:inline}
+@keyframes hintPulse{0%,100%{opacity:.55}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.learn-hint{animation:none}}
+.learn-outcomes{display:grid;gap:9px;margin:12px 0 0;padding:0;list-style:none}
+.learn-outcomes li{font:400 13.5px/1.42 var(--sans);color:var(--ink-2);text-align:left;text-wrap:pretty}
+.learn-note{margin:12px 0 0;font:400 11.5px/1.4 var(--sans);color:var(--ink-2);text-align:left}
+.prebook-cta{display:block;width:100%;padding:11px 14px;border-radius:13px;background:var(--wine);color:#fff;font:600 12.5px/1.2 var(--sans);text-align:center}
 
 /* главная карточка — графит */
 .card.feature{background:var(--ink);color:#fff}
@@ -80,7 +108,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .card.feature .price{color:#fff;font-size:16px}
 .bonus{margin:0;padding:9px 11px;border-radius:14px;background:rgba(122,28,44,.35);border:1px solid rgba(255,255,255,.12);font:500 12px/1.4 var(--sans);color:#fff}
 .bonus b{display:inline-block;margin-right:6px;padding:2px 7px;border-radius:999px;background:var(--wine);font:700 10.5px/1.4 var(--sans);letter-spacing:.04em;text-transform:uppercase}
-.stores{margin:0;text-align:left;font:500 11.5px/1.4 var(--sans);color:rgba(255,255,255,.55)}
+.stores{display:block;min-width:0;margin:0;text-align:left;font:500 clamp(8px,2.75vw,11.5px)/1.4 var(--sans);letter-spacing:-.015em;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden}
 
 /* ───── контакты ───── */
 .contacts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -173,6 +201,8 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 const GUIDE_URL = "../";
 const PAY_BOT_URL = "https://t.me/ainurkarimova_pay_bot?start=guide_winter_2627";
 const CONTACT   = "https://t.me/ainurkarimova_style";
+const PREBOOK_TEXT = "Здравствуйте! Хочу узнать подробнее о курсе по стилю и попасть в предзапись";
+const PREBOOK_URL = CONTACT + "?text=" + encodeURIComponent(PREBOOK_TEXT);
 const ICONS = {
   bag:'<svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
   star:'<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="2.4"/></svg>',
@@ -188,32 +218,52 @@ const BELL='<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-1
 
 const GROUPS = [
   {id:"guide", title:"Гайды", items:[
-    {id:"shopping", icon:"bag", feature:true, title:"Shopping Guide · Зима 2026/27",
+    {id:"shopping", icon:"bag", image:"assets/shopping-winter.jpg", feature:true, title:"Shopping Guide · Зима 2026/27",
      desc:"1500+ позиций и особенные находки сезона сразу из всех магазинов в одном месте. Удобные фильтры по магазинам, категориям и цветам.",
      bonus:"Прямой эфир со мной: ответы на вопросы по стилю и вашему личному гардеробу",
-     stores:"Zara · Massimo Dutti · Mango · Lime · 12 Storeez · Este Fashion",
+     stores:"Zara · Massimo Dutti · Mango · Lime · 12 Storeez · Este",
      pills:[["wine","Хит"]],
      status:"open", price:14000, action:"guide"},
-    {id:"newyear", icon:"star", title:"Shopping Guide «Новый год 2027»",
+    {id:"newyear", icon:"star", image:"assets/shopping-newyear.jpg", title:"Shopping Guide «Новый год 2027»",
      desc:"Образы, на которые оборачиваются. Самые актуальные и стильные вещи, чтобы собрать все взгляды на корпоративе и в новогоднюю ночь и услышать: «где ты это купила? 😍»",
-     pills:[["soft","Откроется 01.12"]],
-     status:"soon", price:null, action:"wait", topic:"newyear", eyebrow:"Откроется 01.12"},
+     pills:[["soft","Откроется в декабре"]],
+     status:"soon", price:null, action:"wait", topic:"newyear", eyebrow:"Откроется в декабре"},
   ]},
   {id:"learn", title:"Обучение", items:[
-    {id:"intensive", icon:"group", title:"Интенсив-группа по стилю",
-     desc:"Маленькая группа и я рядом на каждом шаге. За интенсив вы соберёте свой стиль и гардероб, где всё сочетается между собой, и перестанете покупать лишнее.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"intensive"},
-    {id:"findstyle", icon:"book", title:"Как найти свой стиль",
-     desc:"Пошаговая система, после которой вы точно знаете, что вам идёт, и больше не стоите перед полным шкафом с мыслью «надеть нечего». Без долгой теории, только практика.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"findstyle"},
-    {id:"colortype", icon:"palette", title:"Определи свой цветотип и тип фигуры",
-     desc:"Узнайте, какие цвета делают вас ярче, а какие «гасят», и какие силуэты подчёркивают вашу фигуру. Больше никаких покупок, которые красиво смотрятся только на вешалке.", pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"colortype"},
+    {id:"intensive", icon:"group", image:"assets/fashion-course.jpg", title:"Fashion-курс по стилю",
+     desc:"4 недели лично со мной. Еженедельные встречи с разбором теории и живая практика. Работаю в мини-группе с каждой участницей: разбираю ваши внешние данные и помогаю создать уникальный имидж. Вы получите мою авторскую базу знаний по стилю и все личные фишки.",
+     outcomesTitle:"После курса:", outcomesEmoji:"🎓", outcomes:[
+       "✨ Вас начнут спрашивать: «Что в вас изменилось?» Вы будете выглядеть собранно и дорого, оставаясь собой.",
+       "🔑 Каждый день у вас готовый образ, собранный именно под вас.",
+       "💰 Вы перестанете тратить деньги на «не своё». Каждая покупка станет осознанной.",
+       "🧭 Система на всю жизнь. Вы всегда сможете вести свой гардероб и больше не вернётесь к хаосу.",
+       "📱 Онлайн-приложение с базой знаний + интерактивная карта вашего имиджа"
+     ],
+     pills:[], status:"soon", price:null, action:"prebook"},
+    {id:"findstyle", icon:"book", image:"assets/my-style.jpg?v=95702e23", title:"Мой имидж",
+     desc:"За 1 день* определите свой стиль, который точно отражает ваш внутренний мир и уникальность.",
+     outcomesTitle:"После интенсива:", outcomesEmoji:"🎯", outcomes:[
+       "🔑 Ваше утро без стресса. Вы одеваетесь за 5 минут и уходите из дома довольной.",
+       "✨ Каждый образ про ваш характер и ритм жизни. А самое главное, вам в нём удобно.",
+       "🧭 Вы больше не выбираете между рюшами и строгими линиями, между юбками и джинсами. Вы понимаете, как выстраивать любой свой образ целиком."
+     ], durationNote:"*Удобный мини-интенсив с моими видео-уроками, который можно пройти за 1 день.",
+     pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"findstyle"},
+    {id:"colortype", icon:"palette", image:"assets/color-type.jpg", title:"Мой цветотип и тип фигуры: покупки без ошибок",
+     desc:"За 1 день* решите вопрос с оттенками и фасонами, которые лучше всего подходят вашей внешности.",
+     outcomesTitle:"После интенсива:", outcomesEmoji:"🎯", outcomes:[
+       "✨ Ваше лицо выглядит свежее, а взгляд ярче. Вы найдёте цвета, которые молодят и убирают «усталый» вид.",
+       "🔑 Вы найдёте силуэты, которые подчёркивают достоинства, и перестанете прятаться в бесформенное.",
+       "💰 Каждая покупка попадает в цель. Вы больше не будете выбрасывать деньги на вещи, которые потом не носите."
+     ], durationNote:"*Удобный мини-интенсив с моими видео-уроками, который можно пройти за 1 день.",
+     pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"colortype"},
   ]},
   {id:"free", title:"Полезное", items:[
     {id:"trends", icon:"trend", title:"Шпаргалка по трендам",
-     desc:"Короткий разбор трендов сезона в Telegram-канале.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/789"},
+     desc:"Короткий разбор трендов сезона в Telegram-канале.", pills:[["soft","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/789"},
     {id:"podcast", icon:"mic", title:"Подкаст «Как найти свой стиль»",
-     desc:"Слушайте в Telegram.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/11"},
+     desc:"Слушайте в Telegram.", pills:[["soft","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/11"},
     {id:"channel", icon:"send", title:"Мой telegram-канал",
-     desc:"Образы, разборы и закулисье работы стилиста.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle"},
+     desc:"Образы, разборы и закулисье работы стилиста.", pills:[["soft","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle"},
   ]},
 ];
 
@@ -222,6 +272,7 @@ const $ = s => document.querySelector(s);
 const money = n => n.toLocaleString("ru-RU").replace(/ /g," ") + " ₸";
 const ALL = GROUPS.flatMap(g => g.items);
 const SUBS = new Set(); // темы, на которые человек уже нажал колокольчик
+const OPEN_LEARN = new Set();
 
 function render(filter){
   $("#menu").innerHTML = GROUPS.filter(g => filter==="all" || g.id===filter).map(g =>
@@ -230,9 +281,31 @@ function render(filter){
       const pills = (it.pills||[]).map(([c,t]) => `<span class="pill ${c}">${t}</span>`);
       if(typeof it.price==="number") pills.push(`<span class="price">${money(it.price)}</span>`);
       const dim = it.status!=="open";
-      const bell = dim && it.topic ? `<span class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" role="button" aria-label="Сообщить мне о старте">${BELL}</span>` : `<span class="go">${dim?BELL:ARROW}</span>`;
-      return `<button class="card ${it.feature?"feature":""} ${dim?"dim":""}" data-id="${it.id}">
-        <span class="head"><span class="thumb">${ICONS[it.icon]}</span><h4 class="ct">${it.title}</h4></span>
+      const bellHint = SUBS.has(it.topic) ? "Вы в списке" : "Жми, чтобы не пропустить";
+      const bell = dim && it.topic ? `<span class="bell-cta"><span class="bell-hint">${bellHint}</span><span class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" role="button" aria-label="Сообщить мне о старте">${BELL}</span></span>` : `<span class="go">${dim?BELL:ARROW}</span>`;
+      const thumb = it.image ? `<img src="${it.image}" alt="" loading="lazy" decoding="async">` : ICONS[it.icon];
+      if(it.action==="guide"){
+        return `<article class="card feature" data-id="${it.id}">
+          <button type="button" class="guide-card-top" data-sheet="${it.id}">
+            <span class="head"><span class="thumb">${thumb}</span><span class="ct">${it.title}</span></span>
+            <span class="cd">${it.desc}</span>${it.stores?`<span class="stores">${it.stores}</span>`:""}${it.bonus?`<span class="bonus"><b>★ Бонус</b>${it.bonus}</span>`:""}
+          </button>
+          <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="grab-cta" data-guide-buy>Забрать</button><button type="button" class="go" data-guide-buy aria-label="Забрать гайд">${ARROW}</button></span>
+        </article>`;
+      }
+      if(it.outcomes){
+        const footer = it.action==="prebook" ? `<button type="button" class="prebook-cta" data-prebook>Попасть в предзапись</button>` : `<span class="meta">${pills.join("")}</span><span class="bell-cta"><span class="bell-hint">${bellHint}</span><button type="button" class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" aria-label="Сообщить мне о старте">${BELL}</button></span>`;
+        return `<article class="card learn-card ${dim?"dim":""}" data-id="${it.id}">
+          <button type="button" class="learn-card-top" data-sheet="${it.id}">
+            <span class="head"><span class="thumb">${thumb}</span><span class="ct">${it.title}</span></span>
+            <span class="cd">${it.desc}</span>
+          </button>
+          <details class="learn-more" ${OPEN_LEARN.has(it.id)?"open":""}><summary><span>${it.outcomesTitle}</span><span class="learn-hint"><span class="learn-hint-collapsed">Разверни</span><span class="learn-hint-expanded">Сверни</span><span class="learn-emoji" aria-hidden="true">${it.outcomesEmoji}</span></span></summary><ul class="learn-outcomes">${it.outcomes.map(outcome => `<li>${outcome}</li>`).join("")}</ul>${it.durationNote?`<p class="learn-note">${it.durationNote}</p>`:""}</details>
+          <span class="foot">${footer}</span>
+        </article>`;
+      }
+      return `<button class="card ${it.feature?"feature":""} ${dim?"dim":""} ${it.action==="link"?"free-card":""}" data-id="${it.id}">
+        <span class="head"><span class="thumb">${thumb}</span><h4 class="ct">${it.title}</h4></span>
         <p class="cd">${it.desc}</p>${it.stores?`<p class="stores">${it.stores}</p>`:""}${it.bonus?`<p class="bonus"><b>★ Бонус</b>${it.bonus}</p>`:""}
         <span class="foot"><span class="meta">${pills.join("")}</span>${bell}</span>
       </button>`;
@@ -245,10 +318,18 @@ $("#tabs").addEventListener("click", e => {
   render(b.dataset.f);
   tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged();
 });
+$("#menu").addEventListener("toggle", e => {
+  const details = e.target.closest(".learn-more");
+  if(!details) return;
+  const id = details.closest(".learn-card").dataset.id;
+  details.open ? OPEN_LEARN.add(id) : OPEN_LEARN.delete(id);
+}, true);
 $("#menu").addEventListener("click", e => {
+  if(e.target.closest("[data-guide-buy]")){ e.stopPropagation(); openLink(PAY_BOT_URL); return; }
+  if(e.target.closest("[data-prebook]")){ e.stopPropagation(); openLink(PREBOOK_URL); return; }
   const bl = e.target.closest("[data-bell]");
   if(bl){ e.stopPropagation(); tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light"); toggleBell(bl.dataset.bell); return; }
-  const c = e.target.closest(".card"); if(!c) return;
+  const c = e.target.closest(".card"); if(!c || (c.classList.contains("learn-card") && !e.target.closest(".learn-card-top"))) return;
   const it = ALL.find(i => i.id===c.dataset.id);
   tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light");
   if(it.action==="link") return openLink(it.url);
@@ -301,9 +382,12 @@ function sheet(it){
     b.innerHTML = `<span>${label}</span><small>${sub||""}</small>`; b.onclick = fn; pay.appendChild(b);
   };
   if(it.action==="guide"){
-    add("dark", "Выбрать способ оплаты", "доступные способы — в платёжном боте", () => openLink(PAY_BOT_URL));
+    add("dark", "Забрать", "способы оплаты — в платёжном боте", () => openLink(PAY_BOT_URL));
     add("alt", "Открыть гайд", "если уже оплачен", () => { location.href = GUIDE_URL; });
     $("#sNote").textContent = "После оплаты доступ откроется автоматически на этом аккаунте Telegram.";
+  } else if(it.action==="prebook") {
+    add("", "Попасть в предзапись", "сообщение уже подготовлено", () => openLink(PREBOOK_URL));
+    $("#sNote").textContent = "Отправьте подготовленное сообщение, чтобы попасть в предзапись.";
   } else {
     const sub = it.topic && SUBS.has(it.topic);
     add(sub ? "alt" : "", sub ? "Вы в списке ✓" : "Сообщить мне о старте", sub ? "нажмите, чтобы отменить" : "напишу в Telegram", () => it.topic ? toggleBell(it.topic) : openLink(CONTACT));

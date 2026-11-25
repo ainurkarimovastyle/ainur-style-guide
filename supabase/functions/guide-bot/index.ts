@@ -16,6 +16,8 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
 const HUB = "https://ainurkarimovastyle.github.io/ainur-style-guide/hub/";
+const GUIDE_WEB = "https://ainurkarimovastyle.github.io/ainur-style-guide/";
+const GUIDE_PRODUCT = "guide-winter-26";
 const PHOTO = HUB + "welcome.jpg";
 const HUB_V = HUB + "?v=20261121pay"; // номер версии сбивает кеш Telegram при обновлении хаба
 const PAY_BOT_URL = "https://t.me/ainurkarimova_pay_bot?start=guide_winter_2627";
@@ -84,6 +86,13 @@ async function sendWelcome(sb: any, token: string, chatId: number, name?: string
   return r;
 }
 
+async function hasGuideAccess(sb: any, tgId: number) {
+  const { data, error } = await sb.from("access").select("expires_at")
+    .eq("tg_id", tgId).eq("product", GUIDE_PRODUCT).eq("revoked", false);
+  if (error) throw error;
+  return (data ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date());
+}
+
 // ───────── платёжный бот ─────────
 function tributeGuideLink() {
   const id = (Deno.env.get("TRIBUTE_PRODUCTS") ?? "").split(",")[0]?.trim().replace(/^p/i, "");
@@ -95,6 +104,16 @@ async function legacyUpdate(sb: any, legacy: string, main: string, upd: any) {
   if (!msg || msg.chat?.type !== "private") return;
   const buyer = callback?.from ?? msg.from;
   if (!buyer || buyer.is_bot) return;
+  const start = !callback && /^\/start(?:\s|$)/.test(msg.text ?? "");
+  const startParam = start ? (msg.text.split(/\s+/)[1] ?? null) : null;
+  const { error: userError } = await sb.from("users").upsert({
+    tg_id: buyer.id, username: buyer.username ?? null, first_name: buyer.first_name ?? null,
+    last_name: buyer.last_name ?? null, language_code: buyer.language_code ?? null,
+    last_seen_at: new Date().toISOString(),
+  }, { onConflict: "tg_id" });
+  if (userError) throw userError;
+  await sb.from("events").insert({ tg_id: buyer.id, type: start ? "payment_bot_start" : "payment_bot_message",
+    payload: startParam ? { start: startParam } : null });
   if (callback) await tgApi(legacy, "answerCallbackQuery", { callback_query_id: callback.id });
   if (callback?.data === "apipay_start") {
     await startApipay(sb, legacy, buyer.id, msg.chat.id);
@@ -104,12 +123,11 @@ async function legacyUpdate(sb: any, legacy: string, main: string, upd: any) {
     if (await submitApipayPhone(sb, legacy, buyer.id, msg)) return;
   }
   const newName = (await tgApi(main, "getMe", {})).result?.username ?? "ainurkarimova_bot";
-  const { data: rows, error } = await sb.from("access").select("expires_at").eq("tg_id", buyer.id).eq("revoked", false);
-  if (error) {
+  let paid = false;
+  try { paid = await hasGuideAccess(sb, buyer.id); } catch {
     await tgApi(legacy, "sendMessage", { chat_id: msg.chat.id, text: "Не получилось проверить доступ. Пожалуйста, попробуйте позже." });
     return;
   }
-  const paid = (rows ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date());
   const tributeLink = tributeGuideLink();
   const kaspiReady = !!Deno.env.get("APIPAY_API_KEY") && !!Deno.env.get("APIPAY_WEBHOOK_SECRET");
   const mainUrl = `https://t.me/${newName}?start=guide`;
@@ -126,7 +144,6 @@ async function legacyUpdate(sb: any, legacy: string, main: string, upd: any) {
     chat_id: msg.chat.id, text,
     ...(buttons.length ? { reply_markup: { inline_keyboard: buttons } } : {}),
   });
-  await sb.from("events").insert({ tg_id: buyer.id, type: "payment_bot_message", payload: null });
 }
 
 const APIPAY_AMOUNT_KZT = 14000;
@@ -147,8 +164,7 @@ async function startApipay(sb: any, legacy: string, tgId: number, chatId: number
     await tgApi(legacy, "sendMessage", { chat_id: chatId, text: "Оплата Kaspi пока подключается. Попробуйте позже." });
     return;
   }
-  const { data: acc } = await sb.from("access").select("expires_at").eq("tg_id", tgId).eq("revoked", false);
-  if ((acc ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date())) {
+  if (await hasGuideAccess(sb, tgId)) {
     await tgApi(legacy, "sendMessage", { chat_id: chatId, text: "Гайд уже оплачен ✅ Откройте его в @ainurkarimova_bot." });
     return;
   }
@@ -249,6 +265,15 @@ async function handleUpdate(sb: any, token: string, upd: any) {
   await sb.from("users").upsert(row, { onConflict: "tg_id" });
   await sb.from("events").insert({ tg_id: f.id, type: isStart ? "bot_start" : "bot_message", payload: payload ? { start: payload } : null });
 
+  if (isStart && payload === "guide") {
+    const paid = await hasGuideAccess(sb, f.id);
+    await tgApi(token, "sendMessage", { chat_id: msg.chat.id,
+      text: paid ? "Доступ к Shopping Guide открыт ✅ Нажмите «Открыть гид»." : "Гайд пока не оплачен. Откройте витрину и нажмите «Забрать»." ,
+      reply_markup: { inline_keyboard: [[{ text: paid ? "Открыть гид" : "Открыть витрину",
+        web_app: { url: paid ? GUIDE_WEB : HUB_V } }]] },
+    });
+    return;
+  }
   if (isStart) {
     await sendWelcome(sb, token, msg.chat.id, f.first_name);
   } else {
@@ -272,6 +297,24 @@ function clientsQuery(sb: any, body: any, head = false) {
   return { q, field };
 }
 const status = (u: any) => u.blocked_at ? "заблокировал бота" : (u.started_at || u.allows_write) ? "можно писать" : "только открыл приложение";
+const accessStatus = (a: any) => a.revoked ? "отозван" : a.expires_at && new Date(a.expires_at) <= new Date() ? "истёк" : "открыт";
+
+// Не теряем старые покупки при повторной продаже или возврате.
+async function allAccess(sb: any) {
+  const rows: any[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from("access")
+      .select("id,tg_id,product,source,payment_ref,granted_at,expires_at,revoked")
+      .order("id").range(from, from + 999);
+    if (error) throw error;
+    rows.push(...(data ?? []));
+    if (!data || data.length < 1000) break;
+  }
+  const byUser = new Map<number, any[]>();
+  for (const row of rows) byUser.set(row.tg_id, [...(byUser.get(row.tg_id) ?? []), row]);
+  for (const list of byUser.values()) list.sort((a, b) => b.id - a.id);
+  return byUser;
+}
 
 async function clients(sb: any, body: any) {
   const { q, field } = clientsQuery(sb, body);
@@ -280,31 +323,40 @@ async function clients(sb: any, body: any) {
   if (error) return json({ error: error.message }, 500);
   const { count: reach } = await clientsQuery(sb, { ...body, reach: true }, true).q;
   const { count: all } = await clientsQuery(sb, {}, true).q;
-  const paid = new Map<number, any>();
-  const ids = (data ?? []).map((u: any) => u.tg_id);
-  if (ids.length) {
-    const { data: acc } = await sb.from("access").select("tg_id,source,granted_at,expires_at").in("tg_id", ids).eq("revoked", false);
-    for (const a of acc ?? []) if (!a.expires_at || new Date(a.expires_at) > new Date()) paid.set(a.tg_id, a);
-  }
+  let access: Map<number, any[]>;
+  try { access = await allAccess(sb); } catch (e) { return json({ error: String(e) }, 500); }
   return json({
     total: count ?? 0, reach: reach ?? 0, all: all ?? 0, shown: (data ?? []).length,
     rows: (data ?? []).map((u: any) => ({
       tg_id: u.tg_id, username: u.username, name: [u.first_name, u.last_name].filter(Boolean).join(" "),
       created: fmt(u.created_at), started: fmt(u.started_at), seen: fmt(u.last_seen_at),
       src: u.start_param, status: status(u),
-      paid: paid.has(u.tg_id) ? { source: paid.get(u.tg_id).source, at: fmt(paid.get(u.tg_id).granted_at) } : null,
+      purchases: (access.get(u.tg_id) ?? []).map((a: any) => ({
+        product: a.product, source: a.source, at: fmt(a.granted_at), status: accessStatus(a),
+      })),
     })),
   });
 }
 
 async function csvOf(sb: any, body: any) {
-  const { q, field } = clientsQuery(sb, body);
-  const { data, error } = await q.order(field, { ascending: body.dir === "asc", nullsFirst: false }).limit(20000);
-  if (error) return { error: error.message };
+  const field = DATE_FIELDS.includes(body.field) ? body.field : "created_at";
+  const users: any[] = [];
+  for (let from = 0; ; from += 500) {
+    const { q } = clientsQuery(sb, body);
+    const { data, error } = await q.order(field, { ascending: body.dir === "asc", nullsFirst: false })
+      .order("tg_id", { ascending: true }).range(from, from + 499);
+    if (error) return { error: error.message };
+    users.push(...(data ?? []));
+    if (!data || data.length < 500) break;
+  }
+  let access: Map<number, any[]>;
+  try { access = await allAccess(sb); } catch (e) { return { error: String(e) }; }
   const cell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const head = ["Telegram ID", "Username", "Имя", "Фамилия", "Язык", "Первый контакт", "Запустил бота", "Последний визит", "Источник", "Статус"];
-  const lines = (data ?? []).map((u: any) => [u.tg_id, u.username ? "@" + u.username : "", u.first_name, u.last_name, u.language_code, fmt(u.created_at), fmt(u.started_at), fmt(u.last_seen_at), u.start_param, status(u)].map(cell).join(";"));
-  return { csv: "﻿" + [head.map(cell).join(";"), ...lines].join("\r\n") + "\r\n", count: lines.length };
+  const head = ["Telegram ID", "Username", "Имя", "Фамилия", "Язык", "Первый контакт UTC", "Старт бота UTC", "Последний визит UTC", "Источник", "Статус", "Код продукта", "Дата покупки UTC", "Платёжный сервис", "Номер платежа", "Статус доступа"];
+  const lines = users.flatMap((u: any) => (access.get(u.tg_id)?.length ? access.get(u.tg_id)! : [null]).map((a: any) =>
+    [u.tg_id, u.username, u.first_name, u.last_name, u.language_code, u.created_at, u.started_at, u.last_seen_at,
+      u.start_param, status(u), a?.product, a?.granted_at, a?.source, a?.payment_ref, a ? accessStatus(a) : ""].map(cell).join(";")));
+  return { csv: "\ufeff" + [head.map(cell).join(";"), ...lines].join("\r\n") + "\r\n", count: users.length };
 }
 
 async function waitUsers(sb: any, ids: number[]) {
@@ -454,7 +506,7 @@ Deno.serve(async (req) => {
     await sb.from("events").insert({ tg_id: user.id, type: "hub_open", payload: null });
     let access = isAdmin;
     if (!access) {
-      const { data: rows } = await sb.from("access").select("expires_at,revoked").eq("tg_id", user.id).eq("revoked", false);
+      const { data: rows } = await sb.from("access").select("expires_at,revoked").eq("tg_id", user.id).eq("product", GUIDE_PRODUCT).eq("revoked", false);
       access = (rows ?? []).some((r: any) => !r.expires_at || new Date(r.expires_at) > new Date());
     }
     const { data: sub } = await sb.from("waitlist").select("topic").eq("tg_id", user.id);
