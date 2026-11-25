@@ -91,6 +91,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .learn-outcomes{display:grid;gap:9px;margin:12px 0 0;padding:0;list-style:none}
 .learn-outcomes li{font:400 13.5px/1.42 var(--sans);color:var(--ink-2);text-align:left;text-wrap:pretty}
 .learn-note{margin:12px 0 0;font:400 11.5px/1.4 var(--sans);color:var(--ink-2);text-align:left}
+.prebook-cta{display:block;width:100%;padding:11px 14px;border-radius:13px;background:var(--wine);color:#fff;font:600 12.5px/1.2 var(--sans);text-align:center}
 
 /* главная карточка — графит */
 .card.feature{background:var(--ink);color:#fff}
@@ -194,6 +195,8 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
    ─────────────────────────────────────────────── */
 const GUIDE_URL = "../";
 const CONTACT   = "https://t.me/ainurkarimova_style";
+const PREBOOK_TEXT = "Здравствуйте! Хочу узнать подробнее о курсе по стилю и попасть в предзапись";
+const PREBOOK_URL = CONTACT + "?text=" + encodeURIComponent(PREBOOK_TEXT);
 const ICONS = {
   bag:'<svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
   star:'<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="2.4"/></svg>',
@@ -222,17 +225,17 @@ const GROUPS = [
   ]},
   {id:"learn", title:"Обучение", items:[
     {id:"intensive", icon:"group", image:"assets/fashion-course.jpg", title:"Fashion-курс по стилю",
-     desc:"4 недели лично со мной. Работаю в мини-группе с каждой участницей: разбираю ваши внешние данные и помогаю создать уникальный имидж, который больше ни у кого не повторится. Вы получите мою авторскую базу знаний по стилю и все мои фишки, а выйдете с полноценными знаниями в стилистике.",
+     desc:"4 недели лично со мной. Еженедельные встречи с разбором теории и живая практика. Работаю в мини-группе с каждой участницей: разбираю ваши внешние данные и помогаю создать уникальный имидж. Вы получите мою авторскую базу знаний по стилю и все личные фишки.",
      outcomesTitle:"После курса:", outcomesEmoji:"🎓", outcomes:[
        "✨ Вас начнут спрашивать: «Что в вас изменилось?» Вы будете выглядеть собранно и дорого, оставаясь собой.",
        "🔑 Каждый день у вас готовый образ, собранный именно под вас.",
        "💰 Вы перестанете тратить деньги на «не своё». Каждая покупка станет осознанной.",
        "🧭 Система на всю жизнь. Вы всегда сможете вести свой гардероб и больше не вернётесь к хаосу.",
-       "📱 Приложение курса с личной картой вашего имиджа"
+       "📱 Онлайн-приложение с базой знаний + интерактивная карта вашего имиджа"
      ],
-     pills:[["","Скоро"]], status:"soon", price:null, action:"wait", topic:"intensive"},
-    {id:"findstyle", icon:"book", image:"assets/my-style.jpg?v=95702e23", title:"Мой стиль",
-     desc:"За 1 день* определите свой стиль, который точно отражает ваш внутренний мир и вашу уникальность.",
+     pills:[], status:"soon", price:null, action:"prebook"},
+    {id:"findstyle", icon:"book", image:"assets/my-style.jpg?v=95702e23", title:"Мой имидж",
+     desc:"За 1 день* определите свой стиль, который точно отражает ваш внутренний мир и уникальность.",
      outcomesTitle:"После интенсива:", outcomesEmoji:"🎯", outcomes:[
        "🔑 Ваше утро без стресса. Вы одеваетесь за 5 минут и уходите из дома довольной.",
        "✨ Каждый образ про ваш характер и ритм жизни. А самое главное, вам в нём удобно.",
@@ -276,13 +279,14 @@ function render(filter){
       const bell = dim && it.topic ? `<span class="bell-cta"><span class="bell-hint">${bellHint}</span><span class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" role="button" aria-label="Сообщить мне о старте">${BELL}</span></span>` : `<span class="go">${dim?BELL:ARROW}</span>`;
       const thumb = it.image ? `<img src="${it.image}" alt="" loading="lazy" decoding="async">` : ICONS[it.icon];
       if(it.outcomes){
+        const footer = it.action==="prebook" ? `<button type="button" class="prebook-cta" data-prebook>Попасть в предзапись</button>` : `<span class="meta">${pills.join("")}</span><span class="bell-cta"><span class="bell-hint">${bellHint}</span><button type="button" class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" aria-label="Сообщить мне о старте">${BELL}</button></span>`;
         return `<article class="card learn-card ${dim?"dim":""}" data-id="${it.id}">
           <button type="button" class="learn-card-top" data-sheet="${it.id}">
             <span class="head"><span class="thumb">${thumb}</span><span class="ct">${it.title}</span></span>
             <span class="cd">${it.desc}</span>
           </button>
           <details class="learn-more" ${OPEN_LEARN.has(it.id)?"open":""}><summary><span>${it.outcomesTitle}</span><span class="learn-hint"><span class="learn-hint-collapsed">Разверни</span><span class="learn-hint-expanded">Сверни</span><span class="learn-emoji" aria-hidden="true">${it.outcomesEmoji}</span></span></summary><ul class="learn-outcomes">${it.outcomes.map(outcome => `<li>${outcome}</li>`).join("")}</ul>${it.durationNote?`<p class="learn-note">${it.durationNote}</p>`:""}</details>
-          <span class="foot"><span class="meta">${pills.join("")}</span><span class="bell-cta"><span class="bell-hint">${bellHint}</span><button type="button" class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" aria-label="Сообщить мне о старте">${BELL}</button></span></span>
+          <span class="foot">${footer}</span>
         </article>`;
       }
       return `<button class="card ${it.feature?"feature":""} ${dim?"dim":""} ${it.action==="link"?"free-card":""}" data-id="${it.id}">
@@ -306,6 +310,7 @@ $("#menu").addEventListener("toggle", e => {
   details.open ? OPEN_LEARN.add(id) : OPEN_LEARN.delete(id);
 }, true);
 $("#menu").addEventListener("click", e => {
+  if(e.target.closest("[data-prebook]")){ e.stopPropagation(); openLink(PREBOOK_URL); return; }
   const bl = e.target.closest("[data-bell]");
   if(bl){ e.stopPropagation(); tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light"); toggleBell(bl.dataset.bell); return; }
   const c = e.target.closest(".card"); if(!c || (c.classList.contains("learn-card") && !e.target.closest(".learn-card-top"))) return;
@@ -365,6 +370,9 @@ function sheet(it){
     add("dark", "Оплатить картой / СБП", "Россия, Беларусь", () => toast("Оплата подключается"));
     add("alt", "Открыть гайд", "если уже оплачен", () => { location.href = GUIDE_URL; });
     $("#sNote").textContent = "После оплаты доступ откроется автоматически на этом аккаунте Telegram.";
+  } else if(it.action==="prebook") {
+    add("", "Попасть в предзапись", "сообщение уже подготовлено", () => openLink(PREBOOK_URL));
+    $("#sNote").textContent = "Отправьте подготовленное сообщение, чтобы попасть в предзапись.";
   } else {
     const sub = it.topic && SUBS.has(it.topic);
     add(sub ? "alt" : "", sub ? "Вы в списке ✓" : "Сообщить мне о старте", sub ? "нажмите, чтобы отменить" : "напишу в Telegram", () => it.topic ? toggleBell(it.topic) : openLink(CONTACT));
