@@ -13,6 +13,8 @@ const CORS = {
 };
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
+const PAY_BOT_URL = "https://t.me/ainurkarimova_pay_bot?start=guide_winter_2627";
+const GUIDE_PRODUCT = "guide-winter-26";
 
 const enc = new TextEncoder();
 async function hmac(key: ArrayBuffer | Uint8Array, data: string) {
@@ -158,7 +160,7 @@ Deno.serve(async (req) => {
   const admins = (Deno.env.get("ADMIN_IDS") ?? "").split(",").map((s) => s.trim()).filter(Boolean);
   let access = admins.includes(String(user.id));
   if (!access) {
-    const { data: rows } = await sb.from("access").select("expires_at,revoked").eq("tg_id", user.id).eq("revoked", false);
+    const { data: rows } = await sb.from("access").select("expires_at,revoked").eq("tg_id", user.id).eq("product", GUIDE_PRODUCT).eq("revoked", false);
     access = (rows ?? []).some((r) => !r.expires_at || new Date(r.expires_at) > new Date());
   }
 
@@ -186,7 +188,7 @@ Deno.serve(async (req) => {
   }
 
   await sb.from("events").insert({ tg_id: user.id, type: access ? "open" : "open_locked", payload: null });
-  if (!access) return json({ access: false, pay_url: Deno.env.get("PAY_URL") ?? null });
+  if (!access) return json({ access: false, pay_url: PAY_BOT_URL });
 
   const { data, error } = await allItems(sb);
   if (error) return json({ error: error.message }, 500);

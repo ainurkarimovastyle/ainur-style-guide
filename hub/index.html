@@ -53,6 +53,11 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .cards{display:grid;gap:10px}
 .card{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:14px 14px 14px;border-radius:var(--r-lg);background:var(--card);text-align:left;width:100%;transition:transform .15s}
 .card:active{transform:scale(.985)}
+.guide-card-top{display:block;width:100%;text-align:left}
+.guide-card-top .head{margin-bottom:10px}
+.guide-card-top .cd,.guide-card-top .bonus{display:block}
+.guide-card-top .stores,.guide-card-top .bonus{margin-top:10px}
+.grab-cta{flex:none;padding:9px 12px;border-radius:999px;background:var(--wine);color:#fff;font:600 12px/1 var(--sans);white-space:nowrap}
 .head{display:flex;align-items:center;gap:12px}
 .thumb{flex:0 0 44px;width:44px;height:44px;border-radius:13px;background:var(--fill);display:grid;place-items:center}
 .thumb svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -194,6 +199,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
    action: guide — гайд с оплатой, wait — лист ожидания, link — ссылка
    ─────────────────────────────────────────────── */
 const GUIDE_URL = "../";
+const PAY_BOT_URL = "https://t.me/ainurkarimova_pay_bot?start=guide_winter_2627";
 const CONTACT   = "https://t.me/ainurkarimova_style";
 const PREBOOK_TEXT = "Здравствуйте! Хочу узнать подробнее о курсе по стилю и попасть в предзапись";
 const PREBOOK_URL = CONTACT + "?text=" + encodeURIComponent(PREBOOK_TEXT);
@@ -278,6 +284,15 @@ function render(filter){
       const bellHint = SUBS.has(it.topic) ? "Вы в списке" : "Жми, чтобы не пропустить";
       const bell = dim && it.topic ? `<span class="bell-cta"><span class="bell-hint">${bellHint}</span><span class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" role="button" aria-label="Сообщить мне о старте">${BELL}</span></span>` : `<span class="go">${dim?BELL:ARROW}</span>`;
       const thumb = it.image ? `<img src="${it.image}" alt="" loading="lazy" decoding="async">` : ICONS[it.icon];
+      if(it.action==="guide"){
+        return `<article class="card feature" data-id="${it.id}">
+          <button type="button" class="guide-card-top" data-sheet="${it.id}">
+            <span class="head"><span class="thumb">${thumb}</span><span class="ct">${it.title}</span></span>
+            <span class="cd">${it.desc}</span>${it.stores?`<span class="stores">${it.stores}</span>`:""}${it.bonus?`<span class="bonus"><b>★ Бонус</b>${it.bonus}</span>`:""}
+          </button>
+          <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="grab-cta" data-guide-buy>Забрать</button><button type="button" class="go" data-guide-buy aria-label="Забрать гайд">${ARROW}</button></span>
+        </article>`;
+      }
       if(it.outcomes){
         const footer = it.action==="prebook" ? `<button type="button" class="prebook-cta" data-prebook>Попасть в предзапись</button>` : `<span class="meta">${pills.join("")}</span><span class="bell-cta"><span class="bell-hint">${bellHint}</span><button type="button" class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" aria-label="Сообщить мне о старте">${BELL}</button></span>`;
         return `<article class="card learn-card ${dim?"dim":""}" data-id="${it.id}">
@@ -310,6 +325,7 @@ $("#menu").addEventListener("toggle", e => {
   details.open ? OPEN_LEARN.add(id) : OPEN_LEARN.delete(id);
 }, true);
 $("#menu").addEventListener("click", e => {
+  if(e.target.closest("[data-guide-buy]")){ e.stopPropagation(); openLink(PAY_BOT_URL); return; }
   if(e.target.closest("[data-prebook]")){ e.stopPropagation(); openLink(PREBOOK_URL); return; }
   const bl = e.target.closest("[data-bell]");
   if(bl){ e.stopPropagation(); tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light"); toggleBell(bl.dataset.bell); return; }
@@ -366,8 +382,7 @@ function sheet(it){
     b.innerHTML = `<span>${label}</span><small>${sub||""}</small>`; b.onclick = fn; pay.appendChild(b);
   };
   if(it.action==="guide"){
-    add("", "Оплатить Kaspi", "Казахстан", () => toast("Оплата подключается"));
-    add("dark", "Оплатить картой / СБП", "Россия, Беларусь", () => toast("Оплата подключается"));
+    add("dark", "Забрать", "способы оплаты — в платёжном боте", () => openLink(PAY_BOT_URL));
     add("alt", "Открыть гайд", "если уже оплачен", () => { location.href = GUIDE_URL; });
     $("#sNote").textContent = "После оплаты доступ откроется автоматически на этом аккаунте Telegram.";
   } else if(it.action==="prebook") {
