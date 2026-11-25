@@ -60,8 +60,9 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .ct{flex:1;min-width:0;font:600 17px/1.2 var(--sans);letter-spacing:-.02em;margin:0;text-align:left}
 .cd{margin:0;font:400 13.5px/1.42 var(--sans);color:var(--ink-2);text-align:left;text-wrap:pretty}
 .foot{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card.dim .foot{flex-wrap:wrap}
 .meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0}
-.pill{padding:4px 9px;border-radius:999px;font:600 11px/1 var(--sans);background:var(--fill);color:var(--ink-2)}
+.pill{padding:4px 9px;border-radius:999px;font:600 11px/1 var(--sans);background:var(--fill);color:var(--ink-2);white-space:nowrap}
 .pill.wine{background:var(--wine);color:#fff}
 .pill.soft{background:var(--wine-soft);color:var(--wine)}
 .price{font:700 14px/1 var(--sans);color:var(--wine);letter-spacing:-.01em}
@@ -71,7 +72,9 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .card.dim .go.on{background:var(--wine);color:#fff}
 .card.dim .go.on svg{fill:currentColor}
 .bell-cta{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0;margin-left:auto}
-.bell-hint{max-width:112px;font:500 10px/1.2 var(--sans);color:var(--ink-2);text-align:center}
+.bell-hint{flex:none;font:500 10px/1.2 var(--sans);color:var(--ink-2);text-align:center;white-space:nowrap}
+.card.free-card .thumb{background:var(--wine-soft);box-shadow:0 0 0 1px rgba(122,28,44,.08),0 0 12px rgba(122,28,44,.12)}
+.card.free-card .thumb svg{stroke:var(--wine);filter:drop-shadow(0 0 2px rgba(122,28,44,.38))}
 .learn-card-top{display:flex;flex-direction:column;align-items:stretch;gap:10px;width:100%;text-align:left}
 .learn-card .cd{display:block;width:100%}
 .learn-more{margin-top:2px}
@@ -247,11 +250,11 @@ const GROUPS = [
   ]},
   {id:"free", title:"Полезное", items:[
     {id:"trends", icon:"trend", title:"Шпаргалка по трендам",
-     desc:"Короткий разбор трендов сезона в Telegram-канале.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/789"},
+     desc:"Короткий разбор трендов сезона в Telegram-канале.", pills:[["soft","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/789"},
     {id:"podcast", icon:"mic", title:"Подкаст «Как найти свой стиль»",
-     desc:"Слушайте в Telegram.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/11"},
+     desc:"Слушайте в Telegram.", pills:[["soft","Бесплатно"]], status:"open", action:"link", url:"https://t.me/c/1851570257/11"},
     {id:"channel", icon:"send", title:"Мой telegram-канал",
-     desc:"Образы, разборы и закулисье работы стилиста.", pills:[["","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle"},
+     desc:"Образы, разборы и закулисье работы стилиста.", pills:[["soft","Бесплатно"]], status:"open", action:"link", url:"https://t.me/ainurkarimovastyle"},
   ]},
 ];
 
@@ -269,7 +272,7 @@ function render(filter){
       const pills = (it.pills||[]).map(([c,t]) => `<span class="pill ${c}">${t}</span>`);
       if(typeof it.price==="number") pills.push(`<span class="price">${money(it.price)}</span>`);
       const dim = it.status!=="open";
-      const bellHint = SUBS.has(it.topic) ? "Вы в списке" : "Нажми, чтобы не пропустить";
+      const bellHint = SUBS.has(it.topic) ? "Вы в списке" : "Жми, чтобы не пропустить";
       const bell = dim && it.topic ? `<span class="bell-cta"><span class="bell-hint">${bellHint}</span><span class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" role="button" aria-label="Сообщить мне о старте">${BELL}</span></span>` : `<span class="go">${dim?BELL:ARROW}</span>`;
       const thumb = it.image ? `<img src="${it.image}" alt="" loading="lazy" decoding="async">` : ICONS[it.icon];
       if(it.outcomes){
@@ -282,7 +285,7 @@ function render(filter){
           <span class="foot"><span class="meta">${pills.join("")}</span><span class="bell-cta"><span class="bell-hint">${bellHint}</span><button type="button" class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" aria-label="Сообщить мне о старте">${BELL}</button></span></span>
         </article>`;
       }
-      return `<button class="card ${it.feature?"feature":""} ${dim?"dim":""}" data-id="${it.id}">
+      return `<button class="card ${it.feature?"feature":""} ${dim?"dim":""} ${it.action==="link"?"free-card":""}" data-id="${it.id}">
         <span class="head"><span class="thumb">${thumb}</span><h4 class="ct">${it.title}</h4></span>
         <p class="cd">${it.desc}</p>${it.stores?`<p class="stores">${it.stores}</p>`:""}${it.bonus?`<p class="bonus"><b>★ Бонус</b>${it.bonus}</p>`:""}
         <span class="foot"><span class="meta">${pills.join("")}</span>${bell}</span>
