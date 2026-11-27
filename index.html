@@ -28,7 +28,10 @@ img{display:block;max-width:100%}
 [hidden]{display:none!important}
 
 /* шапка */
-.brandbar{padding:24px 0 4px}
+.brandbar{padding:18px 0 4px}
+.back-menu{display:inline-flex;align-items:center;gap:8px;min-height:36px;margin:0 0 14px;padding:8px 12px;border-radius:999px;background:var(--card);color:var(--ink);font:500 12px/1 var(--sans);text-decoration:none;box-shadow:0 1px 5px rgba(14,14,16,.05)}
+.back-menu svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.back-menu:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .brand-city{font:500 14px/1.2 var(--sans);color:var(--ink-2)}
 .brand-name{font:600 25px/1.15 var(--sans);margin:3px 0 0;letter-spacing:-.025em}
 .brand-name i{font-style:normal;color:var(--ink-3);font-weight:500}
@@ -185,6 +188,7 @@ footer{padding:4px 0 30px;color:var(--ink-3);font-size:12.5px;text-align:center}
 
 <div class="wrap">
   <div class="brandbar">
+    <a class="back-menu" href="./hub/" aria-label="Вернуться в меню"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>Вернуться в меню</a>
     <div>
       <div class="brand-name">Shopping Guide <i>by Ainur Karimova</i></div>
       <p class="lead" id="lead">Моя личная подборка стильных и актуальных вещей на зимний сезон 26–27</p>
