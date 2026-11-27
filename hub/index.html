@@ -290,7 +290,7 @@ function render(filter){
             <span class="head"><span class="thumb">${thumb}</span><span class="ct">${it.title}</span></span>
             <span class="cd">${it.desc}</span>${it.stores?`<span class="stores">${it.stores}</span>`:""}${it.bonus?`<span class="bonus"><b>★ Бонус</b>${it.bonus}</span>`:""}
           </button>
-          <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="grab-cta" data-guide-buy>14 000 ₸ — Забрать</button><button type="button" class="go" data-guide-buy aria-label="Забрать гайд">${ARROW}</button></span>
+          <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="grab-cta" data-guide-buy>14 000 ₸ — Забрать</button><button type="button" class="go" data-guide-open aria-label="Открыть гайд">${ARROW}</button></span>
         </article>`;
       }
       if(it.outcomes){
@@ -326,6 +326,7 @@ $("#menu").addEventListener("toggle", e => {
 }, true);
 $("#menu").addEventListener("click", e => {
   if(e.target.closest("[data-guide-buy]")){ e.stopPropagation(); openLink(PAY_BOT_URL); return; }
+  if(e.target.closest("[data-guide-open]")){ e.stopPropagation(); location.href = GUIDE_URL; return; }
   if(e.target.closest("[data-prebook]")){ e.stopPropagation(); openLink(PREBOOK_URL); return; }
   const bl = e.target.closest("[data-bell]");
   if(bl){ e.stopPropagation(); tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred("light"); toggleBell(bl.dataset.bell); return; }
