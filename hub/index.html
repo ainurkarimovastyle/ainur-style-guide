@@ -57,7 +57,7 @@ button{font:inherit;color:inherit;letter-spacing:inherit;border:0;background:non
 .guide-card-top .head{margin-bottom:10px}
 .guide-card-top .cd,.guide-card-top .bonus{display:block}
 .guide-card-top .stores,.guide-card-top .bonus{margin-top:10px}
-.grab-cta{flex:none;padding:9px 12px;border-radius:999px;background:var(--wine);color:#fff;font:600 12px/1 var(--sans);white-space:nowrap}
+.grab-cta{flex:1;min-width:0;padding:11px 8px;border-radius:999px;background:var(--wine);color:#fff;font:600 12px/1 var(--sans);text-align:center;white-space:nowrap}
 .head{display:flex;align-items:center;gap:12px}
 .thumb{flex:0 0 44px;width:44px;height:44px;border-radius:13px;background:var(--fill);display:grid;place-items:center}
 .thumb svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -290,7 +290,7 @@ function render(filter){
             <span class="head"><span class="thumb">${thumb}</span><span class="ct">${it.title}</span></span>
             <span class="cd">${it.desc}</span>${it.stores?`<span class="stores">${it.stores}</span>`:""}${it.bonus?`<span class="bonus"><b>★ Бонус</b>${it.bonus}</span>`:""}
           </button>
-          <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="grab-cta" data-guide-buy>Забрать</button><button type="button" class="go" data-guide-buy aria-label="Забрать гайд">${ARROW}</button></span>
+          <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="grab-cta" data-guide-buy>14 000 ₸ — Забрать</button><button type="button" class="go" data-guide-buy aria-label="Забрать гайд">${ARROW}</button></span>
         </article>`;
       }
       if(it.outcomes){
@@ -382,7 +382,7 @@ function sheet(it){
     b.innerHTML = `<span>${label}</span><small>${sub||""}</small>`; b.onclick = fn; pay.appendChild(b);
   };
   if(it.action==="guide"){
-    add("dark", "Забрать", "способы оплаты — в платёжном боте", () => openLink(PAY_BOT_URL));
+    add("dark", "14 000 ₸ — Забрать", "способы оплаты — в платёжном боте", () => openLink(PAY_BOT_URL));
     add("alt", "Открыть гайд", "если уже оплачен", () => { location.href = GUIDE_URL; });
     $("#sNote").textContent = "Цена и способы оплаты — в платёжном боте. После подтверждения оплаты вернитесь сюда за гайдом.";
   } else if(it.action==="prebook") {
