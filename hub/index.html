@@ -272,6 +272,7 @@ const $ = s => document.querySelector(s);
 const money = n => n.toLocaleString("ru-RU").replace(/ /g," ") + " ₸";
 const ALL = GROUPS.flatMap(g => g.items);
 const SUBS = new Set(); // темы, на которые человек уже нажал колокольчик
+let GUIDE_ACCESS = tg && tg.initData ? null : false;
 const OPEN_LEARN = new Set();
 
 function render(filter){
@@ -285,12 +286,13 @@ function render(filter){
       const bell = dim && it.topic ? `<span class="bell-cta"><span class="bell-hint">${bellHint}</span><span class="go bell${SUBS.has(it.topic)?" on":""}" data-bell="${it.topic}" role="button" aria-label="Сообщить мне о старте">${BELL}</span></span>` : `<span class="go">${dim?BELL:ARROW}</span>`;
       const thumb = it.image ? `<img src="${it.image}" alt="" loading="lazy" decoding="async">` : ICONS[it.icon];
       if(it.action==="guide"){
+        const guideLabel = GUIDE_ACCESS === null ? "Проверяем доступ…" : GUIDE_ACCESS ? "Открыть" : "14 000 ₸ — Забрать";
         return `<article class="card feature" data-id="${it.id}">
           <button type="button" class="guide-card-top" data-sheet="${it.id}">
             <span class="head"><span class="thumb">${thumb}</span><span class="ct">${it.title}</span></span>
             <span class="cd">${it.desc}</span>${it.stores?`<span class="stores">${it.stores}</span>`:""}${it.bonus?`<span class="bonus"><b>★ Бонус</b>${it.bonus}</span>`:""}
           </button>
-          <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="grab-cta" data-guide-buy>14 000 ₸ — Забрать</button><button type="button" class="go" data-guide-open aria-label="Открыть гайд">${ARROW}</button></span>
+          <span class="foot"><span class="meta">${pills.join("")}</span><button type="button" class="grab-cta" data-guide-action>${guideLabel}</button><button type="button" class="go" data-guide-open aria-label="Открыть гайд">${ARROW}</button></span>
         </article>`;
       }
       if(it.outcomes){
@@ -325,7 +327,7 @@ $("#menu").addEventListener("toggle", e => {
   details.open ? OPEN_LEARN.add(id) : OPEN_LEARN.delete(id);
 }, true);
 $("#menu").addEventListener("click", e => {
-  if(e.target.closest("[data-guide-buy]")){ e.stopPropagation(); openLink(PAY_BOT_URL); return; }
+  if(e.target.closest("[data-guide-action]")){ e.stopPropagation(); if(GUIDE_ACCESS === null){ toast("Проверяем доступ"); return; } if(GUIDE_ACCESS) location.href = GUIDE_URL; else openLink(PAY_BOT_URL); return; }
   if(e.target.closest("[data-guide-open]")){ e.stopPropagation(); location.href = GUIDE_URL; return; }
   if(e.target.closest("[data-prebook]")){ e.stopPropagation(); openLink(PREBOOK_URL); return; }
   const bl = e.target.closest("[data-bell]");
@@ -383,7 +385,9 @@ function sheet(it){
     b.innerHTML = `<span>${label}</span><small>${sub||""}</small>`; b.onclick = fn; pay.appendChild(b);
   };
   if(it.action==="guide"){
-    add("dark", "14 000 ₸ — Забрать", "способы оплаты — в платёжном боте", () => openLink(PAY_BOT_URL));
+    if(GUIDE_ACCESS === true) add("dark", "Открыть", "доступ уже есть", () => { location.href = GUIDE_URL; });
+    else if(GUIDE_ACCESS === null) add("dark", "Проверяем доступ…", "", () => toast("Проверяем доступ"));
+    else add("dark", "14 000 ₸ — Забрать", "способы оплаты — в платёжном боте", () => openLink(PAY_BOT_URL));
     add("alt", "Открыть гайд", "если уже оплачен", () => { location.href = GUIDE_URL; });
     $("#sNote").textContent = "Цена и способы оплаты — в платёжном боте. После подтверждения оплаты вернитесь сюда за гайдом.";
   } else if(it.action==="prebook") {
@@ -414,7 +418,9 @@ const PREVIEW = new URLSearchParams(location.search).get("preview");
     const r = await fetch(API, {method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify(PREVIEW ? {preview:PREVIEW, action:"me"} : {initData:tg.initData, action:"me"})});
     const j = await r.json();
-    if(j && Array.isArray(j.subs)){ j.subs.forEach(t => SUBS.add(t)); const on0 = document.querySelector('.tab[aria-selected="true"]'); render(on0 ? on0.dataset.f : "all"); }
+    if(j && Array.isArray(j.subs)) j.subs.forEach(t => SUBS.add(t));
+    GUIDE_ACCESS = !!(j && j.ok && j.access);
+    const on0 = document.querySelector('.tab[aria-selected="true"]'); render(on0 ? on0.dataset.f : "all");
     if(j && j.admin){
       GROUPS.push({id:"admin", title:"Для админов", items:[
         {id:"clients", icon:"group", title:"Клиенты бота", desc:"Картотека: кто и когда открыл бота, выбор по датам, выгрузка для рассылок.",
@@ -423,7 +429,7 @@ const PREVIEW = new URLSearchParams(location.search).get("preview");
       const on = document.querySelector('.tab[aria-selected="true"]');
       render(on ? on.dataset.f : "all");
     }
-  }catch(e){}
+  }catch(e){ GUIDE_ACCESS = false; const on0 = document.querySelector('.tab[aria-selected="true"]'); render(on0 ? on0.dataset.f : "all"); }
 })();
 
 if(tg){
