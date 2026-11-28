@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Гайд по покупкам · Айнур Каримова</title>
+<title>Зимний гайд 2026/27 · Айнур Каримова</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,15 +12,15 @@
 <style>
 :root{
   color-scheme: light;
-  --bg:#F2F2F6; --card:#FFFFFF; --ink:#0E0E10; --ink-2:#55555C; --ink-3:#9A9AA2;
-  --line:rgba(14,14,16,.07); --fill:#E8E8EE; --accent:#D9774B; --red:#0E0E10; --red-soft:#E8E8EE;
+  --bg:#EAF0F5; --card:#FFFFFF; --ink:#162A3B; --ink-2:#465C6C; --ink-3:#708494;
+  --line:rgba(22,42,59,.1); --fill:#DDE7EF; --accent:#477A9E; --red:#162A3B; --red-soft:#DDE7EF;
   --r-xl:32px; --r-lg:24px; --r-md:18px;
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
   --serif:var(--sans);
   --tabbar-h:96px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--sans);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--sans);-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
 body{padding-bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px));overscroll-behavior-y:none}
 button{font:inherit;color:inherit;letter-spacing:inherit}
 img{display:block;max-width:100%}
@@ -28,15 +28,33 @@ img{display:block;max-width:100%}
 [hidden]{display:none!important}
 
 /* шапка */
-.brandbar{padding:18px 0 4px}
+.brandbar{position:relative;overflow:hidden;margin-top:10px;padding:20px 20px 24px;border-radius:32px;background:linear-gradient(135deg,#DDEBF4 0%,#F8FBFD 60%,#D3E2ED 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+.brandbar>*{position:relative;z-index:1}
+.brandbar::before,.brandbar::after{content:"✳";position:absolute;color:rgba(71,122,158,.15);pointer-events:none;font:400 150px/1 Georgia,serif}
+.brandbar::before{right:-22px;top:-47px}.brandbar::after{right:105px;bottom:-90px;font-size:120px}
+.winter-kicker{margin:0 0 8px;color:var(--accent);font:600 12px/1.2 var(--sans);letter-spacing:.16em;text-transform:uppercase}
 .back-menu{display:inline-flex;align-items:center;gap:8px;min-height:36px;margin:0 0 14px;padding:8px 12px;border-radius:999px;background:var(--card);color:var(--ink);font:500 12px/1 var(--sans);text-decoration:none;box-shadow:0 1px 5px rgba(14,14,16,.05)}
 .back-menu svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .back-menu:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .brand-city{font:500 14px/1.2 var(--sans);color:var(--ink-2)}
-.brand-name{font:600 25px/1.15 var(--sans);margin:3px 0 0;letter-spacing:-.025em}
+.brand-name{font:600 clamp(27px,5vw,40px)/1.1 var(--sans);margin:3px 0 0;letter-spacing:-.04em}
 .brand-name i{font-style:normal;color:var(--ink-3);font-weight:500}
-.lead{margin:12px 0 0;padding:8px 16px 8px 8px;background:var(--ink);color:#fff;border-radius:999px;font:500 12px/1.3 var(--sans);display:inline-flex;align-items:center;gap:10px;max-width:100%}
-.lead::before{content:"";flex:0 0 26px;height:26px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D9774B' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.4 5.6L20 9.3l-4.3 3.9 1.2 5.8L12 16.1 7.1 19l1.2-5.8L4 9.3l5.6-.7z'/%3E%3C/svg%3E") center/14px no-repeat}
+.lead{margin:12px 0 0;max-width:52ch;color:var(--ink-2);font:500 15px/1.5 var(--sans)}
+.snowfall{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.snowflake{position:absolute;top:-20px;color:#fff;text-shadow:0 1px 4px rgba(66,111,145,.15);animation:snowfall linear infinite}
+@keyframes snowfall{to{transform:translate3d(22px,310px,0) rotate(60deg)}}
+@media (prefers-reduced-motion:reduce){.snowflake{animation:none;opacity:.4}}
+.trend-intro{margin:28px 0 15px}.trend-intro .count{margin:0 0 5px}.trend-intro p{margin:0;color:var(--ink-2);font-size:14px}
+.trend-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.trend-card{min-width:0;overflow:hidden;border-radius:24px;background:var(--card)}
+.trend-art{height:130px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(145deg,#D3E3EF,#F0F7FB)}
+.trend-art::after{content:"✳";font:400 105px/1 Georgia,serif;color:rgba(255,255,255,.64);transform:rotate(-18deg)}
+.trend-card:nth-child(2) .trend-art{background:linear-gradient(145deg,#BACBD6,#E8F0F2)}
+.trend-card:nth-child(3) .trend-art{background:repeating-linear-gradient(135deg,#DDE8ED 0 12px,#EAF2F5 12px 24px)}
+.trend-card:nth-child(4) .trend-art{background:linear-gradient(135deg,#223C57 0 40%,#713E5B 40% 72%,#A9BBD0 72%)}
+.trend-copy{padding:15px}.trend-copy h3{margin:0 0 7px;font:600 16px/1.2 var(--sans)}.trend-copy p{margin:0;color:var(--ink-2);font-size:13px;line-height:1.45}
+@media(max-width:760px){.trend-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){.trend-art{height:105px}.trend-copy{padding:12px}.trend-copy h3{font-size:14px}.trend-copy p{font-size:12px}}
 
 /* заголовки разделов */
 .count{font:600 18px/1.2 var(--sans);letter-spacing:-.02em;color:var(--ink);margin:26px 0 14px;text-transform:none}
@@ -48,7 +66,7 @@ img{display:block;max-width:100%}
 .cat-tile{position:relative;flex:0 0 auto;width:150px;height:186px;border-radius:var(--r-xl);overflow:hidden;border:0;padding:0;cursor:pointer;background:#fff center/cover no-repeat;text-align:left;scroll-snap-align:start;transition:transform .2s}
 @media (min-width:620px){.cat-tile{width:180px;height:220px}}
 .cat-tile:active{transform:scale(.96)}
-.cat-tile{background-color:#EFEFEF}
+.cat-tile{background-color:var(--fill)}
 .cat-tile-name{position:absolute;left:10px;bottom:10px;max-width:calc(100% - 20px);z-index:1;color:var(--ink);background:rgba(255,255,255,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:8px 12px;border-radius:999px;font:600 13.5px/1.15 var(--sans);letter-spacing:-.01em}
 .cat-tile.on{box-shadow:inset 0 0 0 3px var(--ink)}
 .cat-tile.on::before{content:"";position:absolute;z-index:2;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230E0E10' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/16px no-repeat}
@@ -120,7 +138,7 @@ img{display:block;max-width:100%}
 .state p{margin:0 auto 18px;max-width:40ch}
 .cta{display:inline-block;border:0;background:var(--ink);color:#fff;border-radius:999px;padding:16px 24px;font:600 15px/1 var(--sans);text-decoration:none;cursor:pointer}
 .ghost{display:inline-block;border:0;background:var(--card);color:var(--ink);border-radius:999px;padding:13px 20px;font:500 14px/1 var(--sans);cursor:pointer}
-.skel{background:linear-gradient(90deg,#E8E8EE 0,#F5F5F8 50%,#E8E8EE 100%);background-size:200% 100%;animation:sh 1.2s infinite}
+.skel{background:linear-gradient(90deg,#DDE7EF 0,#F5F9FC 50%,#DDE7EF 100%);background-size:200% 100%;animation:sh 1.2s infinite}
 @keyframes sh{to{background-position:-200% 0}}
 
 /* нижнее меню — чёрная «таблетка» */
@@ -190,9 +208,11 @@ footer{padding:4px 0 30px;color:var(--ink-3);font-size:12.5px;text-align:center}
   <div class="brandbar">
     <a class="back-menu" href="./hub/" aria-label="Вернуться в меню"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>Вернуться в меню</a>
     <div>
-      <div class="brand-name">Shopping Guide <i>by Ainur Karimova</i></div>
-      <p class="lead" id="lead">Моя личная подборка стильных и актуальных вещей на зимний сезон 26–27</p>
+      <p class="winter-kicker">Зима 2026/27 · Астана</p>
+      <div class="brand-name">Зимний Shopping Guide <i>by Ainur Karimova</i></div>
+      <p class="lead" id="lead">Моя подборка вещей для холодного сезона: тёплые слои, выразительные фактуры и оттенки зимы.</p>
     </div>
+    <div class="snowfall" aria-hidden="true"><span class="snowflake" style="left:8%;animation-duration:16s;font-size:14px">✳</span><span class="snowflake" style="left:26%;animation-duration:21s;animation-delay:-9s;font-size:10px">✳</span><span class="snowflake" style="left:48%;animation-duration:18s;animation-delay:-5s;font-size:12px">✳</span><span class="snowflake" style="left:73%;animation-duration:24s;animation-delay:-13s;font-size:9px">✳</span><span class="snowflake" style="left:91%;animation-duration:19s;animation-delay:-7s;font-size:13px">✳</span></div>
   </div>
 </div>
 
@@ -203,6 +223,13 @@ footer{padding:4px 0 30px;color:var(--ink-3);font-size:12.5px;text-align:center}
   <section id="home" hidden>
     <div class="count">Категории</div>
     <div class="cat-band" id="catBand"><div class="cat-grid" id="catGrid"></div></div>
+    <div class="trend-intro"><h2 class="count">Тренды зимы 2026/27</h2><p>Четыре идеи, которые легко вписать в свой гардероб.</p></div>
+    <div class="trend-grid" aria-label="Тренды зимы 2026/27">
+      <article class="trend-card"><div class="trend-art" aria-hidden="true"></div><div class="trend-copy"><h3>Высокий ворот</h3><p>Пальто и куртки с воротом стойкой: чёткая линия и защита от ветра.</p></div></article>
+      <article class="trend-card"><div class="trend-art" aria-hidden="true"></div><div class="trend-copy"><h3>Мягкая фактура</h3><p>Искусственный мех и пушистые детали добавляют объём зимнему образу.</p></div></article>
+      <article class="trend-card"><div class="trend-art" aria-hidden="true"></div><div class="trend-copy"><h3>Слои трикотажа</h3><p>Тонкий джемпер, кардиган и пальто работают вместе в морозные дни.</p></div></article>
+      <article class="trend-card"><div class="trend-art" aria-hidden="true"></div><div class="trend-copy"><h3>Глубокий цвет</h3><p>Бордовый и фиолетовый оттенки оживляют спокойную зимнюю базу.</p></div></article>
+    </div>
     <div class="store-row-wrap">
       <div class="count">Магазины</div>
       <div class="store-scroller" id="storeScroller"></div>
@@ -313,7 +340,7 @@ function skeleton(){
 }
 
 async function boot(){
-  if (tg){ tg.ready(); tg.expand(); try{ tg.setHeaderColor("#F2F2F6"); tg.setBackgroundColor("#F2F2F6"); tg.disableVerticalSwipes && tg.disableVerticalSwipes(); }catch(e){} }
+  if (tg){ tg.ready(); tg.expand(); try{ tg.setHeaderColor("#EAF0F5"); tg.setBackgroundColor("#EAF0F5"); tg.disableVerticalSwipes && tg.disableVerticalSwipes(); }catch(e){} }
   if (!tg && !previewToken){
     setState(`<div class="state"><h2>Откройте гайд в Telegram</h2><p>Гайд работает внутри Telegram. Вернитесь в бот и нажмите кнопку «Открыть гайд».</p></div>`);
     return;
@@ -734,3 +761,4 @@ boot();
 </script>
 </body>
 </html>
+
